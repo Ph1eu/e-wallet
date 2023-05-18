@@ -1,4 +1,4 @@
-package org.example;
+package com.user_management;
 
 public class Main {
     public static void main(String[] args) {
