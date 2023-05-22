@@ -8,7 +8,6 @@ import java.util.*;
 @Repository
 public interface UserRepository extends JpaRepository<User,String> {
 
-    Boolean existByUsername(String username);
 
     Optional<User> findByUsername(String username);
     }

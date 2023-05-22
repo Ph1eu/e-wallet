@@ -7,23 +7,27 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import org.springframework.data.annotation.*;
 import jakarta.persistence.*;
+@Entity
+@Table(name = "users")
 public class User{
     @Id
     @NotBlank
     @Size(max=50)
+    @Column(name = "id_email")
     private String id_email;
     @NotBlank
     @Size(min=10,max=20)
+    @Column(name = "username")
     private String username;
     @NotBlank
     @Size(min=8,max=40)
+    @Column(name = "password")
     private String password;
     @NotBlank
+    @Column(name = "registration_date")
     private Date registration_date;
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinTable(name = "user_roles",
-            joinColumns = @JoinColumn(name = "user_email_id"),
-            inverseJoinColumns = @JoinColumn(name = "role_id"))
+    @OneToOne(fetch = FetchType.LAZY,cascade = CascadeType.ALL)
+    @JoinColumn(name = "roles",referencedColumnName = "roles_id")
     private Role roles ;
 
     public User(String id_email, String username, String password, Date registration_date, Role roles) {

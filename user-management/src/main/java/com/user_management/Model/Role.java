@@ -8,9 +8,10 @@ import jakarta.persistence.*;
 public class Role {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(name="roles_id")
     private String id;
     @Enumerated(EnumType.STRING)
-    @Column(length = 20)
+    @Column(name="name",length = 20)
     private ERole name;
 
     public Role(ERole role) {
