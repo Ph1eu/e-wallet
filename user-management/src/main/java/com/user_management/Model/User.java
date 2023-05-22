@@ -14,7 +14,7 @@ public class User{
     @NotBlank
     @Size(max=50)
     @Column(name = "id_email")
-    private String id_email;
+    private String idemail;
     @NotBlank
     @Size(min=10,max=20)
     @Column(name = "username")
@@ -31,7 +31,7 @@ public class User{
     private Role roles ;
 
     public User(String id_email, String username, String password, Date registration_date, Role roles) {
-        this.id_email = id_email;
+        this.idemail = id_email;
         this.username = username;
         this.password = password;
         this.registration_date = registration_date;
@@ -39,11 +39,11 @@ public class User{
     }
 
     public String getId_email() {
-        return this.id_email;
+        return this.idemail;
     }
 
     public void setId_email(String id_email) {
-        this.id_email = id_email;
+        this.idemail = id_email;
     }
 
     public String getUsername() {
@@ -81,7 +81,7 @@ public class User{
     @Override
     public String toString() {
         return "User{" +
-                "id_email='" + id_email + '\'' +
+                "id_email='" + idemail + '\'' +
                 ", username='" + username + '\'' +
                 ", password='" + password + '\'' +
                 ", registration_date=" + registration_date +
