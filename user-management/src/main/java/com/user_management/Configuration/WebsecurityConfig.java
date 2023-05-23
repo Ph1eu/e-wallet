@@ -1,4 +1,4 @@
-package com.user_management;
+package com.user_management.Configuration;
 
 import com.user_management.Service.UserDetailServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,39 +21,36 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
-//@EnableWebSecurity
+@EnableWebSecurity
 
 public class WebsecurityConfig {
-
 
     @Autowired
     UserDetailServiceImpl userDetailsService;
 
 
-//    @Bean
-//    public DaoAuthenticationProvider authenticationProvider() {
-//        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
-//
-//        authProvider.setUserDetailsService(userDetailsService);
-//        authProvider.setPasswordEncoder(passwordEncoder());
-//
-//        return authProvider;
-//    }
+
+    @Bean
+    public DaoAuthenticationProvider authenticationProvider() {
+        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
+
+        authProvider.setUserDetailsService(userDetailsService);
+        authProvider.setPasswordEncoder(passwordEncoder());
+
+        return authProvider;
+    }
 
 
-//    @Bean
-//    public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig) throws Exception {
-//        return authConfig.getAuthenticationManager();
-//    }
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig) throws Exception {
+        return authConfig.getAuthenticationManager();
+    }
 
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
-//    @Bean
-//    public InMemoryUserDetailsManager userDetailsService() {
-//
-//    }
+
 
     @Bean
     protected SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -61,6 +58,7 @@ public class WebsecurityConfig {
       .authorizeRequests().requestMatchers("/api/auth/**").permitAll()
       .anyRequest().authenticated();
 
+    http.authenticationProvider(authenticationProvider());
     return  http.build();
 //  }
 
