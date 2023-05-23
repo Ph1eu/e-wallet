@@ -2,14 +2,10 @@ package com.user_management.Payload.Request;
 
 import jakarta.validation.constraints.*;
 public class SignUpRequest {
-    @NotBlank
-    @Size(min=10,max=20)
+
     private String username;
-    @NotBlank
-    @Size(min = 8, max = 40)
+
     private String password;
-    @NotBlank
-    @Size(max = 50)
     @Email
     private String email;
     private String role;

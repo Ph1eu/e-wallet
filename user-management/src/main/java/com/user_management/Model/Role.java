@@ -17,7 +17,9 @@ public class Role {
     public Role(ERole role) {
         this.name = role;
     }
+    public Role(){
 
+    }
     public String getId() {
         return id;
     }

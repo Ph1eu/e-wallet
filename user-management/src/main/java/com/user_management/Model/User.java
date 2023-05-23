@@ -11,25 +11,24 @@ import jakarta.persistence.*;
 @Table(name = "users")
 public class User{
     @Id
-    @NotBlank
-    @Size(max=50)
     @Column(name = "id_email")
     private String idemail;
-    @NotBlank
-    @Size(min=10,max=20)
+
     @Column(name = "username")
     private String username;
-    @NotBlank
-    @Size(min=8,max=40)
+
     @Column(name = "password")
     private String password;
-    @NotBlank
+
     @Column(name = "registration_date")
     private Date registration_date;
     @OneToOne(fetch = FetchType.LAZY,cascade = CascadeType.ALL)
     @JoinColumn(name = "roles",referencedColumnName = "roles_id")
     private Role roles ;
 
+    public User(){
+
+    }
     public User(String id_email, String username, String password, Date registration_date, Role roles) {
         this.idemail = id_email;
         this.username = username;

@@ -28,30 +28,30 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/auth")
 public class LoginController{
-    @Autowired
-    AuthenticationManager authenticationManager;
-    @Autowired
-    PasswordEncoder passwordEncoder;
+//    @Autowired
+//    AuthenticationManager authenticationManager;
+//    @Autowired
+//    PasswordEncoder passwordEncoder;
     @Autowired
     UserRepository userRepository;
     @Autowired
     RoleRepository roleRepository;
-    @PostMapping("/signin")
-    public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
-        Authentication authentication = authenticationManager
-                .authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
-
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-
-        CustomUserDetail userDetails = (CustomUserDetail) authentication.getPrincipal();
-
-
-
-        return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE)
-                .body(new UserInforResponse(userDetails.getEmail(),
-                        userDetails.getUsername(), userDetails.getRole())
-                     );
-    }
+//    @PostMapping("/signin")
+//    public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
+//        Authentication authentication = authenticationManager
+//                .authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
+//
+//        SecurityContextHolder.getContext().setAuthentication(authentication);
+//
+//        CustomUserDetail userDetails = (CustomUserDetail) authentication.getPrincipal();
+//
+//
+//
+//        return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE)
+//                .body(new UserInforResponse(userDetails.getEmail(),
+//                        userDetails.getUsername(), userDetails.getRole())
+//                     );
+//    }
     @PostMapping("/signup")
     public ResponseEntity<?> registerUser(@Valid @RequestBody SignUpRequest signUpRequest) {
         if (userRepository.existsByUsername(signUpRequest.getUsername())) {
@@ -65,7 +65,9 @@ public class LoginController{
         // Create new user's account
         User user = new User(signUpRequest.getUsername(),
                 signUpRequest.getEmail(),
-                passwordEncoder.encode(signUpRequest.getPassword()),new Date(),null);
+                //passwordEncoder.encode(signUpRequest.getPassword())
+                signUpRequest.getPassword()
+                ,new Date(),null);
 
         String strRoles = signUpRequest.getRole();
         if (strRoles == null) {
