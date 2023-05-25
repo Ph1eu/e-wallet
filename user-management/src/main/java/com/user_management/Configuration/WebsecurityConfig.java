@@ -32,6 +32,7 @@ public class WebsecurityConfig {
 
     @Bean
     public DaoAuthenticationProvider authenticationProvider() {
+        //create database authentication provider
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
 
         authProvider.setUserDetailsService(userDetailsService);
@@ -48,12 +49,14 @@ public class WebsecurityConfig {
 
     @Bean
     public PasswordEncoder passwordEncoder() {
+        // create Bscrypt encoder
         return new BCryptPasswordEncoder();
     }
 
 
     @Bean
     protected SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+
     http.cors().and().csrf().disable()
       .authorizeRequests().requestMatchers("/api/auth/**").permitAll()
       .anyRequest().authenticated();
