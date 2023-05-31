@@ -6,6 +6,9 @@ import jakarta.persistence.Id;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import org.springframework.data.annotation.*;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import jakarta.persistence.*;
 @Entity
 @Table(name = "users")
@@ -24,6 +27,7 @@ public class User{
     private Date registration_date;
     @OneToOne(fetch = FetchType.LAZY,cascade = CascadeType.ALL)
     @JoinColumn(name = "roles",referencedColumnName = "roles_id")
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     private Role roles ;
 
     public User(){

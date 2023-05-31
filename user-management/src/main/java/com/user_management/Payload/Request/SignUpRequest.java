@@ -9,12 +9,14 @@ public class SignUpRequest {
     @Email
     private String email;
     private String role;
-
-    public SignUpRequest(String username, String password, String email, String role) {
+    private String signUpKey;
+    public SignUpRequest(String username, String password, String email, String role,String signUpKey) {
         this.username = username;
         this.password = password;
         this.email = email;
         this.role = role;
+        this.signUpKey=signUpKey;
+        
     }
 
     public String getUsername() {
@@ -48,4 +50,13 @@ public class SignUpRequest {
     public void setRole(String role) {
         this.role = role;
     }
+
+	public String getSignUpKey() {
+		return signUpKey;
+	}
+
+	public void setSignUpKey(String signUpKey) {
+		this.signUpKey = signUpKey;
+	}
+    
 }

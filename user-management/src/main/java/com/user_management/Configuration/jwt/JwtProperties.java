@@ -68,7 +68,7 @@ public class JwtProperties {
 		        .setSubject(username)
 		        .setIssuedAt(new Date())
 		        .setExpiration(new Date((new Date()).getTime() + jwtExpirationMs)).
-		        signWith(SignatureAlgorithm.HS512, jwtSecret.getBytes())
+		        signWith(SignatureAlgorithm.HS512, jwtSecret)
 		        .compact();
 		  }
 	  public ResponseCookie generateJwtCookie(CustomUserDetail userdetail) {

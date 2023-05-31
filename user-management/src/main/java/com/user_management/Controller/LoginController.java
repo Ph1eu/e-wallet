@@ -2,6 +2,7 @@ package com.user_management.Controller;
 
 import java.util.*;
 
+import com.user_management.Configuration.jwt.JwtProperties;
 import com.user_management.Model.ERole;
 import com.user_management.Model.Role;
 import com.user_management.Model.User;
@@ -28,6 +29,11 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/auth")
 public class LoginController{
+	@Value("${ph1eu.appprop.signupkey}")
+	private String signUpKey;
+	
+	@Autowired
+	JwtProperties jwtProperties;
     @Autowired
     AuthenticationManager authenticationManager;
     @Autowired
@@ -40,14 +46,14 @@ public class LoginController{
     public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
         Authentication authentication = authenticationManager
                 .authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
-
+		
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
         CustomUserDetail userDetails = (CustomUserDetail) authentication.getPrincipal();
 
+		ResponseCookie jwtCookie = jwtProperties.generateJwtCookie(userDetails);
 
-
-        return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE)
+        return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE,jwtCookie.toString())
                 .body(new UserInforResponse(userDetails.getEmail(),
                         userDetails.getUsername(), userDetails.getRole())
                      );
@@ -69,23 +75,17 @@ public class LoginController{
                 ,new Date(),null);
 
         String strRoles = signUpRequest.getRole();
-        if (strRoles == null) {
+        String signUpkey = signUpRequest.getSignUpKey();
+        if (strRoles == null || strRoles == "user") {
             Role userRole = roleRepository.findByName(ERole.ROLE_USER)
                     .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
             user.setRoles(userRole);
-        } else {
-                switch (strRoles) {
-                    case "admin":
+        } else if(strRoles== "admin" && signUpkey == this.signUpKey ){
+
                         Role adminRole = roleRepository.findByName(ERole.ROLE_ADMIN)
                                 .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
                         user.setRoles(adminRole);
 
-                        break;
-                    default:
-                        Role userRole = roleRepository.findByName(ERole.ROLE_USER)
-                                .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
-                        user.setRoles(userRole);
-                }
             }
 
 
@@ -93,4 +93,10 @@ public class LoginController{
 
         return ResponseEntity.ok(new MessageResponse("User registered successfully!"));
 }
+    @PostMapping("/signout")
+    public ResponseEntity<?> logoutUser() {
+      ResponseCookie cookie = jwtProperties.getCleanJwtCookie();
+      return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, cookie.toString())
+          .body(new MessageResponse("You've been signed out!"));
+    }
 }
