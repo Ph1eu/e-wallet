@@ -1,0 +1,120 @@
+openapi: 3.0.3
+info:
+  title: E-wallet
+  description: ""
+  termsOfService: http://swagger.io/terms/
+  contact:
+    email: ph1euw164@gmail.com
+  version: 1.0.11
+externalDocs:
+  description: Find out more about Swagger
+  url: http://swagger.io
+servers:
+- url: Working on it
+tags:
+- name: auth
+  description: Authentication operation
+paths:
+  /auth/signin:
+    post:
+      tags:
+      - auth
+      summary: login as an user
+      description: log in as an user and return a jwt cookies and user's information
+      operationId: login
+      requestBody:
+        description: Created user object
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/signin'
+      responses:
+        default:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/userinfor'
+      x-swagger-router-controller: Auth
+  /auth/signup:
+    post:
+      tags:
+      - auth
+      summary: sign up as an user or admin
+      description: send post request to sign up
+      operationId: authSignupPOST
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/signup'
+      responses:
+        "200":
+          description: User registered successfully!
+      x-swagger-router-controller: Auth
+  /auth/signout:
+    get:
+      tags:
+      - auth
+      summary: sign out and delete the jwt tokens
+      description: set header cookies to null
+      operationId: authSignoutGET
+      responses:
+        "200":
+          description: user has been signed out
+      x-swagger-router-controller: Auth
+  /users/all:
+    get:
+      tags:
+      - user
+      summary: get all users in the system
+      description: get all user as a list and the password is encrypted
+      operationId: usersAllGET
+      responses:
+        "400":
+          description: Invalid username/password supplied
+      x-swagger-router-controller: User
+components:
+  schemas:
+    signin:
+      type: object
+      properties:
+        username:
+          type: string
+          example: theUser
+        password:
+          type: string
+          example: "12345"
+    userinfor:
+      type: object
+      properties:
+        id_email:
+          type: string
+          example: something@gmail.com
+        username:
+          type: string
+          example: username
+        role:
+          type: string
+          example: ROLE_ADMIN
+      example:
+        id_email: something@gmail.com
+        role: ROLE_ADMIN
+        username: username
+    signup:
+      type: object
+      properties:
+        username:
+          type: string
+          example: username
+        password:
+          type: string
+          example: password
+        email:
+          type: string
+          example: something@gmail.com
+        role:
+          type: string
+          example: ROLE_ADMIN
+        signUpKey:
+          type: string
