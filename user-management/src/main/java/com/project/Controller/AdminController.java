@@ -1,5 +1,6 @@
 package com.project.Controller;
 
+import com.project.Assembler.UserResourceAssembler;
 import com.project.Model.User;
 import com.project.Repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,15 +17,16 @@ import java.util.List;
 public class AdminController {
     @Autowired
     UserRepository userRepository;
-
+    @Autowired
+    UserResourceAssembler userResourceAssembler;
     @GetMapping("/all")
-    public ResponseEntity<List<User>> getAllUsers(){
+    public ResponseEntity<?> getAllUsers(){
         List<User> users = userRepository.findAll();
         if (users == null){
-            return new ResponseEntity<>(users, HttpStatus.NOT_FOUND);
+            return  ResponseEntity.notFound().build();
         }
         else{
-            return ResponseEntity.ok(users);
+            return ResponseEntity.ok().body(userResourceAssembler.toCollectionModel(users));
         }
     }
 

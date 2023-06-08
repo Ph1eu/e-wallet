@@ -1,18 +1,20 @@
 package com.project.Payload.Request.CRUDUserInforRequest;
 
 public class AddressCRUD {
-    String id_email;
+
     String street_address;
     String city;
     String province;
     String country;
 
-    public AddressCRUD(String id_email, String street_address, String city, String province, String country) {
-        this.id_email = id_email;
+    public AddressCRUD( String street_address, String city, String province, String country) {
         this.street_address = street_address;
         this.city = city;
         this.province = province;
         this.country = country;
+    }
+
+    public AddressCRUD() {
     }
 
     public String getStreet_address() {
@@ -47,11 +49,5 @@ public class AddressCRUD {
         this.country = country;
     }
 
-    public String getId_email() {
-        return id_email;
-    }
 
-    public void setId_email(String id_email) {
-        this.id_email = id_email;
-    }
 }

@@ -8,6 +8,7 @@ public class Address {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name="address_id")
+
     String id;
     @Column(name="street_address")
     String Street_address;

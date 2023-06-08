@@ -69,14 +69,17 @@ public class JwtServices {
 	) {
 		return Jwts
 				.builder()
-				.setClaims(extraClaims)
-				.setSubject(userDetails.getUsername())
+				.setClaims(extraClaims).
+				setSubject(userDetails.getUsername())
 				.setIssuedAt(new Date())
 				.setExpiration(new Date(new Date().getTime() + jwtExpirationMs))
 				.signWith(getSignInKey(), SignatureAlgorithm.HS256)
 				.compact();
 	  }
+	public String extractIdEmail(String token){
+		return extractClaim(token, claims -> claims.get("id_email", String.class));
 
+	}
 	public boolean validateToken(String token, UserDetails userDetails) {
 			final String username = extractUsername(token);
 			return (username.equals(userDetails.getUsername())) && !isTokenExpired(token);

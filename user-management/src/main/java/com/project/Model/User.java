@@ -27,12 +27,11 @@ public class User{
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     private Role roles ;
 
-    @OneToOne(fetch = FetchType.LAZY,cascade = CascadeType.ALL)
+    @OneToOne(fetch = FetchType.EAGER,cascade = CascadeType.ALL)
     @JoinColumn(name = "address",referencedColumnName = "address_id")
-    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+
     private Address address ;
     @OneToMany(mappedBy = "user",fetch = FetchType.LAZY,cascade = CascadeType.ALL)
-    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     private List<Paymentcard> paymentcards ;
     public User(){
 
@@ -91,6 +90,14 @@ public class User{
 
     public void setRoles(Role roles) {
         this.roles = roles;
+    }
+
+    public List<Paymentcard> getPaymentcards() {
+        return paymentcards;
+    }
+
+    public void setPaymentcards(List<Paymentcard> paymentcards) {
+        this.paymentcards = paymentcards;
     }
 
     @Override
