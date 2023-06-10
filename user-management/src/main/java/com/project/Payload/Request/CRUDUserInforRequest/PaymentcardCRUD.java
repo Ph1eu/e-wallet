@@ -15,6 +15,9 @@ public class PaymentcardCRUD {
         this.expiration_date = expiration_date;
     }
 
+    public PaymentcardCRUD() {
+    }
+
     public String getCard_number() {
         return card_number;
     }

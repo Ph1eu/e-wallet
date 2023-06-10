@@ -2,6 +2,7 @@ package com.project.Model;
 
 import java.util.*;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.Id;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -32,16 +33,21 @@ public class User{
 
     private Address address ;
     @OneToMany(mappedBy = "user",fetch = FetchType.LAZY,cascade = CascadeType.ALL)
+    @JsonManagedReference
+
     private List<Paymentcard> paymentcards ;
     public User(){
 
     }
-    public User(String id_email, String username, String password, Date registration_date, Role roles) {
-        this.idemail = id_email;
+
+    public User(String idemail, String username, String password, Date registration_date, Role roles, Address address, List<Paymentcard> paymentcards) {
+        this.idemail = idemail;
         this.username = username;
         this.password = password;
         this.registration_date = registration_date;
         this.roles = roles;
+        this.address = address;
+        this.paymentcards = paymentcards;
     }
 
     public Address getAddress() {

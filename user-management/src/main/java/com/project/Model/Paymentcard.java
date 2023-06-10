@@ -1,5 +1,6 @@
 package com.project.Model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 
 import java.util.Date;
@@ -15,6 +16,8 @@ public class Paymentcard {
     String card_number;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
+    @JsonBackReference
+
     private User user;
     @Column(name="card_holder_name")
     String card_holder_name;

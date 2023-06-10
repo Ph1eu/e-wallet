@@ -62,38 +62,7 @@ public class WebsecurityConfig {
         // create Bscrypt encoder
         return new BCryptPasswordEncoder();
     }
-    
-//    
-//    public AuthenticationSuccessHandler successHandler() {
-//    	return (request, response, exception) -> {
-//    		
-//    		
-// 		    CustomUserDetail userDetails = (CustomUserDetail)userDetailsService.loadUserByUsername(request.getParameter("username"));
-//
-// 		    ResponseCookie jwtCookie = jwtProperties.generateJwtCookie(userDetails);
-// 		 // Prepare the response data
-// 	        Map<String, Object> responseData = new HashMap<>();
-// 	        responseData.put("id_email", userDetails.getEmail());
-// 	        responseData.put("username", userDetails.getUsername());
-// 	        responseData.put("email", userDetails.getEmail());
-// 	        responseData.put("role", userDetails.getRole());
-// 		    
-// 	        response.setHeader("Authorization", "Bearer " + jwtCookie); 
-// 	     // Convert the response data to JSON
-// 	        String jsonResponse = new ObjectMapper().writeValueAsString(responseData);
-// 	     // Set the response content type and write the JSON response
-// 	        response.setContentType("application/json");
-// 	        response.setCharacterEncoding("UTF-8");
-// 	        response.getWriter().write(jsonResponse);
-//        };
-//    }
-//    private AuthenticationFailureHandler loginFailureHandler() {
-//        return (request, response, exception) -> {
-//            response.setContentType("text/html;charset=UTF-8");
-//            response.getWriter().write("Failed login");
-//            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-//        };
-//    }
+
     @Bean
     protected SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
     	
