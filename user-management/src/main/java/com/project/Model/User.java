@@ -3,11 +3,15 @@ package com.project.Model;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.project.Payload.DTO.PaymentcardDTO;
+import com.project.Payload.DTO.UserDTO;
 import jakarta.persistence.Id;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import jakarta.persistence.*;
+import org.springframework.beans.factory.annotation.Autowired;
+
 @Entity
 @Table(name = "users")
 public class User{
@@ -20,7 +24,10 @@ public class User{
 
     @Column(name = "password")
     private String password;
-
+    @Column(name= "first_name")
+    private  String first_name;
+    @Column(name="last_name")
+    private  String last_name;
     @Column(name = "registration_date")
     private Date registration_date;
     @OneToOne(fetch = FetchType.LAZY,cascade = CascadeType.ALL)
@@ -39,11 +46,25 @@ public class User{
     public User(){
 
     }
+    public User(UserDTO userDTO){
+        this.idemail = userDTO.getId_email();
+        this.username = userDTO.getUsername();
+        this.password = userDTO.getPassword();
+        this.first_name = userDTO.getFirst_name();
+        this.last_name = userDTO.getLast_name();
+        this.registration_date = userDTO.getRegistration_date();
+        this.roles = new Role(userDTO.getRoles());
+        this.address = new Address(userDTO.getAddress());
+        this.paymentcards = null;
 
-    public User(String idemail, String username, String password, Date registration_date, Role roles, Address address, List<Paymentcard> paymentcards) {
+
+    }
+    public User(String idemail, String username, String password,String first_name,String last_name, Date registration_date, Role roles, Address address, List<Paymentcard> paymentcards) {
         this.idemail = idemail;
         this.username = username;
         this.password = password;
+        this.first_name= first_name;
+        this.last_name = last_name;
         this.registration_date = registration_date;
         this.roles = roles;
         this.address = address;
@@ -97,6 +118,16 @@ public class User{
     public void setRoles(Role roles) {
         this.roles = roles;
     }
+    public void setPaymentcardswithDTO(List<PaymentcardDTO> paymentcarsdDTO) {
+        if (paymentcarsdDTO == null){
+            this.paymentcards= new ArrayList<>();
+        }
+        else{
+            for (PaymentcardDTO paymentcardDTO :paymentcarsdDTO){
+                this.paymentcards.add(new Paymentcard(paymentcardDTO));
+            }
+        }
+    }
 
     public List<Paymentcard> getPaymentcards() {
         return paymentcards;
@@ -104,6 +135,30 @@ public class User{
 
     public void setPaymentcards(List<Paymentcard> paymentcards) {
         this.paymentcards = paymentcards;
+    }
+
+    public String getIdemail() {
+        return idemail;
+    }
+
+    public void setIdemail(String idemail) {
+        this.idemail = idemail;
+    }
+
+    public String getFirst_name() {
+        return first_name;
+    }
+
+    public void setFirst_name(String first_name) {
+        this.first_name = first_name;
+    }
+
+    public String getLast_name() {
+        return last_name;
+    }
+
+    public void setLast_name(String last_name) {
+        this.last_name = last_name;
     }
 
     @Override
@@ -115,5 +170,18 @@ public class User{
                 ", registration_date=" + registration_date +
                 ", roles=" + roles +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        User user = (User) o;
+        return Objects.equals(idemail, user.idemail) && Objects.equals(username, user.username) && Objects.equals(password, user.password) && Objects.equals(first_name, user.first_name) && Objects.equals(last_name, user.last_name) && Objects.equals(registration_date, user.registration_date) && Objects.equals(roles, user.roles) && Objects.equals(address, user.address) && Objects.equals(paymentcards, user.paymentcards);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(idemail, username, password, first_name, last_name, registration_date, roles, address, paymentcards);
     }
 }

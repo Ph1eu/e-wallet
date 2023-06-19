@@ -1,5 +1,6 @@
 package com.project.Model;
 
+import com.project.Payload.DTO.RoleDTO;
 import jakarta.persistence.*;
 
 @Entity
@@ -18,6 +19,9 @@ public class Role {
     }
     public Role(){
 
+    }
+    public Role(RoleDTO roleDTO){
+        this.name = roleDTO.getName();
     }
     public String getId() {
         return id;

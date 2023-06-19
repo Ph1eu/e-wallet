@@ -2,12 +2,16 @@ package com.project.Service;
 
 import com.project.Model.Paymentcard;
 import com.project.Model.User;
+import com.project.Payload.DTO.PaymentcardDTO;
+import com.project.Payload.DTO.UserDTO;
 import com.project.Repository.PaymentcardRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -18,11 +22,15 @@ public class PaymentCardsService {
     PaymentcardRepository paymentcardRepository;
     private final Logger logger = LoggerFactory.getLogger(PaymentCardsService.class);
 
-    public List<Paymentcard> getAllCards(){
+    public List<PaymentcardDTO> getAllCards(){
         try{
             List<Paymentcard> paymentcards = paymentcardRepository.findAll();
+            List< PaymentcardDTO> PaymentcardsDTO = new ArrayList<>();
+            for (Paymentcard paymentcard : paymentcards){
+                PaymentcardsDTO.add(new PaymentcardDTO(paymentcard));
+            }
             logger.info("Retrieved {} cards from the database.", paymentcards.size());
-            return paymentcards;
+            return PaymentcardsDTO;
         }
         catch(Exception e)
         {
@@ -30,15 +38,28 @@ public class PaymentCardsService {
             throw new RuntimeException("Failed to fetch all cards.", e);
         }
     }
-    public List<Paymentcard> findByAllUser(User user){
+    public List<PaymentcardDTO> findByAllUser(UserDTO userDTO){
         try{
+            User user = new User(userDTO);
             List<Paymentcard> paymentcards = paymentcardRepository.findAllByUser(user);
-            logger.info("Retrieved {} cards from the database.", paymentcards.size());
-            return paymentcards;
+            List< PaymentcardDTO> PaymentcardsDTO = new ArrayList<>();
+            if(paymentcards.isEmpty()){
+                logger.info("No card in the database.");
+                return PaymentcardsDTO;
+
+
+            }
+            else{
+                for (Paymentcard paymentcard : paymentcards){
+                    PaymentcardsDTO.add(new PaymentcardDTO(paymentcard));
+                }
+                logger.info("Retrieved {} cards from the database.", paymentcards.size());
+                return PaymentcardsDTO;
+            }
         }
         catch(Exception e)
         {
-            logger.error("Failed to fetch all cards from username {} the database.",user.getUsername(), e);
+            logger.error("Failed to fetch all cards from username {} the database.",userDTO.getUsername(), e);
             throw new RuntimeException("Failed to fetch all cards for user.", e);
         }
 
@@ -56,15 +77,16 @@ public class PaymentCardsService {
         }
 
     }
-    public void deleteAllByUser(User user){
+    public void deleteAllByUser(UserDTO userDTO){
         try{
-            paymentcardRepository.deleteAllByUser(user);
-            logger.info("deleted all cards from user {} in the database.", user.getUsername());
+
+            paymentcardRepository.deleteAllByUser(new User(userDTO));
+            logger.info("deleted all cards from user {} in the database.", userDTO.getUsername());
 
         }
         catch(Exception e)
         {
-            logger.error("Failed to delete all cards from user {} in the database.",user.getUsername(), e);
+            logger.error("Failed to delete all cards from user {} in the database.",userDTO.getUsername(), e);
             throw new RuntimeException("Failed to fetch card.", e);
         }
     }
@@ -81,15 +103,21 @@ public class PaymentCardsService {
         }
 
     }
-    public void saveAllByCards(List<Paymentcard> paymentcardList){
+    public void saveAllByCards(List<PaymentcardDTO> paymentcardDTOList){
         try{
-            paymentcardRepository.saveAll(paymentcardList);
-            logger.info("saved all {} cards in the database",paymentcardList.size() );
+            List<Paymentcard> paymentcards = new ArrayList<>();
+            for (PaymentcardDTO paymentcardDTO: paymentcardDTOList){
+                paymentcards.add(new Paymentcard(paymentcardDTO.getCard_number(),new User(paymentcardDTO.getUser()),
+                        paymentcardDTO.getCard_holder_name(),paymentcardDTO.getCard_type(),paymentcardDTO.getRegistration_date()
+                ,paymentcardDTO.getExpiration_date()));
+            }
+            paymentcardRepository.saveAll(paymentcards);
+            logger.info("saved all {} cards in the database",paymentcardDTOList.size() );
 
         }
         catch(Exception e)
         {
-            logger.error("fail to save all {} card  in the database",paymentcardList.size(), e);
+            logger.error("fail to save all {} card  in the database",paymentcardDTOList.size(), e);
             throw new RuntimeException("Failed to save all cards.", e);
         }
 

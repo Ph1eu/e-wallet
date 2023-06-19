@@ -5,7 +5,7 @@ import com.project.Configuration.jwt.JwtServices;
 import com.project.Model.Address;
 import com.project.Model.Paymentcard;
 import com.project.Model.User;
-import com.project.Payload.DTO.UserDTO;
+import com.project.Payload.DTO.*;
 import com.project.Payload.Request.CRUDUserInforRequest.AddressCRUD;
 import com.project.Payload.Request.CRUDUserInforRequest.PaymentcardCRUD;
 import com.project.Payload.Response.MessageResponse;
@@ -61,11 +61,11 @@ public class UserController {
             if (Objects.equals(username, userDetails.getUsername())) {
                 CustomUserDetail customUserDetail = (CustomUserDetail) userDetailService.loadUserByUsername(username);
                 user = new UserDTO(customUserDetail.getUser());
-
             } else {
                 logger.error("Error: Invalid User");
-
             }
+        } else {
+            logger.error("Error: Principal is not an instance of UserDetails");
         }
         return user;
     }
@@ -81,7 +81,7 @@ public class UserController {
             return ResponseEntity.badRequest().body(new MessageResponse("Invalid User"));
         }
         else{
-            return  ResponseEntity.ok().body(EntityModel.of(userResourceAssembler.toModel(user)));
+            return  ResponseEntity.ok().body(userResourceAssembler.toModel(user));
         }
 
     }
@@ -108,10 +108,10 @@ public class UserController {
             return ResponseEntity.badRequest().body(new MessageResponse("Invalid User"));
         }
         else {
-            Address address = new Address(addressCRUD.getStreet_address(),
+            AddressDTO address = new AddressDTO(addressCRUD.getStreet_address(),
                     addressCRUD.getCity(), addressCRUD.getProvince(), addressCRUD.getCountry()
             );
-            addressService.saveAddressForUser(address,user.toUserModel());
+            addressService.saveAddressForUser(address,user);
             return ResponseEntity.ok().body(EntityModel.of(
                     userResourceAssembler.toAddressModel(user)));
         }
@@ -124,7 +124,7 @@ public class UserController {
             return ResponseEntity.badRequest().body(new MessageResponse("Invalid User"));
         }
         else {
-            addressService.deleteAddressByUser(user.toUserModel());
+            addressService.deleteAddressByUser(user);
             return ResponseEntity.ok().body(EntityModel.of(new MessageResponse("Successful Delete User"),
                     linkTo(methodOn(UserController.class).deleteAddress(username)).withSelfRel(),
                     linkTo(methodOn(UserController.class).getAddress(username)).withRel("Get address from username"),
@@ -138,7 +138,7 @@ public class UserController {
             return ResponseEntity.badRequest().body(new MessageResponse("Invalid User"));
         }
         else {
-            List<Paymentcard> paymentcards = paymentCardsService.findByAllUser(user.toUserModel());
+            List<PaymentcardDTO> paymentcards = paymentCardsService.findByAllUser(user);
             if (paymentcards.isEmpty() ) {
                 return ResponseEntity.ok().body(EntityModel.of(new MessageResponse("User has no card yet "),
                         linkTo(methodOn(UserController.class).getPaymentCards(username)).withRel("get all payment cards")
@@ -152,7 +152,7 @@ public class UserController {
     @PostMapping("/{username}/cards/")
     public ResponseEntity<?> setPaymentCards(@PathVariable("username")String username,@RequestBody List<PaymentcardCRUD> paymentcardCRUDs) throws ParseException {
         UserDTO user = verifyUserInstance(username);
-        List<Paymentcard> paymentcards = new ArrayList<>();
+        List<PaymentcardDTO> paymentcards = new ArrayList<>();
         if(user == null){
             return ResponseEntity.badRequest().body(new MessageResponse("Invalid User"));
         }
@@ -163,7 +163,7 @@ public class UserController {
                 }
                 Date expDate = new SimpleDateFormat("dd/MM/yyyy").parse(paymentcardCRUD.getExpiration_date());
                 Date regDate = new SimpleDateFormat("dd/MM/yyyy").parse(paymentcardCRUD.getRegistration_date());
-                Paymentcard paymentcard = new Paymentcard(paymentcardCRUD.getCard_number(),user.toUserModel(),
+                PaymentcardDTO paymentcard = new PaymentcardDTO(paymentcardCRUD.getCard_number(),user,
                         paymentcardCRUD.getCard_holder_name(),paymentcardCRUD.getCard_type(),
                         regDate,expDate);
                 paymentcards.add(paymentcard);
@@ -172,7 +172,7 @@ public class UserController {
             return ResponseEntity.ok().body(userResourceAssembler.toCardsCollectionModel(paymentcards,user));
         }
     }
-    @DeleteMapping("/{username}/cards/delete")
+    @DeleteMapping("/{username}/cards")
     public ResponseEntity<?> deletePaymentCardbyID(@PathVariable String username ,@RequestParam(value = "id") String id) throws ParseException {
         UserDTO user = verifyUserInstance(username);
         if(user == null){
@@ -195,7 +195,7 @@ public class UserController {
         if (user == null) {
             return ResponseEntity.badRequest().body(new MessageResponse("Invalid User"));
         } else {
-            paymentCardsService.deleteAllByUser(user.toUserModel());
+            paymentCardsService.deleteAllByUser(user);
             List<PaymentcardCRUD> paymentcardCRUDS = new ArrayList<>();
             return ResponseEntity.ok().body(EntityModel.of(new MessageResponse("Deleted all card for user"),
                     linkTo(methodOn(UserController.class).deleteAllPaymentCard(username)).withSelfRel(),

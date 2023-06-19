@@ -2,6 +2,8 @@ package com.project.Service;
 
 import com.project.Model.Address;
 import com.project.Model.User;
+import com.project.Payload.DTO.AddressDTO;
+import com.project.Payload.DTO.UserDTO;
 import com.project.Repository.AddressRepository;
 import com.project.Repository.PaymentcardRepository;
 import com.project.Repository.UserRepository;
@@ -23,22 +25,23 @@ public class AddressService {
     private final Logger logger = LoggerFactory.getLogger(AddressService.class);
 
 
-    public void deleteAddressByUser(User user){
-        Address address = user.getAddress();
+    public void deleteAddressByUser(UserDTO user){
+        AddressDTO address = user.getAddress();
         user.setAddress(null);
         try{
-            addressRepository.delete(address);
-            userRepository.save(user);
+
+            addressRepository.delete(new Address(address));
+            userRepository.save(new User(user));
             logger.info("deleted address for user {}",user.getUsername());
     }catch (Exception e){
             logger.error("Failed to delete address for user {}",user.getUsername());
             throw new RuntimeException("Failed to delete address.", e);
         }
     }
-    public void saveAddressForUser(Address address,User user){
+    public void saveAddressForUser(AddressDTO address,UserDTO user){
         try{
             user.setAddress(address);
-            userRepository.save(user);
+            userRepository.save(new User(user));
             logger.info("saved address for user {}",user.getUsername());
 
         }

@@ -6,6 +6,8 @@ import com.project.Configuration.jwt.JwtServices;
 import com.project.Model.ERole;
 import com.project.Model.Role;
 import com.project.Model.User;
+import com.project.Payload.DTO.RoleDTO;
+import com.project.Payload.DTO.UserDTO;
 import com.project.Payload.Request.AuthenticationRequest.LoginRequest;
 import com.project.Payload.Request.AuthenticationRequest.SignUpRequest;
 import com.project.Payload.Response.MessageResponse;
@@ -13,6 +15,8 @@ import com.project.Payload.Response.UserInforResponse;
 import com.project.Repository.RoleRepository;
 import com.project.Repository.UserRepository;
 import com.project.Service.CustomUserDetail;
+import com.project.Service.RoleService;
+import com.project.Service.UserDetailServiceImpl;
 import jakarta.validation.Valid;
 import org.springframework.security.core.Authentication;
 import org.springframework.beans.factory.annotation.*;
@@ -39,9 +43,9 @@ public class LoginController{
     @Autowired
     PasswordEncoder passwordEncoder;
     @Autowired
-    UserRepository userRepository;
+    UserDetailServiceImpl userDetailService;
     @Autowired
-    RoleRepository roleRepository;
+    RoleService roleService;
     @PostMapping("/signin")
     public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
         Authentication authentication = authenticationManager
@@ -60,36 +64,34 @@ public class LoginController{
     }
     @PostMapping("/signup")
     public ResponseEntity<?> registerUser(@Valid @RequestBody SignUpRequest signUpRequest) {
-        if (userRepository.existsByUsername(signUpRequest.getUsername())) {
+        if (userDetailService.existByUsername(signUpRequest.getUsername())) {
             return ResponseEntity.badRequest().body(new MessageResponse("Error: Username is already taken!"));
         }
 
-        if (userRepository.existsByIdemail(signUpRequest.getEmail())) {
+        if (userDetailService.existByIdemail(signUpRequest.getEmail())) {
             return ResponseEntity.badRequest().body(new MessageResponse("Error: Email is already in use!"));
         }
 
         // Create new user's account
-        User user = new User(signUpRequest.getEmail(),
+        UserDTO user = new UserDTO(signUpRequest.getEmail(),
                 signUpRequest.getUsername(),
-                passwordEncoder.encode(signUpRequest.getPassword())
-                ,new Date(),null);
+                passwordEncoder.encode(signUpRequest.getPassword()),
+                signUpRequest.getFirst_name(),signUpRequest.getLast_name(),new Date(),null,null,null);
 
         String strRoles = signUpRequest.getRole();
         String signUpkey = signUpRequest.getSignUpKey();
         if (strRoles == null || strRoles == "user") {
-            Role userRole = roleRepository.findByName(ERole.ROLE_USER)
-                    .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
+            RoleDTO userRole = roleService.findbyName(ERole.ROLE_USER);
             user.setRoles(userRole);
         } else if(strRoles== "admin" && signUpkey == this.signUpKey ){
 
-                        Role adminRole = roleRepository.findByName(ERole.ROLE_ADMIN)
-                                .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
-                        user.setRoles(adminRole);
+            RoleDTO adminRole = roleService.findbyName(ERole.ROLE_ADMIN);
+            user.setRoles(adminRole);
 
             }
 
 
-        userRepository.save(user);
+        userDetailService.saveUser(user);
 
         return ResponseEntity.ok(new MessageResponse("User registered successfully!"));
 }

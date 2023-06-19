@@ -1,54 +1,80 @@
 package com.project.Payload.DTO;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
-import com.project.Model.Address;
-import com.project.Model.Paymentcard;
-import com.project.Model.Role;
-import com.project.Model.User;
-import jakarta.persistence.*;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.project.Model.*;
 
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
-public class UserDTO {
+
+public class UserDTO{
 
     private String idemail;
+
+
     private String username;
+
+
     private String password;
+
+    private String first_name;
+    private String last_name;
     private Date registration_date;
-    private Role roles ;
-    private Address address ;
-    private List<Paymentcard> paymentcards ;
 
-    public UserDTO() {
+    private RoleDTO roles ;
+
+    @JsonIgnore
+    private AddressDTO addressDTO ;
+    @JsonIgnore
+
+    private List<PaymentcardDTO> paymentcardsDTO ;
+    public UserDTO(){
+
     }
+    public UserDTO(User user) {
+        this.idemail = user.getId_email();
+        this.username = user.getUsername();
+        this.password = user.getPassword();
+        this.first_name = user.getFirst_name();
+        this.last_name = user.getLast_name();
+        this.registration_date = user.getRegistration_date();
+        this.roles = new RoleDTO(user.getRoles());
+        this.addressDTO = new AddressDTO(user.getAddress());
+        if (user.getPaymentcards() == null){
+            this.paymentcardsDTO= new ArrayList<>();
+        }
+        else{
+            for (Paymentcard paymentcard :user.getPaymentcards()){
+                this.paymentcardsDTO.add(new PaymentcardDTO(paymentcard));
+            }
+        }
 
-    public UserDTO(String idemail, String username, String password, Date registration_date, Role roles, Address address, List<Paymentcard> paymentcards) {
+    }
+    public UserDTO(String idemail, String username, String password,String first_name,String last_name, Date registration_date, RoleDTO roles, AddressDTO address, List<PaymentcardDTO> paymentcards) {
         this.idemail = idemail;
         this.username = username;
         this.password = password;
+        this.first_name = first_name;
+        this.last_name = last_name;
+        this.addressDTO = address;
         this.registration_date = registration_date;
         this.roles = roles;
-        this.address = address;
-        this.paymentcards = paymentcards;
-    }
-    public UserDTO(User user){
-        this.idemail = user.getId_email();
-        this.username= user.getUsername();
-        this.password =  user.getPassword();
-        this.registration_date = user.getRegistration_date();
-        this.roles = user.getRoles();
-        this.address = user.getAddress();
-        this.paymentcards  = user.getPaymentcards();
+        this.paymentcardsDTO = paymentcards;
     }
 
-    public String getIdemail() {
-        return idemail;
+    public AddressDTO getAddress() {
+        return addressDTO;
     }
 
-    public void setIdemail(String idemail) {
-        this.idemail = idemail;
+    public void setAddress(AddressDTO address) {
+        this.addressDTO = address;
+    }
+
+    public String getId_email() {
+        return this.idemail;
+    }
+
+    public void setId_email(String id_email) {
+        this.idemail = id_email;
     }
 
     public String getUsername() {
@@ -75,30 +101,91 @@ public class UserDTO {
         this.registration_date = registration_date;
     }
 
-    public Role getRoles() {
-        return roles;
+    public RoleDTO getRoles() {
+        return this.roles;
     }
 
-    public void setRoles(Role roles) {
+    public void setRoles(RoleDTO roles) {
         this.roles = roles;
     }
 
-    public Address getAddress() {
-        return address;
+    public List<PaymentcardDTO> getPaymentcards() {
+        return this.paymentcardsDTO;
     }
 
-    public void setAddress(Address address) {
-        this.address = address;
+    public void setPaymentcards(List<PaymentcardDTO> paymentcards) {
+        this.paymentcardsDTO = paymentcards;
     }
 
-    public List<Paymentcard> getPaymentcards() {
-        return paymentcards;
+    public String getIdemail() {
+        return idemail;
     }
 
-    public void setPaymentcards(List<Paymentcard> paymentcards) {
-        this.paymentcards = paymentcards;
+    public void setIdemail(String idemail) {
+        this.idemail = idemail;
     }
-    public User toUserModel(){
-        return new User(this.idemail,this.username,this.password,this.registration_date,this.roles,this.address,this.paymentcards);
+
+    public String getFirst_name() {
+        return first_name;
+    }
+
+    public void setFirst_name(String first_name) {
+        this.first_name = first_name;
+    }
+
+    public String getLast_name() {
+        return last_name;
+    }
+
+    public void setLast_name(String last_name) {
+        this.last_name = last_name;
+    }
+
+    public AddressDTO getAddressDTO() {
+        return addressDTO;
+    }
+
+    public void setAddressDTO(AddressDTO addressDTO) {
+        this.addressDTO = addressDTO;
+    }
+
+    public List<PaymentcardDTO> getPaymentcardsDTO() {
+        return paymentcardsDTO;
+    }
+
+    public void setPaymentcardsDTO(List<PaymentcardDTO> paymentcardsDTO) {
+        this.paymentcardsDTO = paymentcardsDTO;
+    }
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "id_email='" + idemail + '\'' +
+                ", username='" + username + '\'' +
+                ", password='" + password + '\'' +
+                ", registration_date=" + registration_date +
+                ", roles=" + roles +
+                '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        UserDTO userDTO = (UserDTO) o;
+        return Objects.equals(idemail, userDTO.idemail)
+                && Objects.equals(username, userDTO.username)
+                && Objects.equals(password, userDTO.password)
+                && Objects.equals(first_name, userDTO.first_name)
+                && Objects.equals(last_name, userDTO.last_name)
+                && Objects.equals(registration_date, userDTO.registration_date)
+                && Objects.equals(roles.getName(), userDTO.roles.getName())
+                && Objects.equals(addressDTO, userDTO.addressDTO)
+                && Objects.equals(paymentcardsDTO, userDTO.paymentcardsDTO);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(idemail, username, password, first_name, last_name, registration_date, roles, addressDTO, paymentcardsDTO);
     }
 }

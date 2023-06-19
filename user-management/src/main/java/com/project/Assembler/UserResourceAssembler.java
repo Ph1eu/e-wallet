@@ -4,12 +4,16 @@ import com.project.Controller.UserController;
 import com.project.Model.Address;
 import com.project.Model.Paymentcard;
 import com.project.Model.User;
+import com.project.Payload.DTO.AddressDTO;
+import com.project.Payload.DTO.PaymentcardDTO;
 import com.project.Payload.DTO.UserDTO;
 import com.project.Payload.Request.CRUDUserInforRequest.AddressCRUD;
 import com.project.Payload.Request.CRUDUserInforRequest.PaymentcardCRUD;
+import jakarta.annotation.Nonnull;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.server.RepresentationModelAssembler;
+import org.springframework.lang.NonNullApi;
 import org.springframework.stereotype.Component;
 
 import java.text.ParseException;
@@ -21,11 +25,10 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 @Component
 public class UserResourceAssembler implements RepresentationModelAssembler<UserDTO, EntityModel<UserDTO>> {
     @Override
-    public EntityModel<UserDTO> toModel(UserDTO entity) {
-        EntityModel<UserDTO> userEntityModel = EntityModel.of(entity,
+    public EntityModel<UserDTO> toModel( UserDTO entity) {
+        return EntityModel.of(entity,
                 linkTo(methodOn(UserController.class).getOneUser(entity.getUsername())).withSelfRel(),
                 linkTo(methodOn(AdminController.class).getAllUsers()).withRel("Get All user for admin"));
-        return userEntityModel;
     }
 
     @Override
@@ -37,16 +40,16 @@ public class UserResourceAssembler implements RepresentationModelAssembler<UserD
         }
         return CollectionModel.of(entityModels);
     }
-    public EntityModel<Address>  toAddressModel(UserDTO entity){
-        EntityModel<Address> addressEntityModel = EntityModel.of(entity.getAddress());
+    public EntityModel<AddressDTO>  toAddressModel(UserDTO entity){
+        EntityModel<AddressDTO> addressEntityModel = EntityModel.of(entity.getAddress());
         addressEntityModel.add(linkTo(methodOn(UserController.class).getAddress(entity.getUsername())).withRel("Get User Address"));
         addressEntityModel.add(linkTo(methodOn(UserController.class).setAddress(new AddressCRUD(),entity.getUsername())).withRel("Set User Address").withType("POST"));
         return addressEntityModel;
     }
-    public CollectionModel<EntityModel<Paymentcard>> toCardsCollectionModel(Iterable<Paymentcard> entities,UserDTO entity) throws ParseException {
-        List<EntityModel<Paymentcard>> entityModels = new ArrayList<>();
-        for (Paymentcard paymentcard: entities){
-            EntityModel<Paymentcard> paymentcardEntityModel = EntityModel.of(paymentcard);
+    public CollectionModel<EntityModel<PaymentcardDTO>> toCardsCollectionModel(Iterable<PaymentcardDTO> entities, UserDTO entity) throws ParseException {
+        List<EntityModel<PaymentcardDTO>> entityModels = new ArrayList<>();
+        for (PaymentcardDTO paymentcard: entities){
+            EntityModel<PaymentcardDTO> paymentcardEntityModel = EntityModel.of(paymentcard);
             entityModels.add(paymentcardEntityModel);
         }
         List<PaymentcardCRUD> paymentcardCRUDS = new ArrayList<>();

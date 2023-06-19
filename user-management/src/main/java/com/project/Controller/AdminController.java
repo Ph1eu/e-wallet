@@ -2,7 +2,9 @@ package com.project.Controller;
 
 import com.project.Assembler.UserResourceAssembler;
 import com.project.Model.User;
+import com.project.Payload.DTO.UserDTO;
 import com.project.Repository.UserRepository;
+import com.project.Service.UserDetailServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,12 +18,12 @@ import java.util.List;
 @RequestMapping("/api/admin")
 public class AdminController {
     @Autowired
-    UserRepository userRepository;
+    UserDetailServiceImpl userDetailService;
     @Autowired
     UserResourceAssembler userResourceAssembler;
     @GetMapping("/all")
     public ResponseEntity<?> getAllUsers(){
-        List<User> users = userRepository.findAll();
+        List<UserDTO> users = userDetailService.findAll();
         if (users == null){
             return  ResponseEntity.notFound().build();
         }
