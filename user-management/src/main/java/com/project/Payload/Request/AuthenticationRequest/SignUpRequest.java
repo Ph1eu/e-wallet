@@ -12,9 +12,11 @@ public class SignUpRequest {
     private String email;
     private String role;
     private String signUpKey;
-    public SignUpRequest(String username, String password, String email, String role,String signUpKey) {
+    public SignUpRequest(String username, String password,String first_name,String last_name, String email, String role,String signUpKey) {
         this.username = username;
         this.password = password;
+        this.first_name = first_name;
+        this.last_name = last_name;
         this.email = email;
         this.role = role;
         this.signUpKey=signUpKey;

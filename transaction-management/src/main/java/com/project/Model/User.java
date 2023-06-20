@@ -1,20 +1,21 @@
 package com.project.Model;
 
-import java.util.*;
-
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.project.Payload.DTO.PaymentcardDTO;
 import com.project.Payload.DTO.UserDTO;
-import jakarta.persistence.Id;
-
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-
 import jakarta.persistence.*;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.hibernate.annotations.Immutable;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Objects;
 
 @Entity
 @Table(name = "users")
-public class User{
+@Immutable
+public class User {
     @Id
     @Column(name = "id_email",unique = true)
     private String idemail;
@@ -30,18 +31,9 @@ public class User{
     private  String last_name;
     @Column(name = "registration_date")
     private Date registration_date;
-    @OneToOne(fetch = FetchType.LAZY,cascade = CascadeType.ALL)
-    @JoinColumn(name = "roles",referencedColumnName = "roles_id")
-    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
-    private Role roles ;
 
-    @OneToOne(fetch = FetchType.EAGER,cascade = CascadeType.ALL)
-    @JoinColumn(name = "address",referencedColumnName = "address_id")
-
-    private Address address ;
     @OneToMany(mappedBy = "user",fetch = FetchType.LAZY,cascade = CascadeType.ALL)
     @JsonManagedReference
-
     private List<Paymentcard> paymentcards ;
     public User(){
 
@@ -53,38 +45,18 @@ public class User{
         this.first_name = userDTO.getFirst_name();
         this.last_name = userDTO.getLast_name();
         this.registration_date = userDTO.getRegistration_date();
-        if(userDTO.getRoles() == null){
-            this.roles = null;
-        }else{
-            this.roles = new Role(userDTO.getRoles());
-        }
-        if(userDTO.getAddress() == null){
-            this.address = null;
-        }else{
-            this.address = new Address(userDTO.getAddressDTO());
-        }
         this.paymentcards = null;
 
 
     }
-    public User(String idemail, String username, String password,String first_name,String last_name, Date registration_date, Role roles, Address address, List<Paymentcard> paymentcards) {
+    public User(String idemail, String username, String password, String first_name, String last_name, Date registration_date, List<Paymentcard> paymentcards) {
         this.idemail = idemail;
         this.username = username;
         this.password = password;
         this.first_name= first_name;
         this.last_name = last_name;
         this.registration_date = registration_date;
-        this.roles = roles;
-        this.address = address;
         this.paymentcards = paymentcards;
-    }
-
-    public Address getAddress() {
-        return address;
-    }
-
-    public void setAddress(Address address) {
-        this.address = address;
     }
 
     public String getId_email() {
@@ -119,13 +91,7 @@ public class User{
         this.registration_date = registration_date;
     }
 
-    public Role getRoles() {
-        return roles;
-    }
 
-    public void setRoles(Role roles) {
-        this.roles = roles;
-    }
     public void setPaymentcardswithDTO(List<PaymentcardDTO> paymentcarsdDTO) {
         if (paymentcarsdDTO == null){
             this.paymentcards= new ArrayList<>();
@@ -176,7 +142,6 @@ public class User{
                 ", username='" + username + '\'' +
                 ", password='" + password + '\'' +
                 ", registration_date=" + registration_date +
-                ", roles=" + roles +
                 '}';
     }
 
@@ -185,11 +150,11 @@ public class User{
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         User user = (User) o;
-        return Objects.equals(idemail, user.idemail) && Objects.equals(username, user.username) && Objects.equals(password, user.password) && Objects.equals(first_name, user.first_name) && Objects.equals(last_name, user.last_name) && Objects.equals(registration_date, user.registration_date) && Objects.equals(roles, user.roles) && Objects.equals(address, user.address) && Objects.equals(paymentcards, user.paymentcards);
+        return Objects.equals(idemail, user.idemail) && Objects.equals(username, user.username) && Objects.equals(password, user.password) && Objects.equals(first_name, user.first_name) && Objects.equals(last_name, user.last_name) && Objects.equals(registration_date, user.registration_date)   && Objects.equals(paymentcards, user.paymentcards);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(idemail, username, password, first_name, last_name, registration_date, roles, address, paymentcards);
+        return Objects.hash(idemail, username, password, first_name, last_name, registration_date,  paymentcards);
     }
 }

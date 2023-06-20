@@ -1,12 +1,16 @@
 package com.project.Payload.DTO;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.project.Model.*;
+import com.project.Model.Paymentcard;
+import com.project.Model.User;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Objects;
 
 
-public class UserDTO{
+public class UserDTO {
 
     private String idemail;
 
@@ -15,15 +19,12 @@ public class UserDTO{
 
 
     private String password;
-
+    private String roles;
     private String first_name;
     private String last_name;
     private Date registration_date;
 
-    private RoleDTO roles ;
 
-    @JsonIgnore
-    private AddressDTO addressDTO ;
     @JsonIgnore
 
     private List<PaymentcardDTO> paymentcardsDTO ;
@@ -37,18 +38,6 @@ public class UserDTO{
         this.first_name = user.getFirst_name();
         this.last_name = user.getLast_name();
         this.registration_date = user.getRegistration_date();
-        if (user.getRoles() == null){
-            this.roles= null;
-        }
-        else{
-            this.roles = new RoleDTO(user.getRoles());
-        }
-        if (user.getAddress() == null){
-            this.addressDTO= null;
-        }
-        else{
-            this.addressDTO = new AddressDTO(user.getAddress());
-        }
         if (user.getPaymentcards() == null){
             this.paymentcardsDTO= new ArrayList<>();
         }
@@ -59,24 +48,23 @@ public class UserDTO{
         }
 
     }
-    public UserDTO(String idemail, String username, String password,String first_name,String last_name, Date registration_date, RoleDTO roles, AddressDTO address, List<PaymentcardDTO> paymentcards) {
+    public UserDTO(String idemail, String username, String password, String first_name, String last_name, Date registration_date, List<PaymentcardDTO> paymentcards,String roles) {
         this.idemail = idemail;
         this.username = username;
         this.password = password;
         this.first_name = first_name;
         this.last_name = last_name;
-        this.addressDTO = address;
         this.registration_date = registration_date;
-        this.roles = roles;
         this.paymentcardsDTO = paymentcards;
+        this.roles = roles;
     }
 
-    public AddressDTO getAddress() {
-        return addressDTO;
+    public String getRoles() {
+        return roles;
     }
 
-    public void setAddress(AddressDTO address) {
-        this.addressDTO = address;
+    public void setRoles(String roles) {
+        this.roles = roles;
     }
 
     public String getId_email() {
@@ -111,13 +99,6 @@ public class UserDTO{
         this.registration_date = registration_date;
     }
 
-    public RoleDTO getRoles() {
-        return this.roles;
-    }
-
-    public void setRoles(RoleDTO roles) {
-        this.roles = roles;
-    }
 
     public List<PaymentcardDTO> getPaymentcards() {
         return this.paymentcardsDTO;
@@ -151,14 +132,6 @@ public class UserDTO{
         this.last_name = last_name;
     }
 
-    public AddressDTO getAddressDTO() {
-        return addressDTO;
-    }
-
-    public void setAddressDTO(AddressDTO addressDTO) {
-        this.addressDTO = addressDTO;
-    }
-
     public List<PaymentcardDTO> getPaymentcardsDTO() {
         return paymentcardsDTO;
     }
@@ -174,7 +147,6 @@ public class UserDTO{
                 ", username='" + username + '\'' +
                 ", password='" + password + '\'' +
                 ", registration_date=" + registration_date +
-                ", roles=" + roles +
                 '}';
     }
 
@@ -189,13 +161,12 @@ public class UserDTO{
                 && Objects.equals(first_name, userDTO.first_name)
                 && Objects.equals(last_name, userDTO.last_name)
                 && Objects.equals(registration_date, userDTO.registration_date)
-                && Objects.equals(roles.getName(), userDTO.roles.getName())
-                && Objects.equals(addressDTO, userDTO.addressDTO)
+
                 && Objects.equals(paymentcardsDTO, userDTO.paymentcardsDTO);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(idemail, username, password, first_name, last_name, registration_date, roles, addressDTO, paymentcardsDTO);
+        return Objects.hash(idemail, username, password, first_name, last_name, registration_date, paymentcardsDTO);
     }
 }

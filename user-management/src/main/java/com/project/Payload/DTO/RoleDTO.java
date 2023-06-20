@@ -19,6 +19,7 @@ public class RoleDTO {
 
     }
     public RoleDTO(Role role){
+        this.id = role.getId();
         this.name= role.getName();
     }
     public String getId() {

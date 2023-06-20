@@ -26,6 +26,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Import;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -47,6 +48,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 @WebMvcTest(UserController.class)
 @ComponentScan(basePackages = "com.project")
+@Import({ UserResourceAssembler.class })
 
 class UserControllerTest {
 
@@ -69,6 +71,7 @@ class UserControllerTest {
     private RoleRepository roleRepository;
     @InjectMocks
     private UserController userController;
+    private MockUserGenerator mockUserGenerator;
     @BeforeEach
     public void setUp() {
         MockitoAnnotations.openMocks(this);
@@ -90,60 +93,9 @@ class UserControllerTest {
         UserDTO result = userController.verifyUserInstance(mockUser.getUsername());
         return result;
     }
-    public  List<UserDTO> generateMockUsers(int count) {
-        List<UserDTO> users = new ArrayList<>();
-
-        for (int i = 0; i < count; i++) {
-            UserDTO user = generateMockUser(i);
-            users.add(user);
-        }
-
-        return users;
-    }
-
-    public  UserDTO generateMockUser(int index) {
-        String email = "user" + index + "@example.com";
-        String username = "user" + index;
-        String password = "password" + index;
-        String firstName = "First" + index;
-        String lastName = "Last" + index;
-        Date registrationDate = new Date();
-        RoleDTO role = new RoleDTO(ERole.ROLE_USER);
-        AddressDTO address = generateMockAddress(index);
-        UserDTO user = new UserDTO(email, username, password, firstName, lastName, registrationDate, role, address, null);
-        List<PaymentcardDTO> paymentCards = generateMockPaymentCards(index);
-        for (PaymentcardDTO paymentcardDTO:paymentCards){
-            paymentcardDTO.setUser(user);
-
-        }
-        user.setPaymentcardsDTO(paymentCards);
-        return user;
-    }
-    public  AddressDTO generateMockAddress(int index) {
-        return new AddressDTO("Street" + index, "City" + index, "Province" + index, "Country" + index);
-    }
-
-    public  List<PaymentcardDTO> generateMockPaymentCards(int index) {
-        List<PaymentcardDTO> paymentCards = new ArrayList<>();
-
-        for (int i = 0; i < 3; i++) {
-            String id = UUID.randomUUID().toString();
-            String cardNumber = "1234-5678-90" + i;
-            UserDTO user = null;  // Set the user reference accordingly
-            String cardHolderName = "Card Holder" + i;
-            String cardType = "Card Type" + i;
-            Date registrationDate = new Date();
 
 
-            Date expirationDate = new Date() ;
 
-            PaymentcardDTO paymentCard = new PaymentcardDTO(id, cardNumber, user, cardHolderName, cardType, registrationDate, expirationDate);
-            paymentCards.add(paymentCard);
-        }
-
-        return paymentCards;
-
-    }
 
 
 
@@ -151,7 +103,7 @@ class UserControllerTest {
     @Test
     void verifyUserInstance() {
         // Prepare test data
-        UserDTO user =  generateMockUser(100);
+        UserDTO user =  mockUserGenerator.generateMockUser(100);
 
         UserDTO result = mockUserInstance(user);
 
@@ -168,7 +120,7 @@ class UserControllerTest {
     @Test
     void getOneUser()throws Exception  {
         // Prepare test data
-        UserDTO user =  generateMockUser(50);
+        UserDTO user =  mockUserGenerator.generateMockUser(50);
         // Create a mock UserDetails object
 
         UserDTO result = mockUserInstance(user);
@@ -191,7 +143,7 @@ class UserControllerTest {
 
     @Test
     void getAddress() {
-        UserDTO user =  generateMockUser(100);
+        UserDTO user =  mockUserGenerator.generateMockUser(100);
         UserDTO result = mockUserInstance(user);
 
 

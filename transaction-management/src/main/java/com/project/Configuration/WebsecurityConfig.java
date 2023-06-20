@@ -4,17 +4,13 @@ import com.project.Configuration.jwt.JwtAuthenticationFilter;
 import com.project.Configuration.jwt.JwtEntryPoint;
 import com.project.Configuration.jwt.JwtServices;
 import com.project.Service.UserDetailServiceImpl;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
-//import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-//import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-//import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -31,7 +27,7 @@ public class WebsecurityConfig {
     UserDetailServiceImpl userDetailsService;
     @Autowired
     JwtEntryPoint unauthorizedHandler;
-
+    
 	@Autowired
     JwtServices jwtServices;
 
@@ -65,19 +61,16 @@ public class WebsecurityConfig {
 
     @Bean
     protected SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-
-    http
- // enable cors,remove csrf and state in session because in jwt we do not need them
-    .cors().and().csrf().disable()
+    	
+    http.cors().and().csrf().disable()
     .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
     //Authorize signup for all people
-   .and().authorizeHttpRequests().requestMatchers
-   ("/api/auth/**").permitAll()
-  .requestMatchers("/api/admin/**").hasRole("ADMIN")
+   .and().authorizeHttpRequests().
+   requestMatchers("/api/admin/**").hasRole("ADMIN")
    .requestMatchers("/api/user/**").hasAnyRole("ADMIN","USER")
-   .anyRequest().authenticated().and().
-   formLogin().disable();
-
+   .anyRequest().authenticated();
+   
+    
     http.authenticationProvider(authenticationProvider());
     http.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
 

@@ -1,26 +1,21 @@
 package com.project.Configuration.jwt;
+
+import com.project.Service.CustomUserDetail;
+import io.jsonwebtoken.*;
+import io.jsonwebtoken.io.Decoders;
+import io.jsonwebtoken.security.Keys;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.stereotype.Component;
+
 import java.security.Key;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
-import io.jsonwebtoken.io.Decoders;
-import io.jsonwebtoken.security.Keys;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.ResponseCookie;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.stereotype.Component;
-import org.springframework.web.util.WebUtils;
-
-import com.project.Service.CustomUserDetail;
-
-import io.jsonwebtoken.*;
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletRequest;
 @Component
 public class JwtServices {
 	  private static final Logger logger = LoggerFactory.getLogger(JwtServices.class);
@@ -29,7 +24,6 @@ public class JwtServices {
 
 	  @Value("${ph1eu.appprop.jwtExpirationMs}")
 	  private int jwtExpirationMs;
-
 
 
 	public String extractUsername(String token) {
@@ -65,9 +59,19 @@ public class JwtServices {
 		return extractClaim(token, claims -> claims.get("id_email", String.class));
 
 	}
-	public boolean validateToken(String token, UserDetails userDetails) {
-			final String username = extractUsername(token);
-			return (username.equals(userDetails.getUsername())) && !isTokenExpired(token);
+	public Claims validateToken(String token) {
+		try {
+			Jws<Claims> claims = Jwts.parserBuilder()
+					.setSigningKey(getSignInKey())
+					.build()
+					.parseClaimsJws(token);
+
+			return claims.getBody();
+		} catch (JwtException | IllegalArgumentException e) {
+			// Token validation failed
+			logger.error("Invalid JWT token: {}", e.getMessage());
+			return null;
+		}
 		}
 
 	private boolean isTokenExpired(String token) {

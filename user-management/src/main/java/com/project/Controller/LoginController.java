@@ -18,6 +18,8 @@ import com.project.Service.CustomUserDetail;
 import com.project.Service.RoleService;
 import com.project.Service.UserDetailServiceImpl;
 import jakarta.validation.Valid;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
 import org.springframework.beans.factory.annotation.*;
 import org.springframework.http.*;
@@ -46,6 +48,8 @@ public class LoginController{
     UserDetailServiceImpl userDetailService;
     @Autowired
     RoleService roleService;
+    private final Logger logger = LoggerFactory.getLogger(LoginController.class);
+
     @PostMapping("/signin")
     public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
         Authentication authentication = authenticationManager
@@ -79,13 +83,26 @@ public class LoginController{
                 signUpRequest.getFirst_name(),signUpRequest.getLast_name(),new Date(),null,null,null);
 
         String strRoles = signUpRequest.getRole();
+        System.out.println(strRoles);
         String signUpkey = signUpRequest.getSignUpKey();
-        if (strRoles == null || strRoles == "user") {
+        if (strRoles == null || strRoles.equals("user")) {
+
             RoleDTO userRole = roleService.findbyName(ERole.ROLE_USER);
+
+            System.out.println(userRole);
+            if(userRole == null){
+                logger.error("can find role user");
+
+                return ResponseEntity.badRequest().body(new MessageResponse("can find role user"));
+            }
             user.setRoles(userRole);
-        } else if(strRoles== "admin" && signUpkey == this.signUpKey ){
+        } else if(strRoles.equals("admin") && Objects.equals(signUpkey, this.signUpKey)){
 
             RoleDTO adminRole = roleService.findbyName(ERole.ROLE_ADMIN);
+            if(adminRole == null){
+                logger.error("can find role admin");
+                return ResponseEntity.badRequest().body(new MessageResponse("can find role admin"));
+            }
             user.setRoles(adminRole);
 
             }

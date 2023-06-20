@@ -22,7 +22,7 @@ public class RoleService {
         try {
             Role role = roleRepository.findByName(erole).orElseThrow(() -> new RuntimeException("Error: Role is not found."));
             logger.info("User's role found");
-            return new RoleDTO(erole);
+            return new RoleDTO(role);
         }
         catch (Exception e){
             logger.error("Failed to find role  from the database.", e);

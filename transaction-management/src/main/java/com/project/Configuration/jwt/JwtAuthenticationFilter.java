@@ -1,8 +1,13 @@
 package com.project.Configuration.jwt;
 
-import java.io.IOException;
-
+import com.project.Payload.DTO.UserDTO;
 import com.project.Service.CustomUserDetail;
+import com.project.Service.UserDetailServiceImpl;
+import io.jsonwebtoken.Claims;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,12 +18,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import com.project.Service.UserDetailServiceImpl;
-
-import jakarta.servlet.FilterChain;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
 
 public class JwtAuthenticationFilter  extends OncePerRequestFilter{
 	
@@ -43,41 +43,28 @@ public class JwtAuthenticationFilter  extends OncePerRequestFilter{
 			final String authHeader = request.getHeader("Authorization");
 			final String jwt;
 			final String username;
-
 			if (authHeader == null ||!authHeader.startsWith("Bearer ")) {
 				filterChain.doFilter(request, response);
-				logger.error("no token");
 				return;
 			}
 			jwt = authHeader.substring(7);
 			username = jwtServices.extractUsername(jwt);
-			if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-				UserDetails userDetails =  userDetailServiceImpl.loadUserByUsername(username);
+			Claims tokenClaims = jwtServices.validateToken(jwt);
 
-				if (jwtServices.validateToken(jwt, userDetails)){
-					UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-							userDetails,
-							null,
-							userDetails.getAuthorities()
-					);
-					authToken.setDetails(
-							new WebAuthenticationDetailsSource().buildDetails(request)
-					);
-					SecurityContextHolder.getContext().setAuthentication(authToken);
-				}
-		        UsernamePasswordAuthenticationToken authentication = 
-		            new UsernamePasswordAuthenticationToken(userDetails,
-		                                                    null,
-		                                                    userDetails.getAuthorities());
-		        
-		        authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
-		        SecurityContextHolder.getContext().setAuthentication(authentication);
-		      }
-		    } catch (Exception e) {
+			if (tokenClaims != null){
+				UserDTO user = new UserDTO();
+				user.setUsername(tokenClaims.getSubject());
+				System.out.println(tokenClaims.get("role", String.class));
+				user.setRoles(tokenClaims.get("role", String.class));
+				UserDetails userDetails = CustomUserDetail.build(user);
+				UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
+						userDetails, null, userDetails.getAuthorities());
+				SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+		    }
+		}catch (Exception e) {
 		      logger.error("Cannot set user authentication: {}", e);
 		    }
-
 		    filterChain.doFilter(request, response);
 		  }
 
