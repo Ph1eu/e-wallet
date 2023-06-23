@@ -1,8 +1,5 @@
 package com.project.Model;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
-import com.project.Payload.DTO.PaymentcardDTO;
 import com.project.Payload.DTO.UserDTO;
 import jakarta.persistence.*;
 import org.hibernate.annotations.Immutable;
@@ -31,10 +28,14 @@ public class User {
     private  String last_name;
     @Column(name = "registration_date")
     private Date registration_date;
-
-    @OneToMany(mappedBy = "user",fetch = FetchType.LAZY,cascade = CascadeType.ALL)
-    @JsonManagedReference
-    private List<Paymentcard> paymentcards ;
+    @Column(name="address")
+    private String address;
+    @Column(name = "roles")
+    private String roles ;
+    @ElementCollection(fetch = FetchType.LAZY)
+    @CollectionTable(name = "paymentcards", joinColumns = @JoinColumn(name = "user_id"))
+    @Column(name = "card_id")
+    private List<String> paymentcards ;
     public User(){
 
     }
@@ -49,7 +50,7 @@ public class User {
 
 
     }
-    public User(String idemail, String username, String password, String first_name, String last_name, Date registration_date, List<Paymentcard> paymentcards) {
+    public User(String idemail, String username, String password, String first_name, String last_name, Date registration_date, List<String> paymentcards) {
         this.idemail = idemail;
         this.username = username;
         this.password = password;
@@ -91,23 +92,36 @@ public class User {
         this.registration_date = registration_date;
     }
 
+    public String getAddress() {
+        return address;
+    }
 
-    public void setPaymentcardswithDTO(List<PaymentcardDTO> paymentcarsdDTO) {
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    public String getRoles() {
+        return roles;
+    }
+
+    public void setRoles(String roles) {
+        this.roles = roles;
+    }
+
+    public void setPaymentcardswithDTO(List<String> paymentcarsdDTO) {
         if (paymentcarsdDTO == null){
             this.paymentcards= new ArrayList<>();
         }
         else{
-            for (PaymentcardDTO paymentcardDTO :paymentcarsdDTO){
-                this.paymentcards.add(new Paymentcard(paymentcardDTO));
-            }
+            this.paymentcards.addAll(paymentcarsdDTO);
         }
     }
 
-    public List<Paymentcard> getPaymentcards() {
+    public List<String> getPaymentcards() {
         return paymentcards;
     }
 
-    public void setPaymentcards(List<Paymentcard> paymentcards) {
+    public void setPaymentcards(List<String> paymentcards) {
         this.paymentcards = paymentcards;
     }
 

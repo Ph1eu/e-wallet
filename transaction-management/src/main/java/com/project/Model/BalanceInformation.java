@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.project.Payload.DTO.BalanceInformationDTO;
 import jakarta.persistence.*;
 
+import java.util.Objects;
+
 @Entity
 @Table(name="balance_information")
 public class BalanceInformation {
@@ -15,18 +17,15 @@ public class BalanceInformation {
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     private User user;
     @Column(name="balance_amount")
-    private long balance_amount;
+    private int balance_amount;
     @Column
     private String phone_number;
 
-    public BalanceInformation(String id, User user, long balance_amount, String phone_number) {
+    public BalanceInformation(String id, User user, int balance_amount, String phone_number) {
         this.id = id;
         this.user = user;
         this.balance_amount = balance_amount;
         this.phone_number = phone_number;
-    }
-
-    public BalanceInformation() {
     }
 
     public BalanceInformation(BalanceInformationDTO balanceInformationDTO) {
@@ -35,10 +34,14 @@ public class BalanceInformation {
         this.phone_number = balanceInformationDTO.getPhone_number();
     }
 
-    public BalanceInformation(User user, long balance_amount, String phone_number) {
+    public BalanceInformation(User user, int balance_amount, String phone_number) {
         this.user = user;
         this.balance_amount = balance_amount;
         this.phone_number = phone_number;
+    }
+
+    public BalanceInformation() {
+
     }
 
     public User getUser() {
@@ -49,11 +52,11 @@ public class BalanceInformation {
         this.user = user;
     }
 
-    public long getBalance_amount() {
+    public int getBalance_amount() {
         return balance_amount;
     }
 
-    public void setBalance_amount(long balance_amount) {
+    public void setBalance_amount(int balance_amount) {
         this.balance_amount = balance_amount;
     }
 
@@ -71,5 +74,18 @@ public class BalanceInformation {
 
     public String getId() {
         return id;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        BalanceInformation that = (BalanceInformation) o;
+        return balance_amount == that.balance_amount && Objects.equals(id, that.id) && Objects.equals(user, that.user) && Objects.equals(phone_number, that.phone_number);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, user, balance_amount, phone_number);
     }
 }

@@ -1,7 +1,6 @@
 package com.project.Payload.DTO;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.project.Model.Paymentcard;
 import com.project.Model.User;
 
 import java.util.ArrayList;
@@ -22,12 +21,13 @@ public class UserDTO {
     private String roles;
     private String first_name;
     private String last_name;
+    private String address;
     private Date registration_date;
 
 
     @JsonIgnore
 
-    private List<PaymentcardDTO> paymentcardsDTO ;
+    private List<String> paymentcardsDTO ;
     public UserDTO(){
 
     }
@@ -37,18 +37,17 @@ public class UserDTO {
         this.password = user.getPassword();
         this.first_name = user.getFirst_name();
         this.last_name = user.getLast_name();
+        this.address = user.getAddress();
         this.registration_date = user.getRegistration_date();
         if (user.getPaymentcards() == null){
             this.paymentcardsDTO= new ArrayList<>();
         }
         else{
-            for (Paymentcard paymentcard :user.getPaymentcards()){
-                this.paymentcardsDTO.add(new PaymentcardDTO(paymentcard));
-            }
+            this.paymentcardsDTO.addAll(user.getPaymentcards());
         }
 
     }
-    public UserDTO(String idemail, String username, String password, String first_name, String last_name, Date registration_date, List<PaymentcardDTO> paymentcards,String roles) {
+    public UserDTO(String idemail, String username, String password, String first_name, String last_name, Date registration_date, List<String> paymentcards,String roles) {
         this.idemail = idemail;
         this.username = username;
         this.password = password;
@@ -100,11 +99,11 @@ public class UserDTO {
     }
 
 
-    public List<PaymentcardDTO> getPaymentcards() {
+    public List<String> getPaymentcards() {
         return this.paymentcardsDTO;
     }
 
-    public void setPaymentcards(List<PaymentcardDTO> paymentcards) {
+    public void setPaymentcards(List<String> paymentcards) {
         this.paymentcardsDTO = paymentcards;
     }
 
@@ -132,11 +131,11 @@ public class UserDTO {
         this.last_name = last_name;
     }
 
-    public List<PaymentcardDTO> getPaymentcardsDTO() {
+    public List<String> getPaymentcardsDTO() {
         return paymentcardsDTO;
     }
 
-    public void setPaymentcardsDTO(List<PaymentcardDTO> paymentcardsDTO) {
+    public void setPaymentcardsDTO(List<String> paymentcardsDTO) {
         this.paymentcardsDTO = paymentcardsDTO;
     }
 
