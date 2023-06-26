@@ -9,7 +9,9 @@ import com.project.Payload.DTO.PaymentcardDTO;
 import com.project.Payload.DTO.UserDTO;
 import com.project.Payload.Request.CRUDUserInforRequest.AddressCRUD;
 import com.project.Payload.Request.CRUDUserInforRequest.PaymentcardCRUD;
+import com.project.Payload.Response.ResponseEntityWrapper;
 import jakarta.annotation.Nonnull;
+import org.hibernate.engine.spi.EntityUniqueKey;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.server.RepresentationModelAssembler;
@@ -27,8 +29,8 @@ public class UserResourceAssembler implements RepresentationModelAssembler<UserD
     @Override
     public EntityModel<UserDTO> toModel( UserDTO entity) {
         return EntityModel.of(entity,
-                linkTo(methodOn(UserController.class).getOneUser(entity.getUsername())).withSelfRel(),
-                linkTo(methodOn(AdminController.class).getAllUsers()).withRel("Get All user for admin"));
+                linkTo(methodOn(UserController.class).getOneUser(entity.getUsername())).withSelfRel());
+//                linkTo(methodOn(AdminController.class).getAllUsers()).withRel("Get All user for admin"));
     }
 
     @Override
@@ -40,25 +42,38 @@ public class UserResourceAssembler implements RepresentationModelAssembler<UserD
         }
         return CollectionModel.of(entityModels);
     }
-    public EntityModel<AddressDTO>  toAddressModel(UserDTO entity){
-        EntityModel<AddressDTO> addressEntityModel = EntityModel.of(entity.getAddress());
-        addressEntityModel.add(linkTo(methodOn(UserController.class).getAddress(entity.getUsername())).withRel("Get User Address"));
-        addressEntityModel.add(linkTo(methodOn(UserController.class).setAddress(new AddressCRUD(),entity.getUsername())).withRel("Set User Address").withType("POST"));
-        return addressEntityModel;
+    public ResponseEntityWrapper<EntityModel<UserDTO>> toCollectionModelInWrapper(List<UserDTO> entities){
+        List<EntityModel<UserDTO>> entityModels = new ArrayList<>();
+        for(UserDTO userDTO:entities){
+            entityModels.add(toModel(userDTO));
+        }
+        ResponseEntityWrapper<EntityModel<UserDTO>> entityWrapper = new ResponseEntityWrapper<>();
+        entityWrapper.setData(entityModels);
+        entityWrapper.setLink(List.of(linkTo(methodOn(AdminController.class).getAllUsers()).withRel("Get All user for admin")));
+        return entityWrapper;
     }
-    public CollectionModel<EntityModel<PaymentcardDTO>> toCardsCollectionModel(Iterable<PaymentcardDTO> entities, UserDTO entity) throws ParseException {
+    public ResponseEntityWrapper<EntityModel<AddressDTO>>  toAddressModel(UserDTO entity){
+        EntityModel<AddressDTO> addressEntityModel = EntityModel.of(entity.getAddress());
+        ResponseEntityWrapper<EntityModel<AddressDTO>> responseEntityWrapper = new ResponseEntityWrapper<>();
+        responseEntityWrapper.setData(List.of(addressEntityModel));
+        responseEntityWrapper.setLink(List.of(linkTo(methodOn(UserController.class).getAddress(entity.getUsername())).withRel("Get User Address"),
+                linkTo(methodOn(UserController.class).setAddress(new AddressCRUD(),entity.getUsername())).withRel("Set User Address").withType("POST")));
+        return responseEntityWrapper;
+    }
+    public ResponseEntityWrapper<EntityModel<PaymentcardDTO>> toCardsCollectionModel(Iterable<PaymentcardDTO> entities, UserDTO entity) throws ParseException {
         List<EntityModel<PaymentcardDTO>> entityModels = new ArrayList<>();
         for (PaymentcardDTO paymentcard: entities){
             EntityModel<PaymentcardDTO> paymentcardEntityModel = EntityModel.of(paymentcard);
             entityModels.add(paymentcardEntityModel);
         }
+        ResponseEntityWrapper<EntityModel<PaymentcardDTO>> responseEntityWrapper = new ResponseEntityWrapper<>();
+        responseEntityWrapper.setData(entityModels);
         List<PaymentcardCRUD> paymentcardCRUDS = new ArrayList<>();
-        return CollectionModel.of(entityModels,
-                linkTo(methodOn(UserController.class).getPaymentCards(entity.getUsername())).withSelfRel(),
+        responseEntityWrapper.setLink(List.of(linkTo(methodOn(UserController.class).getPaymentCards(entity.getUsername())).withSelfRel(),
                 linkTo(methodOn(UserController.class).setPaymentCards(entity.getUsername(),paymentcardCRUDS)).withRel("Set information for current cards"),
                 linkTo(methodOn(UserController.class).deletePaymentCardbyID(entity.getUsername(),"id")).withRel("delete one card"),
-                linkTo(methodOn(UserController.class).deleteAllPaymentCard(entity.getUsername())).withRel("delete all cards")
+                linkTo(methodOn(UserController.class).deleteAllPaymentCard(entity.getUsername())).withRel("delete all cards")));
+        return responseEntityWrapper;
 
-        );
     }
 }

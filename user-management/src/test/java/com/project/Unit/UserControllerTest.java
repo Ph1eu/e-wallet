@@ -1,12 +1,10 @@
-package com.project.Controller;
+package com.project.Unit;
 
 import com.project.Assembler.UserResourceAssembler;
 import com.project.Configuration.jwt.JwtServices;
-import com.project.Model.ERole;
+import com.project.Ultils.MockUserGenerator;
+import com.project.Controller.UserController;
 import com.project.Model.User;
-import com.project.Payload.DTO.AddressDTO;
-import com.project.Payload.DTO.PaymentcardDTO;
-import com.project.Payload.DTO.RoleDTO;
 import com.project.Payload.DTO.UserDTO;
 import com.project.Payload.Response.MessageResponse;
 import com.project.Repository.RoleRepository;
@@ -14,12 +12,9 @@ import com.project.Service.AddressService;
 import com.project.Service.CustomUserDetail;
 import com.project.Service.PaymentCardsService;
 import com.project.Service.UserDetailServiceImpl;
-import org.aspectj.lang.annotation.Before;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,20 +25,12 @@ import org.springframework.context.annotation.Import;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
-
-import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 @WebMvcTest(UserController.class)

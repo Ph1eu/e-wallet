@@ -59,6 +59,7 @@ public class JwtServices {
 		return extractClaim(token, claims -> claims.get("id_email", String.class));
 
 	}
+
 	public Claims validateToken(String token) {
 		try {
 			Jws<Claims> claims = Jwts.parserBuilder()

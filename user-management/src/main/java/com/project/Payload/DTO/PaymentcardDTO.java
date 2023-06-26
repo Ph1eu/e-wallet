@@ -42,8 +42,14 @@ public class PaymentcardDTO {
         this.expiration_date = expiration_date;
     }
     public PaymentcardDTO(Paymentcard paymentcard) {
+        this.id = paymentcard.getId();
         this.card_number = paymentcard.getCard_number();
-        this.user = new UserDTO(paymentcard.getUser());
+//        if(paymentcard.getUser() == null){
+//            this.user=null;
+//        }
+//        else{
+//            this.user = new UserDTO(paymentcard.getUser());
+//        }
         this.card_holder_name = paymentcard.getCard_holder_name();
         this.card_type = paymentcard.getCard_type();
         this.registration_date = paymentcard.getRegistration_date();

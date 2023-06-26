@@ -49,14 +49,14 @@ public class UserDTO{
         else{
             this.addressDTO = new AddressDTO(user.getAddress());
         }
-        if (user.getPaymentcards() == null){
-            this.paymentcardsDTO= new ArrayList<>();
-        }
-        else{
-            for (Paymentcard paymentcard :user.getPaymentcards()){
-                this.paymentcardsDTO.add(new PaymentcardDTO(paymentcard));
-            }
-        }
+//        if (user.getPaymentcards() == null){
+//            this.paymentcardsDTO= new ArrayList<>();
+//        }
+//        else{
+//            for (Paymentcard paymentcard :user.getPaymentcards()){
+//                this.paymentcardsDTO.add(new PaymentcardDTO(paymentcard));
+//            }
+//        }
 
     }
     public UserDTO(String idemail, String username, String password,String first_name,String last_name, Date registration_date, RoleDTO roles, AddressDTO address, List<PaymentcardDTO> paymentcards) {

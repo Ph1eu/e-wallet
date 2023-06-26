@@ -9,6 +9,7 @@ import com.project.Payload.DTO.*;
 import com.project.Payload.Request.CRUDUserInforRequest.AddressCRUD;
 import com.project.Payload.Request.CRUDUserInforRequest.PaymentcardCRUD;
 import com.project.Payload.Response.MessageResponse;
+import com.project.Payload.Response.ResponseEntityWrapper;
 import com.project.Service.AddressService;
 import com.project.Service.CustomUserDetail;
 import com.project.Service.PaymentCardsService;
@@ -81,6 +82,8 @@ public class UserController {
             return ResponseEntity.badRequest().body(new MessageResponse("Invalid User"));
         }
         else{
+            List<PaymentcardDTO> paymentcardDTOS= paymentCardsService.findByAllUser(user);
+            user.setPaymentcards(paymentcardDTOS);
             return  ResponseEntity.ok().body(userResourceAssembler.toModel(user));
         }
 
@@ -92,10 +95,13 @@ public class UserController {
             return ResponseEntity.badRequest().body(new MessageResponse("Invalid User"));
         }
         else if(user.getAddress() == null){
-            return ResponseEntity.ok().body(EntityModel.of(new MessageResponse("Address is empty"),
-                    linkTo(methodOn(UserController.class).deleteAddress(username)).withRel("delete address for user"),
+            ResponseEntityWrapper<MessageResponse> responseEntityWrapper = new ResponseEntityWrapper<>();
+            MessageResponse messageResponse = new MessageResponse("Address is empty");
+            responseEntityWrapper.setData(List.of(messageResponse));
+            responseEntityWrapper.setLink(List.of( linkTo(methodOn(UserController.class).deleteAddress(username)).withRel("delete address for user"),
                     linkTo(methodOn(UserController.class).getAddress(username)).withSelfRel(),
                     linkTo(methodOn(UserController.class).setAddress(new AddressCRUD(),username)).withRel("Add address").withType("POST")));
+            return ResponseEntity.ok().body(responseEntityWrapper);
         }
         else {
             return ResponseEntity.ok().body(EntityModel.of(userResourceAssembler.toAddressModel(user)));
@@ -112,8 +118,8 @@ public class UserController {
                     addressCRUD.getCity(), addressCRUD.getProvince(), addressCRUD.getCountry()
             );
             addressService.saveAddressForUser(address,user);
-            return ResponseEntity.ok().body(EntityModel.of(
-                    userResourceAssembler.toAddressModel(user)));
+            return ResponseEntity.ok().body(
+                    userResourceAssembler.toAddressModel(user));
         }
     }
 
@@ -125,10 +131,14 @@ public class UserController {
         }
         else {
             addressService.deleteAddressByUser(user);
-            return ResponseEntity.ok().body(EntityModel.of(new MessageResponse("Successful Delete User"),
-                    linkTo(methodOn(UserController.class).deleteAddress(username)).withSelfRel(),
+            ResponseEntityWrapper<MessageResponse> responseEntityWrapper = new ResponseEntityWrapper<>();
+            MessageResponse messageResponse = new MessageResponse("Address is empty");
+            responseEntityWrapper.setData(List.of(messageResponse));
+            responseEntityWrapper.setLink(List.of(linkTo(methodOn(UserController.class).deleteAddress(username)).withSelfRel(),
                     linkTo(methodOn(UserController.class).getAddress(username)).withRel("Get address from username"),
                     linkTo(methodOn(UserController.class).setAddress(new AddressCRUD(),username)).withRel("Add address").withType("POST")));
+            return ResponseEntity.ok().body(responseEntityWrapper);
+
         }
     }
     @GetMapping("/{username}/cards")

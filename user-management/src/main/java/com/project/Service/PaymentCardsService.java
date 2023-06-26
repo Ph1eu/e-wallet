@@ -47,7 +47,6 @@ public class PaymentCardsService {
                 logger.info("No card in the database.");
                 return PaymentcardsDTO;
 
-
             }
             else{
                 for (Paymentcard paymentcard : paymentcards){
