@@ -7,7 +7,7 @@ import java.util.*;
 
 
 public class UserDTO{
-
+    @JsonIgnore
     private String idemail;
 
 
@@ -25,8 +25,9 @@ public class UserDTO{
     @JsonIgnore
     private AddressDTO addressDTO ;
     @JsonIgnore
-
     private List<PaymentcardDTO> paymentcardsDTO ;
+    private BalanceInformationDTO balanceInformation;
+
     public UserDTO(){
 
     }
@@ -49,6 +50,7 @@ public class UserDTO{
         else{
             this.addressDTO = new AddressDTO(user.getAddress());
         }
+
 //        if (user.getPaymentcards() == null){
 //            this.paymentcardsDTO= new ArrayList<>();
 //        }
@@ -59,16 +61,18 @@ public class UserDTO{
 //        }
 
     }
-    public UserDTO(String idemail, String username, String password,String first_name,String last_name, Date registration_date, RoleDTO roles, AddressDTO address, List<PaymentcardDTO> paymentcards) {
+
+    public UserDTO(String idemail, String username, String password, String first_name, String last_name, Date registration_date, RoleDTO roles, AddressDTO addressDTO, List<PaymentcardDTO> paymentcardsDTO, BalanceInformationDTO balanceInformation) {
         this.idemail = idemail;
         this.username = username;
         this.password = password;
         this.first_name = first_name;
         this.last_name = last_name;
-        this.addressDTO = address;
         this.registration_date = registration_date;
         this.roles = roles;
-        this.paymentcardsDTO = paymentcards;
+        this.addressDTO = addressDTO;
+        this.paymentcardsDTO = paymentcardsDTO;
+        this.balanceInformation = balanceInformation;
     }
 
     public AddressDTO getAddress() {
@@ -167,15 +171,12 @@ public class UserDTO{
         this.paymentcardsDTO = paymentcardsDTO;
     }
 
-    @Override
-    public String toString() {
-        return "User{" +
-                "id_email='" + idemail + '\'' +
-                ", username='" + username + '\'' +
-                ", password='" + password + '\'' +
-                ", registration_date=" + registration_date +
-                ", roles=" + roles +
-                '}';
+    public BalanceInformationDTO getBalanceInformation() {
+        return balanceInformation;
+    }
+
+    public void setBalanceInformation(BalanceInformationDTO balanceInformation) {
+        this.balanceInformation = balanceInformation;
     }
 
     @Override
@@ -183,19 +184,11 @@ public class UserDTO{
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         UserDTO userDTO = (UserDTO) o;
-        return Objects.equals(idemail, userDTO.idemail)
-                && Objects.equals(username, userDTO.username)
-                && Objects.equals(password, userDTO.password)
-                && Objects.equals(first_name, userDTO.first_name)
-                && Objects.equals(last_name, userDTO.last_name)
-                && Objects.equals(registration_date, userDTO.registration_date)
-                && Objects.equals(roles.getName(), userDTO.roles.getName())
-                && Objects.equals(addressDTO, userDTO.addressDTO)
-                && Objects.equals(paymentcardsDTO, userDTO.paymentcardsDTO);
+        return Objects.equals(idemail, userDTO.idemail) && Objects.equals(username, userDTO.username) && Objects.equals(password, userDTO.password) && Objects.equals(first_name, userDTO.first_name) && Objects.equals(last_name, userDTO.last_name) && Objects.equals(registration_date, userDTO.registration_date) && Objects.equals(roles, userDTO.roles) && Objects.equals(addressDTO, userDTO.addressDTO) && Objects.equals(paymentcardsDTO, userDTO.paymentcardsDTO) && Objects.equals(balanceInformation, userDTO.balanceInformation);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(idemail, username, password, first_name, last_name, registration_date, roles, addressDTO, paymentcardsDTO);
+        return Objects.hash(idemail, username, password, first_name, last_name, registration_date, roles, addressDTO, paymentcardsDTO, balanceInformation);
     }
 }

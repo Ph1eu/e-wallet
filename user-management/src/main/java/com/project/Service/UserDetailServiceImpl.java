@@ -1,8 +1,11 @@
 package com.project.Service;
 
+import com.project.Model.BalanceInformation;
 import com.project.Model.User;
+import com.project.Payload.DTO.BalanceInformationDTO;
 import com.project.Payload.DTO.UserDTO;
 import com.project.Repository.AddressRepository;
+import com.project.Repository.BalanceInformationRepository;
 import com.project.Repository.PaymentcardRepository;
 import com.project.Repository.UserRepository;
 import org.slf4j.Logger;
@@ -14,8 +17,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 @Service
 public class UserDetailServiceImpl implements UserDetailsService {
@@ -25,6 +27,8 @@ public class UserDetailServiceImpl implements UserDetailsService {
     PaymentcardRepository paymentcardRepository;
     @Autowired
     AddressRepository addressRepository;
+    @Autowired
+    BalanceInformationRepository balanceInformationRepository;
     private final Logger logger = LoggerFactory.getLogger(UserDetailServiceImpl.class);
 
     @Override
@@ -41,7 +45,60 @@ public class UserDetailServiceImpl implements UserDetailsService {
         return CustomUserDetail.build(user);
 
     }
-    public void saveUser(UserDTO userDTO){
+    public UserDTO getUserWithBalanceInformation(String userId) {
+        Optional<User> userOptional = userRepository.findById(userId);
+        if (userOptional.isPresent()) {
+            User user = userOptional.get();
+            UserDTO userDTO = new UserDTO(user);
+
+            Optional<BalanceInformation> balanceInformationOptional = balanceInformationRepository.findBalanceInformationsByUserId(user.getId_email());
+            if (balanceInformationOptional.isPresent()) {
+                BalanceInformation balanceInformation = balanceInformationOptional.get();
+                BalanceInformationDTO balanceInformationDTO = new BalanceInformationDTO(balanceInformation);
+                userDTO.setBalanceInformation(balanceInformationDTO);
+            }
+
+            return userDTO;
+        } else {
+            throw new RuntimeException("User not found with ID: " + userId);
+        }
+    }
+
+
+    private List<UserDTO> wrapUserDTOS(List<Object[]> result) {
+        List<UserDTO> userDTOs = new ArrayList<>();
+
+        for (Object[] row : result) {
+            User user = (User) row[0];
+            BalanceInformation balanceInformation = (BalanceInformation) row[1];
+
+            UserDTO userDTO = new UserDTO(user);
+            if (balanceInformation != null) {
+                BalanceInformationDTO balanceInformationDTO = new BalanceInformationDTO(balanceInformation);
+                userDTO.setBalanceInformation(balanceInformationDTO);
+            }
+
+            userDTOs.add(userDTO);
+        }
+        return userDTOs;
+    }
+    public List<UserDTO> getAllUsersWithEmailandBalance(String email,Integer balance){
+        List<Object[]> result = userRepository.findUserWithEmailandBalance(email,balance);
+        return wrapUserDTOS(result);
+    }
+    public List<UserDTO> getAllUsersWithEmail(String email){
+        List<Object[]> result = userRepository.findUserWithEmail(email);
+        return wrapUserDTOS(result);
+    }
+    public List<UserDTO> getAllUsersWithBalance(Integer balance){
+        List<Object[]> result = userRepository.findUserWithBalance(balance);
+        return wrapUserDTOS(result);
+    }
+    public List<UserDTO> getAllUsersWithBalanceInformation() {
+        List<Object[]> result = userRepository.findAllUsersWithBalanceInformation();
+        return wrapUserDTOS(result);
+    }
+        public void saveUser(UserDTO userDTO){
         try{
             userRepository.save(new User(userDTO));
             logger.info("Save user successfully for user {}",userDTO.getUsername());

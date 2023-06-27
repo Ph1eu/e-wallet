@@ -32,7 +32,7 @@ public class MockUserGenerator {
         Date registrationDate = new Date();
         RoleDTO role = new RoleDTO(ERole.ROLE_USER);
         AddressDTO address = generateMockAddress(index);
-        UserDTO user = new UserDTO(email, username, password, firstName, lastName, registrationDate, role, address, null);
+        UserDTO user = new UserDTO(email, username, password, firstName, lastName, registrationDate, role, address, null,null);
         List<PaymentcardDTO> paymentCards = generateMockPaymentCards(index);
         for (PaymentcardDTO paymentcardDTO:paymentCards){
             paymentcardDTO.setUser(user);

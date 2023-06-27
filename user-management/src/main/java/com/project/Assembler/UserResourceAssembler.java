@@ -49,7 +49,7 @@ public class UserResourceAssembler implements RepresentationModelAssembler<UserD
         }
         ResponseEntityWrapper<EntityModel<UserDTO>> entityWrapper = new ResponseEntityWrapper<>();
         entityWrapper.setData(entityModels);
-        entityWrapper.setLink(List.of(linkTo(methodOn(AdminController.class).getAllUsers()).withRel("Get All user for admin")));
+        entityWrapper.setLink(List.of(linkTo(methodOn(AdminController.class).getAllUsers("email",1000)).withRel("Get All user for admin")));
         return entityWrapper;
     }
     public ResponseEntityWrapper<EntityModel<AddressDTO>>  toAddressModel(UserDTO entity){

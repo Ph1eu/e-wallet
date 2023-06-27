@@ -38,7 +38,7 @@ public class UserController {
     public ResponseEntity<?> getOnlineBalance(@PathVariable("username") String username){
 
         BalanceInformationDTO balanceInformationDTO=  balanceInformationService.getUserBalanceInformationByUsername(username);
-        return ResponseEntity.ok().body(balanceResourceAssembler.toModelWithWrapper(balanceInformationDTO));
+        return ResponseEntity.ok().body(balanceResourceAssembler.toModelWithWrapper(balanceInformationDTO,username));
     }
     @GetMapping("/{username}/deposit")
     public ResponseEntity<?> depositMoney(@PathVariable("username") String username,@RequestParam("amount") int amount){
@@ -50,7 +50,7 @@ public class UserController {
                  TransactionType.DEPOSIT.getDisplayName(),amount,new Date());
         balanceInformationService.saveBalanceInformation(balanceInformationDTO);
         transactionHistoryService.saveTransaction(transactionHistoryDTO);
-        return ResponseEntity.ok().body(balanceResourceAssembler.toModelByTransaction(balanceInformationDTO,transactionHistoryDTO));
+        return ResponseEntity.ok().body(balanceResourceAssembler.toModelByTransaction(balanceInformationDTO,transactionHistoryDTO,username));
     }
     @GetMapping("/{username}/withdrawal")
     public ResponseEntity<?> withdrawalMoney(@PathVariable("username") String username,@RequestParam("amount") int amount){
@@ -62,7 +62,7 @@ public class UserController {
                 TransactionType.WITHDRAWAL.getDisplayName(),amount,new Date());
         balanceInformationService.saveBalanceInformation(balanceInformationDTO);
         transactionHistoryService.saveTransaction(transactionHistoryDTO);
-        return ResponseEntity.ok().body(balanceResourceAssembler.toModelByTransaction(balanceInformationDTO,transactionHistoryDTO));
+        return ResponseEntity.ok().body(balanceResourceAssembler.toModelByTransaction(balanceInformationDTO,transactionHistoryDTO,username));
     }
     @GetMapping("/{username}/transfer")
     public ResponseEntity<?> transferMoney(@PathVariable("username") String username,@RequestParam("amount") int amount,
@@ -80,7 +80,8 @@ public class UserController {
         balanceInformationService.saveBalanceInformation(senderInformation);
         balanceInformationService.saveBalanceInformation(receiverInformation);
         transactionHistoryService.saveTransaction(transactionHistoryDTO);
-        return ResponseEntity.ok().body(balanceResourceAssembler.toModelByTransferTransaction(senderInformation,receiverInformation,transactionHistoryDTO));
+        return ResponseEntity.ok().body(balanceResourceAssembler.toModelByTransferTransaction(senderInformation,receiverInformation,
+                transactionHistoryDTO,username));
     }
     @GetMapping("/{username}/balance/history")
     public ResponseEntity<?> getHistory(@PathVariable("username") String username){

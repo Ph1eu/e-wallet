@@ -80,7 +80,7 @@ public class LoginController{
         UserDTO user = new UserDTO(signUpRequest.getEmail(),
                 signUpRequest.getUsername(),
                 passwordEncoder.encode(signUpRequest.getPassword()),
-                signUpRequest.getFirst_name(),signUpRequest.getLast_name(),new Date(),null,null,null);
+                signUpRequest.getFirst_name(),signUpRequest.getLast_name(),new Date(),null,null,null,null);
 
         String strRoles = signUpRequest.getRole();
         System.out.println(strRoles);

@@ -78,19 +78,21 @@ public class UserController {
     public ResponseEntity<?> getOneUser(@PathVariable("username") String username){
 
         UserDTO user = verifyUserInstance(username);
+        UserDTO userwithBalance = userDetailService.getUserWithBalanceInformation(user.getId_email());
         if (user == null){
             return ResponseEntity.badRequest().body(new MessageResponse("Invalid User"));
         }
         else{
             List<PaymentcardDTO> paymentcardDTOS= paymentCardsService.findByAllUser(user);
-            user.setPaymentcards(paymentcardDTOS);
-            return  ResponseEntity.ok().body(userResourceAssembler.toModel(user));
+            userwithBalance.setPaymentcards(paymentcardDTOS);
+            return  ResponseEntity.ok().body(userResourceAssembler.toCollectionModelInWrapper(List.of(userwithBalance)));
         }
 
     }
     @GetMapping("/{username}/address")
     public ResponseEntity<?> getAddress(@PathVariable("username")String username){
         UserDTO user = verifyUserInstance(username);
+
         if (user == null){
             return ResponseEntity.badRequest().body(new MessageResponse("Invalid User"));
         }

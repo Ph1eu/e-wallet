@@ -43,6 +43,7 @@ public class User{
     @JsonManagedReference
 
     private List<Paymentcard> paymentcards ;
+
     public User(){
 
     }
@@ -67,11 +68,12 @@ public class User{
 
 
     }
-    public User(String idemail, String username, String password,String first_name,String last_name, Date registration_date, Role roles, Address address, List<Paymentcard> paymentcards) {
+
+    public User(String idemail, String username, String password, String first_name, String last_name, Date registration_date, Role roles, Address address, List<Paymentcard> paymentcards) {
         this.idemail = idemail;
         this.username = username;
         this.password = password;
-        this.first_name= first_name;
+        this.first_name = first_name;
         this.last_name = last_name;
         this.registration_date = registration_date;
         this.roles = roles;
@@ -168,6 +170,7 @@ public class User{
     public void setLast_name(String last_name) {
         this.last_name = last_name;
     }
+
 
     @Override
     public String toString() {

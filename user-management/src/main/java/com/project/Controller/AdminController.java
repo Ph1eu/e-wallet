@@ -10,6 +10,7 @@ import com.project.Service.UserDetailServiceImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.repository.query.Param;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -33,17 +34,48 @@ public class AdminController {
 
 
     @GetMapping("/all")
-    public ResponseEntity<?> getAllUsers(){
+    public ResponseEntity<?> getAllUsers(@Param("email") String email,@Param("balance") Integer balance ){
+        if(email == null  && balance == null){
+            List<UserDTO> users = userDetailService.getAllUsersWithBalanceInformation();
+            if (users == null){
+                return  ResponseEntity.notFound().build();
+            }
+            else{
+                return ResponseEntity.ok().body(userResourceAssembler.toCollectionModelInWrapper(users));
+            }
+        }
+        else if (email != null && balance != null) {
+            List<UserDTO> users = userDetailService.getAllUsersWithEmailandBalance(email,balance);
+            if (users == null){
+                return  ResponseEntity.notFound().build();
+            }
+            else{
+                return ResponseEntity.ok().body(userResourceAssembler.toCollectionModelInWrapper(users));
+            }
 
-        List<UserDTO> users = userDetailService.findAll();
-        if (users == null){
-            return  ResponseEntity.notFound().build();
+        }else if (email != null && balance == null) {
+            List<UserDTO> users = userDetailService.getAllUsersWithEmail(email);
+            if (users == null){
+                return  ResponseEntity.notFound().build();
+            }
+            else{
+                return ResponseEntity.ok().body(userResourceAssembler.toCollectionModelInWrapper(users));
+            }
+
+        }else if (balance != null && email == null ) {
+            List<UserDTO> users = userDetailService.getAllUsersWithBalance(balance);
+            if (users == null){
+                return  ResponseEntity.notFound().build();
+            }
+            else{
+                return ResponseEntity.ok().body(userResourceAssembler.toCollectionModelInWrapper(users));
+            }
         }
-        else{
-            return ResponseEntity.ok().body(userResourceAssembler.toCollectionModelInWrapper(users));
-        }
+        return ResponseEntity.badRequest().build();
+
     }
-
-
-
 }
+
+
+
+
