@@ -18,6 +18,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -34,44 +35,31 @@ public class AdminController {
 
 
     @GetMapping("/all")
-    public ResponseEntity<?> getAllUsers(@Param("email") String email,@Param("balance") Integer balance ){
-        if(email == null  && balance == null){
-            List<UserDTO> users = userDetailService.getAllUsersWithBalanceInformation();
-            if (users == null){
-                return  ResponseEntity.notFound().build();
-            }
-            else{
-                return ResponseEntity.ok().body(userResourceAssembler.toCollectionModelInWrapper(users));
+    public ResponseEntity<?> getAllUsers(@RequestParam(value = "email",required = false) String email,@RequestParam(value = "balance",required = false) Integer balance ){
+        List<UserDTO> users;
+
+        if (email == null && balance == null) {
+            // Case: No email or balance specified
+            users = userDetailService.getAllUsersWithBalanceInformation();
+        } else {
+            // Other cases where at least one parameter is specified
+            if (email != null && balance != null) {
+                // Case: Both email and balance specified
+                users = userDetailService.getAllUsersWithEmailandBalance(email, balance);
+            } else if (email != null) {
+                // Case: Only email specified
+                users = userDetailService.getAllUsersWithEmail(email);
+            } else {
+                // Case: Only balance specified
+                users = userDetailService.getAllUsersWithBalance(balance);
             }
         }
-        else if (email != null && balance != null) {
-            List<UserDTO> users = userDetailService.getAllUsersWithEmailandBalance(email,balance);
-            if (users == null){
-                return  ResponseEntity.notFound().build();
-            }
-            else{
-                return ResponseEntity.ok().body(userResourceAssembler.toCollectionModelInWrapper(users));
-            }
 
-        }else if (email != null && balance == null) {
-            List<UserDTO> users = userDetailService.getAllUsersWithEmail(email);
-            if (users == null){
-                return  ResponseEntity.notFound().build();
-            }
-            else{
-                return ResponseEntity.ok().body(userResourceAssembler.toCollectionModelInWrapper(users));
-            }
-
-        }else if (balance != null && email == null ) {
-            List<UserDTO> users = userDetailService.getAllUsersWithBalance(balance);
-            if (users == null){
-                return  ResponseEntity.notFound().build();
-            }
-            else{
-                return ResponseEntity.ok().body(userResourceAssembler.toCollectionModelInWrapper(users));
-            }
+        if (users.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        } else {
+            return ResponseEntity.ok().body(userResourceAssembler.toCollectionModelInWrapper(users));
         }
-        return ResponseEntity.badRequest().build();
 
     }
 }
