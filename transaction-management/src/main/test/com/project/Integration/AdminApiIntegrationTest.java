@@ -1,10 +1,15 @@
 package com.project.Integration;
 
-import static io.restassured.RestAssured.given;
 import io.restassured.path.json.JsonPath;
 import org.junit.Assert;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import java.util.List;
+import java.util.Map;
+
+import static io.restassured.RestAssured.given;
+
 public class AdminApiIntegrationTest {
     private String jwtToken;
 
@@ -32,39 +37,33 @@ public class AdminApiIntegrationTest {
         this.jwtToken = retrieveToken();
     }
     @Test
-    void getAllUsers() {
-        String response_case_1 = given().
-                header("Authorization", "Bearer " + jwtToken)
-                .queryParam("")
+    void getHistoryofUser(){
+        String response_case_1 =given()
+                .header("Authorization", "Bearer " + jwtToken)
+                .queryParam("username", "hieuhg123456")
                 .when()
-                .get("http://localhost:8081/api/admin/all")
+                .get("http://localhost:8082/api/admin/history")
                 .then()
                 .statusCode(200)
                 .extract().asString();
-        String response_case_2 = given().
-                header("Authorization", "Bearer " + jwtToken)
-                .queryParam("email","admin@admin.com")
+        JsonPath jsonPath_1 = new JsonPath(response_case_1);
+        List<Map<String, ?>> dataArray_1 = jsonPath_1.getList("data");
+
+        Assert.assertEquals(dataArray_1.size(),7);
+
+        String response_case_2 =given()
+                .header("Authorization", "Bearer " + jwtToken)
+                .queryParam("username", "hieuhg123456")
+                .queryParam("page",0).
+                queryParam("size",3)
                 .when()
-                .get("http://localhost:8081/api/admin/all")
+                .get("http://localhost:8082/api/admin/history")
                 .then()
                 .statusCode(200)
                 .extract().asString();
-        String response_case_3 = given().
-                header("Authorization", "Bearer " + jwtToken)
-                .queryParam("email","banyamanohg@gmail.com").
-                queryParam("amount",1001600)
-                .when()
-                .get("http://localhost:8081/api/admin/all")
-                .then()
-                .statusCode(200)
-                .extract().asString();
-        String response_case_4 = given().
-                header("Authorization", "Bearer " + jwtToken).
-                queryParam("amount",1001600)
-                .when()
-                .get("http://localhost:8081/api/admin/all")
-                .then()
-                .statusCode(200)
-                .extract().asString();
+        JsonPath jsonPath_2 = new JsonPath(response_case_2);
+        List<Map<String, ?>> dataArray_2 = jsonPath_2.getList("data");
+        Assert.assertEquals(dataArray_2.size(),3);
+
     }
 }

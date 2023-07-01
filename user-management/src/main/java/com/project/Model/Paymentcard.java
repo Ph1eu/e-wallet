@@ -136,4 +136,17 @@ public class Paymentcard {
     public int hashCode() {
         return Objects.hash(id, card_number, user, card_holder_name, card_type, registration_date, expiration_date);
     }
+
+    @Override
+    public String toString() {
+        return "Paymentcard{" +
+                "id='" + id + '\'' +
+                ", card_number='" + card_number + '\'' +
+                ", user=" + user.getIdemail() +
+                ", card_holder_name='" + card_holder_name + '\'' +
+                ", card_type='" + card_type + '\'' +
+                ", registration_date=" + registration_date +
+                ", expiration_date=" + expiration_date +
+                '}';
+    }
 }

@@ -57,6 +57,13 @@ public class BalanceInformationDTO {
     public BalanceInformationDTO() {
     }
 
+    public BalanceInformationDTO(String id, String userid, int balance_amount, String phone_number) {
+        this.id = id;
+        this.userid = userid;
+        this.balance_amount = balance_amount;
+        this.phone_number = phone_number;
+    }
+
     public BalanceInformationDTO(String user, int balance_amount, String phone_number) {
         this.userid = user;
         this.balance_amount = balance_amount;

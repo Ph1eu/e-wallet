@@ -12,6 +12,9 @@ import com.project.Service.BalanceInformationService;
 import com.project.Service.TransactionHistoryService;
 import com.project.Service.UserDetailServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -84,8 +87,11 @@ public class UserController {
                 transactionHistoryDTO,username));
     }
     @GetMapping("/{username}/balance/history")
-    public ResponseEntity<?> getHistory(@PathVariable("username") String username){
-        List<TransactionHistoryDTO> historyDTOS = transactionHistoryService.getAllTransactionHistory();
+    public ResponseEntity<?> getHistory(@PathVariable("username") String username,
+                                        @RequestParam(required = false,defaultValue = "0") Integer page,
+                                        @RequestParam(required = false,defaultValue = "10")Integer size){
+        Pageable pageable = PageRequest.of(page,size);
+        Page<TransactionHistoryDTO> historyDTOS = transactionHistoryService.getAllTransactionHistory(pageable);
         return ResponseEntity.ok().body(transactionResourceAssembler.toCollectionModelWithUsername(historyDTOS,username));
     }
 }

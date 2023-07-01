@@ -9,9 +9,12 @@ import com.project.Payload.DTO.PaymentcardDTO;
 import com.project.Payload.DTO.UserDTO;
 import com.project.Payload.Request.CRUDUserInforRequest.AddressCRUD;
 import com.project.Payload.Request.CRUDUserInforRequest.PaymentcardCRUD;
+import com.project.Payload.Response.PaginationInfor;
 import com.project.Payload.Response.ResponseEntityWrapper;
+import com.project.Payload.Response.ResponsePagedEntityWrapper;
 import jakarta.annotation.Nonnull;
 import org.hibernate.engine.spi.EntityUniqueKey;
+import org.springframework.data.domain.Page;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.server.RepresentationModelAssembler;
@@ -43,13 +46,34 @@ public class UserResourceAssembler implements RepresentationModelAssembler<UserD
         return CollectionModel.of(entityModels);
     }
     public ResponseEntityWrapper<EntityModel<UserDTO>> toCollectionModelInWrapper(List<UserDTO> entities){
+
+
         List<EntityModel<UserDTO>> entityModels = new ArrayList<>();
         for(UserDTO userDTO:entities){
             entityModels.add(toModel(userDTO));
         }
         ResponseEntityWrapper<EntityModel<UserDTO>> entityWrapper = new ResponseEntityWrapper<>();
         entityWrapper.setData(entityModels);
-        entityWrapper.setLink(List.of(linkTo(methodOn(AdminController.class).getAllUsers("email",1000)).withRel("Get All user for admin")));
+        entityWrapper.setLink(List.of(linkTo(methodOn(AdminController.class).getAllUsers("email",1000,0,5)).withRel("Get All user for admin")));
+        return entityWrapper;
+    }
+    public ResponsePagedEntityWrapper<EntityModel<UserDTO>> toCollectionModelInPagedWrapper(Page<UserDTO> page){
+
+        List<UserDTO> entities = page.getContent();
+        List<EntityModel<UserDTO>> entityModels = new ArrayList<>();
+        for(UserDTO userDTO:entities){
+            entityModels.add(toModel(userDTO));
+        }
+        ResponsePagedEntityWrapper<EntityModel<UserDTO>> entityWrapper = new ResponsePagedEntityWrapper<>();
+        entityWrapper.setData(entityModels);
+        PaginationInfor paginationInfor = new PaginationInfor((int)page.getTotalElements(),
+                                                                page.getTotalPages(),
+                                                                page.getNumber(),
+                                                                page.getSize(),
+                                                                page.getNumberOfElements());
+        entityWrapper.setPaginationInfo(paginationInfor);
+
+        entityWrapper.setLink(List.of(linkTo(methodOn(AdminController.class).getAllUsers("email",1000,0,5)).withRel("Get All user for admin")));
         return entityWrapper;
     }
     public ResponseEntityWrapper<EntityModel<AddressDTO>>  toAddressModel(UserDTO entity){

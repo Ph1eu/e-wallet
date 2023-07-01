@@ -184,11 +184,27 @@ public class UserDTO{
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         UserDTO userDTO = (UserDTO) o;
-        return Objects.equals(idemail, userDTO.idemail) && Objects.equals(username, userDTO.username) && Objects.equals(password, userDTO.password) && Objects.equals(first_name, userDTO.first_name) && Objects.equals(last_name, userDTO.last_name) && Objects.equals(registration_date, userDTO.registration_date) && Objects.equals(roles, userDTO.roles) && Objects.equals(addressDTO, userDTO.addressDTO) && Objects.equals(paymentcardsDTO, userDTO.paymentcardsDTO) && Objects.equals(balanceInformation, userDTO.balanceInformation);
+        return Objects.equals(idemail, userDTO.idemail) && Objects.equals(username, userDTO.username) && Objects.equals(password, userDTO.password) && Objects.equals(first_name, userDTO.first_name) && Objects.equals(last_name, userDTO.last_name) && Objects.equals(registration_date, userDTO.registration_date) && Objects.equals(roles, userDTO.roles) && Objects.equals(addressDTO, userDTO.addressDTO)  && Objects.equals(balanceInformation, userDTO.balanceInformation);
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(idemail, username, password, first_name, last_name, registration_date, roles, addressDTO, paymentcardsDTO, balanceInformation);
+    }
+
+    @Override
+    public String toString() {
+        return "UserDTO{" +
+                "idemail='" + idemail + '\'' +
+                ", username='" + username + '\'' +
+                ", password='" + password + '\'' +
+                ", first_name='" + first_name + '\'' +
+                ", last_name='" + last_name + '\'' +
+                ", registration_date=" + registration_date +
+                ", roles=" + roles +
+                ", addressDTO=" + addressDTO +
+                ", paymentcardsDTO=" + paymentcardsDTO +
+                ", balanceInformation=" + balanceInformation +
+                '}';
     }
 }

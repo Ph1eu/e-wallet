@@ -1,4 +1,4 @@
-package com.project.Unit;
+package com.project.Unit.Controller;
 
 import com.project.Assembler.UserResourceAssembler;
 import com.project.Configuration.jwt.JwtServices;
@@ -90,7 +90,7 @@ class UserControllerTest {
     @Test
     void verifyUserInstance() {
         // Prepare test data
-        UserDTO user =  mockUserGenerator.generateMockUser(100);
+        UserDTO user =  mockUserGenerator.generateMockUserDTO(100);
 
         UserDTO result = mockUserInstance(user);
 
@@ -107,7 +107,7 @@ class UserControllerTest {
     @Test
     void getOneUser()throws Exception  {
         // Prepare test data
-        UserDTO user =  mockUserGenerator.generateMockUser(50);
+        UserDTO user =  mockUserGenerator.generateMockUserDTO(50);
         // Create a mock UserDetails object
 
         UserDTO result = mockUserInstance(user);
@@ -130,7 +130,7 @@ class UserControllerTest {
 
     @Test
     void getAddress() {
-        UserDTO user =  mockUserGenerator.generateMockUser(100);
+        UserDTO user =  mockUserGenerator.generateMockUserDTO(100);
         UserDTO result = mockUserInstance(user);
 
 

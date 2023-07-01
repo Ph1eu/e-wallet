@@ -121,11 +121,24 @@ public class PaymentcardDTO {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         PaymentcardDTO that = (PaymentcardDTO) o;
-        return Objects.equals(id, that.id) && Objects.equals(card_number, that.card_number) && Objects.equals(user, that.user) && Objects.equals(card_holder_name, that.card_holder_name) && Objects.equals(card_type, that.card_type) && Objects.equals(registration_date, that.registration_date) && Objects.equals(expiration_date, that.expiration_date);
+        return Objects.equals(id, that.id) && Objects.equals(card_number, that.card_number)  && Objects.equals(card_holder_name, that.card_holder_name) && Objects.equals(card_type, that.card_type) && Objects.equals(registration_date, that.registration_date) && Objects.equals(expiration_date, that.expiration_date);
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(id, card_number, user, card_holder_name, card_type, registration_date, expiration_date);
+    }
+
+    @Override
+    public String toString() {
+        return "PaymentcardDTO{" +
+                "id='" + id + '\'' +
+                ", card_number='" + card_number + '\'' +
+                ", user=" + user.getIdemail() +
+                ", card_holder_name='" + card_holder_name + '\'' +
+                ", card_type='" + card_type + '\'' +
+                ", registration_date=" + registration_date +
+                ", expiration_date=" + expiration_date +
+                '}';
     }
 }

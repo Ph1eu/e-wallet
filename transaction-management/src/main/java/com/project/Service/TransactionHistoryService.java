@@ -9,9 +9,13 @@ import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -40,19 +44,25 @@ public class TransactionHistoryService {
             throw new RuntimeException("Failed to save transaction", e);
         }
     }
-    public List<TransactionHistoryDTO> getAllTransactionHistory(){
+    public Page<TransactionHistoryDTO> getAllTransactionHistory(Pageable pageable){
         try{
-            List<TransactionHistory> transactionHistory = transactionHistoryRepository.findAll();
+            Page<TransactionHistory> result = transactionHistoryRepository.findAll(pageable);
+//            int pageSize = pageable.getPageSize();
+//            int offset = pageable.getPageNumber() * pageSize;
+//            Page<TransactionHistory> result= new PageImpl<>(transactionHistories.subList(start, end), pageable, transactionHistories.size());
+//            System.out.println(result);
             List<TransactionHistoryDTO> transactionHistoryDTO = new ArrayList<>();
-            for (TransactionHistory object: transactionHistory  ){
+            for (TransactionHistory object: result.getContent()  ){
                 transactionHistoryDTO.add(new TransactionHistoryDTO(object));
             }
-            return transactionHistoryDTO;
+            return new PageImpl<>(transactionHistoryDTO, result.getPageable(), result.getTotalElements());
+
         }catch (Exception e){
             logger.error("Failed to fetch all transactions", e);
             throw new RuntimeException("Failed to fetch all transactions", e);
         }
     }
+
     public List<TransactionHistoryDTO> getAllTransactionHistoryByAmount(int amount){
         try{
             List<TransactionHistory> transactionHistory = transactionHistoryRepository.findTransactionHistoryByAmount(amount);
@@ -92,6 +102,71 @@ public class TransactionHistoryService {
             throw new RuntimeException("Failed to fetch all transactions", e);
         }
     }
+    public Page<TransactionHistoryDTO> getAllTransactionHistoryByFilter(Date startDate,Date endDate, String type,Pageable pageable){
+        try{
+            Page<TransactionHistory> result = transactionHistoryRepository.findTransactionHistoryByFilters(startDate,endDate,type,pageable);
+            List<TransactionHistoryDTO> transactionHistoryDTO = new ArrayList<>();
+            for (TransactionHistory object: result.getContent()  ){
+                transactionHistoryDTO.add(new TransactionHistoryDTO(object));
+            }
+            return new PageImpl<>(transactionHistoryDTO, result.getPageable(), result.getTotalElements());
+        }catch (Exception e){
+            logger.error("Failed to fetch all transactions by recipient with filters");
+            throw new RuntimeException("Failed to fetch all transactions", e);
+        }
+    }
+    public Page<TransactionHistoryDTO> getAllTransactionHistoryByRange(Date startDate, Date endDate, Pageable pageable){
+        try{
+            Page<TransactionHistory> result = transactionHistoryRepository.findTransactionHistoryByRange(startDate,endDate,pageable);
+            List<TransactionHistoryDTO> transactionHistoryDTO = new ArrayList<>();
+            for (TransactionHistory object: result.getContent()  ){
+                transactionHistoryDTO.add(new TransactionHistoryDTO(object));
+            }
+            return new PageImpl<>(transactionHistoryDTO, result.getPageable(), result.getTotalElements());
 
+        }catch (Exception e){
+            logger.error("Failed to fetch all transactions by recipient with given range");
+            throw new RuntimeException("Failed to fetch all transactions", e);
+        }
+    }
+    public Page<TransactionHistoryDTO> getAllTransactionHistoryByStartDate(Date startDate,Pageable pageable){
+        try{
+            Page<TransactionHistory> result = transactionHistoryRepository.findTransactionHistoryByStartDate(startDate,pageable);
+            List<TransactionHistoryDTO> transactionHistoryDTO = new ArrayList<>();
+            for (TransactionHistory object: result.getContent()  ){
+                transactionHistoryDTO.add(new TransactionHistoryDTO(object));
+            }
+            return new PageImpl<>(transactionHistoryDTO, result.getPageable(), result.getTotalElements());
+        }catch (Exception e){
+            logger.error("Failed to fetch all transactions with given start date");
+            throw new RuntimeException("Failed to fetch all transactions", e);
+        }
+    }
+    public Page<TransactionHistoryDTO> getAllTransactionHistoryByEndDate(Date endDate,Pageable pageable){
+        try{
+            Page<TransactionHistory> result = transactionHistoryRepository.findTransactionHistoryByEndDate(endDate,pageable);
+            List<TransactionHistoryDTO> transactionHistoryDTO = new ArrayList<>();
+            for (TransactionHistory object: result.getContent()  ){
+                transactionHistoryDTO.add(new TransactionHistoryDTO(object));
+            }
+            return new PageImpl<>(transactionHistoryDTO, result.getPageable(), result.getTotalElements());
+        }catch (Exception e){
+            logger.error("Failed to fetch all transactions with given end date");
+            throw new RuntimeException("Failed to fetch all transactions", e);
+        }
+    }
+    public Page<TransactionHistoryDTO> getAllTransactionHistoryByType(String type,Pageable page){
+        try{
+            Page<TransactionHistory> result = transactionHistoryRepository.findTransactionHistoryByTransactionType(type,page);
+            List<TransactionHistoryDTO> transactionHistoryDTO = new ArrayList<>();
+            for (TransactionHistory object: result.getContent()  ){
+                transactionHistoryDTO.add(new TransactionHistoryDTO(object));
+            }
+            return new PageImpl<>(transactionHistoryDTO, result.getPageable(), result.getTotalElements());
+        }catch (Exception e){
+            logger.error("Failed to fetch all transactions by recipient with type ");
+            throw new RuntimeException("Failed to fetch all transactions", e);
+        }
+    }
 
 }

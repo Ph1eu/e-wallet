@@ -1,8 +1,10 @@
 package com.project.Service;
 
 import com.project.Model.BalanceInformation;
+import com.project.Model.Paymentcard;
 import com.project.Model.User;
 import com.project.Payload.DTO.BalanceInformationDTO;
+import com.project.Payload.DTO.PaymentcardDTO;
 import com.project.Payload.DTO.UserDTO;
 import com.project.Repository.AddressRepository;
 import com.project.Repository.BalanceInformationRepository;
@@ -11,6 +13,9 @@ import com.project.Repository.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -50,7 +55,14 @@ public class UserDetailServiceImpl implements UserDetailsService {
         if (userOptional.isPresent()) {
             User user = userOptional.get();
             UserDTO userDTO = new UserDTO(user);
-
+            List<PaymentcardDTO> paymentcardDTOS = new ArrayList<>();
+            for (Paymentcard paymentcard:user.getPaymentcards()){
+                paymentcardDTOS.add(new PaymentcardDTO(paymentcard));
+            }
+            userDTO.setPaymentcardsDTO(paymentcardDTOS);
+            for(PaymentcardDTO paymentcardDTO: userDTO.getPaymentcardsDTO()){
+                paymentcardDTO.setUser(userDTO);
+            }
             Optional<BalanceInformation> balanceInformationOptional = balanceInformationRepository.findBalanceInformationsByUserId(user.getId_email());
             if (balanceInformationOptional.isPresent()) {
                 BalanceInformation balanceInformation = balanceInformationOptional.get();
@@ -65,14 +77,22 @@ public class UserDetailServiceImpl implements UserDetailsService {
     }
 
 
-    private List<UserDTO> wrapUserDTOS(List<Object[]> result) {
+    private Page<UserDTO> wrapUserDTOS(Page<Object[]> result) {
         List<UserDTO> userDTOs = new ArrayList<>();
 
-        for (Object[] row : result) {
+        for (Object[] row : result.getContent()) {
             User user = (User) row[0];
             BalanceInformation balanceInformation = (BalanceInformation) row[1];
 
             UserDTO userDTO = new UserDTO(user);
+            List<PaymentcardDTO> paymentcardDTOS = new ArrayList<>();
+            for (Paymentcard paymentcard:user.getPaymentcards()){
+                paymentcardDTOS.add(new PaymentcardDTO(paymentcard));
+            }
+            userDTO.setPaymentcardsDTO(paymentcardDTOS);
+            for(PaymentcardDTO paymentcard:userDTO.getPaymentcards()){
+                paymentcard.setUser(userDTO);
+            }
             if (balanceInformation != null) {
                 BalanceInformationDTO balanceInformationDTO = new BalanceInformationDTO(balanceInformation);
                 userDTO.setBalanceInformation(balanceInformationDTO);
@@ -80,22 +100,24 @@ public class UserDetailServiceImpl implements UserDetailsService {
 
             userDTOs.add(userDTO);
         }
-        return userDTOs;
+
+        return new PageImpl<>(userDTOs, result.getPageable(), result.getTotalElements());
     }
-    public List<UserDTO> getAllUsersWithEmailandBalance(String email,Integer balance){
-        List<Object[]> result = userRepository.findUserWithEmailandBalance(email,balance);
+
+    public Page<UserDTO> getAllUsersWithEmailandBalance(String email, Integer balance, Pageable pageable){
+        Page<Object[]> result = userRepository.findUserWithEmailandBalance(email,balance,pageable);
         return wrapUserDTOS(result);
     }
-    public List<UserDTO> getAllUsersWithEmail(String email){
-        List<Object[]> result = userRepository.findUserWithEmail(email);
+    public Page<UserDTO> getAllUsersWithEmail(String email,Pageable pageable){
+        Page<Object[]> result = userRepository.findUserWithEmail(email,pageable);
         return wrapUserDTOS(result);
     }
-    public List<UserDTO> getAllUsersWithBalance(Integer balance){
-        List<Object[]> result = userRepository.findUserWithBalance(balance);
+    public Page<UserDTO> getAllUsersWithBalance(Integer balance,Pageable pageable){
+        Page<Object[]> result = userRepository.findUserWithBalance(balance,pageable);
         return wrapUserDTOS(result);
     }
-    public List<UserDTO> getAllUsersWithBalanceInformation() {
-        List<Object[]> result = userRepository.findAllUsersWithBalanceInformation();
+    public Page<UserDTO> getAllUsersWithBalanceInformation(Pageable pageable) {
+        Page<Object[]> result = userRepository.findAllUsersWithBalanceInformation(pageable);
         return wrapUserDTOS(result);
     }
         public void saveUser(UserDTO userDTO){
