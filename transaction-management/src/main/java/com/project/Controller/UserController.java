@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 
@@ -45,43 +46,37 @@ public class UserController {
     }
     @GetMapping("/{username}/deposit")
     public ResponseEntity<?> depositMoney(@PathVariable("username") String username,@RequestParam("amount") int amount){
-        BalanceInformationDTO balanceInformationDTO=  balanceInformationService.getUserBalanceInformationByUsername(username);
+        BalanceInformationDTO balanceInformationDTO=  balanceInformationService.IncreaseBalance(username,amount).get();
         int current_amount = balanceInformationDTO.getBalance_amount();
         balanceInformationDTO.setBalance_amount(current_amount+ amount);
         TransactionHistoryDTO transactionHistoryDTO = new TransactionHistoryDTO(balanceInformationDTO.getUser(),
                                                     balanceInformationDTO.getUser(),
                  TransactionType.DEPOSIT.getDisplayName(),amount,new Date());
-        balanceInformationService.saveBalanceInformation(balanceInformationDTO);
         transactionHistoryService.saveTransaction(transactionHistoryDTO);
         return ResponseEntity.ok().body(balanceResourceAssembler.toModelByTransaction(balanceInformationDTO,transactionHistoryDTO,username));
     }
     @GetMapping("/{username}/withdrawal")
     public ResponseEntity<?> withdrawalMoney(@PathVariable("username") String username,@RequestParam("amount") int amount){
-        BalanceInformationDTO balanceInformationDTO=  balanceInformationService.getUserBalanceInformationByUsername(username);
+        BalanceInformationDTO balanceInformationDTO=  balanceInformationService.DecreaseBalance(username,amount).get();
         int current_amount = balanceInformationDTO.getBalance_amount();
         balanceInformationDTO.setBalance_amount(current_amount- amount);
         TransactionHistoryDTO transactionHistoryDTO = new TransactionHistoryDTO(balanceInformationDTO.getUser(),
                 balanceInformationDTO.getUser(),
                 TransactionType.WITHDRAWAL.getDisplayName(),amount,new Date());
-        balanceInformationService.saveBalanceInformation(balanceInformationDTO);
         transactionHistoryService.saveTransaction(transactionHistoryDTO);
         return ResponseEntity.ok().body(balanceResourceAssembler.toModelByTransaction(balanceInformationDTO,transactionHistoryDTO,username));
     }
+
     @GetMapping("/{username}/transfer")
     public ResponseEntity<?> transferMoney(@PathVariable("username") String username,@RequestParam("amount") int amount,
                                            @RequestParam("phone") String phone){
-        BalanceInformationDTO senderInformation=  balanceInformationService.getUserBalanceInformationByUsername(username);
-        BalanceInformationDTO receiverInformation=  balanceInformationService.getUserBalanceInformationByPhone(phone);
+        List<Optional<BalanceInformationDTO>> optionalList = balanceInformationService.TransferBalance(username,phone,amount);
+        BalanceInformationDTO senderInformation =  optionalList.get(0).get();
+        BalanceInformationDTO receiverInformation= optionalList.get(1).get();
 
-        int current_sender_amount = senderInformation.getBalance_amount();
-        int current_receiver_amount = receiverInformation.getBalance_amount();
-        senderInformation.setBalance_amount(current_sender_amount- amount);
-        receiverInformation.setBalance_amount(current_receiver_amount + amount);
         TransactionHistoryDTO transactionHistoryDTO = new TransactionHistoryDTO(senderInformation.getUser(),
                 receiverInformation.getUser(),
                 TransactionType.TRANSFER.getDisplayName(),amount,new Date());
-        balanceInformationService.saveBalanceInformation(senderInformation);
-        balanceInformationService.saveBalanceInformation(receiverInformation);
         transactionHistoryService.saveTransaction(transactionHistoryDTO);
         return ResponseEntity.ok().body(balanceResourceAssembler.toModelByTransferTransaction(senderInformation,receiverInformation,
                 transactionHistoryDTO,username));

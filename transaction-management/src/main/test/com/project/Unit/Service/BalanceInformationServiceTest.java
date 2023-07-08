@@ -13,6 +13,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Arrays;
 import java.util.Date;
@@ -146,5 +148,107 @@ class BalanceInformationServiceTest {
         // Verify the expected interactions
         Mockito.verify(userRepository).getReferenceById(balanceInformationDTO.getUser());
         Mockito.verify(balanceInformationRepository).save(Mockito.any(BalanceInformation.class));
+    }
+    @Test
+    @Transactional(isolation = Isolation.SERIALIZABLE)
+    void increaseBalanceCommited(){
+        User mockUser = new User();
+
+        int current_amount  = 1000;
+        int bonus_amount = 1000;
+        int total_amount = current_amount + bonus_amount;
+
+        mockUser.setIdemail("john.doe@example.com");
+        mockUser.setUsername("johndoe");
+        BalanceInformation balanceInformation = new BalanceInformation();
+        balanceInformation.setId("12345");
+        balanceInformation.setUser(mockUser);
+        balanceInformation.setBalance_amount(current_amount);
+        balanceInformation.setPhone_number("1234567890");
+
+        Mockito.when(userRepository.findByUsername(mockUser.getUsername())).
+                thenReturn(Optional.of(mockUser));
+        Mockito.when(balanceInformationRepository.findBalanceInformationByUser(mockUser)).
+                thenReturn(balanceInformation);
+
+        Optional<BalanceInformationDTO> balanceInformationDTO = balanceInformationService.IncreaseBalance(mockUser.getUsername(),bonus_amount);
+        Mockito.verify(userRepository).findByUsername(mockUser.getUsername());
+        Mockito.verify(balanceInformationRepository).findBalanceInformationByUser(mockUser);
+        Mockito.verify(balanceInformationRepository).updateBalanceWithID(Mockito.any(String.class),Mockito.any(Integer.class));
+        balanceInformation.setBalance_amount(total_amount);
+
+        assertEquals(balanceInformation.getBalance_amount(),balanceInformationDTO.get().getBalance_amount());
+    }
+    @Test
+    @Transactional(isolation = Isolation.SERIALIZABLE)
+    void DecreaseBalanceCommited(){
+        User mockUser = new User();
+
+        int current_amount  = 100000;
+        int bonus_amount = 1000;
+        int total_amount = current_amount - bonus_amount;
+
+        mockUser.setIdemail("john.doe@example.com");
+        mockUser.setUsername("johndoe");
+        BalanceInformation balanceInformation = new BalanceInformation();
+        balanceInformation.setId("12345");
+        balanceInformation.setUser(mockUser);
+        balanceInformation.setBalance_amount(current_amount);
+        balanceInformation.setPhone_number("1234567890");
+
+        Mockito.when(userRepository.findByUsername(mockUser.getUsername())).
+                thenReturn(Optional.of(mockUser));
+        Mockito.when(balanceInformationRepository.findBalanceInformationByUser(mockUser)).
+                thenReturn(balanceInformation);
+
+        Optional<BalanceInformationDTO> balanceInformationDTO = balanceInformationService.IncreaseBalance(mockUser.getUsername(),bonus_amount);
+        Mockito.verify(userRepository).findByUsername(mockUser.getUsername());
+        Mockito.verify(balanceInformationRepository).findBalanceInformationByUser(mockUser);
+        Mockito.verify(balanceInformationRepository).updateBalanceWithID(Mockito.any(String.class),Mockito.any(Integer.class));
+        balanceInformation.setBalance_amount(total_amount);
+
+        assertEquals(balanceInformation.getBalance_amount(),balanceInformationDTO.get().getBalance_amount());
+    }
+    @Test
+    @Transactional(isolation = Isolation.SERIALIZABLE)
+    void increaseBalanceRollBack(){
+        User mockUser = new User();
+
+        int current_amount  = 1000;
+        int bonus_amount = 1000;
+
+        mockUser.setIdemail("john.doe@example.com");
+        mockUser.setUsername("johndoe");
+        BalanceInformation balanceInformation = new BalanceInformation();
+        balanceInformation.setId("12345");
+        balanceInformation.setUser(mockUser);
+        balanceInformation.setBalance_amount(current_amount);
+        balanceInformation.setPhone_number("1234567890");
+
+        Mockito.when(userRepository.findByUsername(mockUser.getUsername())).
+                thenReturn(Optional.empty());
+        assertThrows(RuntimeException.class, () -> balanceInformationService.IncreaseBalance(mockUser.getUsername(), bonus_amount));
+
+    }
+    @Test
+    @Transactional(isolation = Isolation.SERIALIZABLE)
+    void decreaseBalanceRollBack(){
+        User mockUser = new User();
+
+        int current_amount  = 1000;
+        int bonus_amount = 1000;
+
+        mockUser.setIdemail("john.doe@example.com");
+        mockUser.setUsername("johndoe");
+        BalanceInformation balanceInformation = new BalanceInformation();
+        balanceInformation.setId("12345");
+        balanceInformation.setUser(mockUser);
+        balanceInformation.setBalance_amount(current_amount);
+        balanceInformation.setPhone_number("1234567890");
+
+        Mockito.when(userRepository.findByUsername(mockUser.getUsername())).
+                thenReturn(Optional.empty());
+        assertThrows(RuntimeException.class, () -> balanceInformationService.IncreaseBalance(mockUser.getUsername(), bonus_amount));
+
     }
 }

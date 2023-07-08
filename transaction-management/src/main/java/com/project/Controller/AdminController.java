@@ -18,6 +18,7 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -57,6 +58,10 @@ public class AdminController {
             // Parse end date if provided
             if (endDateString != null) {
                 endDate = dateFormat.parse(endDateString);
+                Calendar calendar = Calendar.getInstance();
+                calendar.setTime(endDate);
+                calendar.add(Calendar.DAY_OF_MONTH, 1);
+                endDate = calendar.getTime();
             }
         } catch (ParseException e) {
             // Handle the exception if the input date strings are not in the expected format
