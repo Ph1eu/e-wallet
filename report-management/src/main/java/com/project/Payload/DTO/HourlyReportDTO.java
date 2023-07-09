@@ -1,36 +1,26 @@
-package com.project.Model;
+package com.project.Payload.DTO;
 
-import com.project.Payload.DTO.HourlyReportDTO;
-import jakarta.persistence.*;
+import com.project.Model.HourlyReport;
+import jakarta.persistence.Column;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
 
-@Entity
-@Table(name = "hourly_report")
-public class HourlyReport {
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private String id;
+public class HourlyReportDTO {
 
-    @Column(name = "balance_amount")
-    private int balanceAmount;
+        private String id;
 
-    @Column(name = "transaction_count")
-    private int transactionCount;
+        private int balanceAmount;
 
-    @Column(name = "hour")
-    private int hour;
-    @Column(name = "day")
-    private int day;
+        private int transactionCount;
 
-    @Column(name = "month")
-    private int month;
+        private int hour;
 
-    @Column(name = "year")
-    private int year;
+        private int day;
+        private int month;
+        private int year;
 
-    public HourlyReport() {
-    }
-
-    public HourlyReport(String id, int balanceAmount, int transactionCount, int hour, int day, int month, int year) {
+    public HourlyReportDTO(String id, int balanceAmount, int transactionCount, int hour, int day, int month, int year) {
         this.id = id;
         this.balanceAmount = balanceAmount;
         this.transactionCount = transactionCount;
@@ -39,7 +29,11 @@ public class HourlyReport {
         this.month = month;
         this.year = year;
     }
-    public HourlyReport (HourlyReportDTO hourlyReport){
+
+    public HourlyReportDTO() {
+    }
+
+    public HourlyReportDTO(HourlyReport hourlyReport){
         this.id = hourlyReport.getId();
         this.balanceAmount = hourlyReport.getBalanceAmount();
         this.transactionCount = hourlyReport.getTransactionCount();
@@ -57,14 +51,6 @@ public class HourlyReport {
         this.id = id;
     }
 
-    public int getHour() {
-        return hour;
-    }
-
-    public void setHour(int hour) {
-        this.hour = hour;
-    }
-
     public int getBalanceAmount() {
         return balanceAmount;
     }
@@ -79,6 +65,14 @@ public class HourlyReport {
 
     public void setTransactionCount(int transactionCount) {
         this.transactionCount = transactionCount;
+    }
+
+    public int getHour() {
+        return hour;
+    }
+
+    public void setHour(int hour) {
+        this.hour = hour;
     }
 
     public int getDay() {
