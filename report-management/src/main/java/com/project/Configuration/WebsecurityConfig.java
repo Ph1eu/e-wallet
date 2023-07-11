@@ -27,7 +27,7 @@ public class WebsecurityConfig {
     UserDetailServiceImpl userDetailsService;
     @Autowired
     JwtEntryPoint unauthorizedHandler;
-    
+
 	@Autowired
     JwtServices jwtServices;
 
@@ -61,16 +61,15 @@ public class WebsecurityConfig {
 
     @Bean
     protected SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-    	
+
     http.cors().and().csrf().disable()
     .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
     //Authorize signup for all people
    .and().authorizeHttpRequests().
-   requestMatchers("/api/admin/**").hasRole("ADMIN")
-   .requestMatchers("/api/user/**").hasAnyRole("ADMIN","USER")
+   requestMatchers("/api/report/**").hasRole("ADMIN")
    .anyRequest().authenticated();
-   
-    
+
+
     http.authenticationProvider(authenticationProvider());
     http.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
 

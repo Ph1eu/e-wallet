@@ -10,6 +10,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.sql.Time;
 import java.util.Date;
 import java.util.List;
 
@@ -40,4 +41,26 @@ public interface HourlyReportRepository extends JpaRepository<HourlyReport, Long
             "WHERE transaction_date >= :startDateTime AND transaction_date < :endDateTime " +
             "GROUP BY hour, day, month, year",nativeQuery = true)
     Page<Object[]> getHourlyReportData(@Param("startDateTime") Date startDateTime, @Param("endDateTime") Date endDateTime, Pageable pageable);
+    @Query(value = "SELECT EXTRACT(HOUR FROM transaction_date) AS hour, " +
+            "EXTRACT(DAY FROM transaction_date) AS day, " +
+            "EXTRACT(MONTH FROM transaction_date) AS month, " +
+            "EXTRACT(YEAR FROM transaction_date) AS year, " +
+            "SUM(amount) AS balanceAmount, " +
+            "COUNT(*) AS transactionCount " +
+            "FROM transaction_history " +
+            "WHERE DATE(transaction_date) = :startDate " +
+            "GROUP BY hour, day, month, year", nativeQuery = true)
+    Page<Object[]> getHourlyReportDataByDate(@Param("startDate") Date startDate, Pageable pageable);
+    @Query(value = "SELECT EXTRACT(HOUR FROM transaction_date) AS hour, " +
+            "EXTRACT(DAY FROM transaction_date) AS day, " +
+            "EXTRACT(MONTH FROM transaction_date) AS month, " +
+            "EXTRACT(YEAR FROM transaction_date) AS year, " +
+            "SUM(amount) AS balanceAmount, " +
+            "COUNT(*) AS transactionCount " +
+            "FROM transaction_history " +
+            "WHERE DATE(transaction_date) = :startDate " +
+            "AND EXTRACT(HOUR FROM transaction_date) >= :startHour " +
+            "AND EXTRACT(HOUR FROM transaction_date) < (:startHour + 24) " +
+            "GROUP BY hour, day, month, year", nativeQuery = true)
+    Page<Object[]> getHourlyReportDataByDateTime(@Param("startDate") Date startDate, @Param("startHour") int startHour, Pageable pageable);
 }

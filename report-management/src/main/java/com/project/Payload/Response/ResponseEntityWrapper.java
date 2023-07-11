@@ -33,4 +33,12 @@ public class ResponseEntityWrapper<T> {
     public void setLink(List<Link> link) {
         this.link = link;
     }
+
+    public String getMessage() {
+        return Message;
+    }
+
+    public void setMessage(String message) {
+        Message = message;
+    }
 }

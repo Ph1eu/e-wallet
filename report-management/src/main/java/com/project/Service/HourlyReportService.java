@@ -10,6 +10,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.sql.Time;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -18,26 +21,38 @@ import java.util.List;
 public class HourlyReportService {
     @Autowired
     HourlyReportRepository hourlyReportRepository;
-    @Transactional
-    public Page<HourlyReportDTO> generateHourlyReports(Date startDateTime, Date endDateTime, Pageable pageable) {
-        Page<Object[]> reportData = hourlyReportRepository.getHourlyReportData(startDateTime, endDateTime, pageable);
+
+    private List<HourlyReportDTO> mapReportDataToList(List<Object[]> reportData) {
         List<HourlyReportDTO> hourlyReportDTOS = new ArrayList<>();
-        for (Object[] rowData : reportData.getContent()) {
+        for (Object[] rowData : reportData) {
             HourlyReportDTO hourlyReport = new HourlyReportDTO();
-            hourlyReport.setHour((int) rowData[0]);
-            hourlyReport.setDay((int) rowData[1]);
-            hourlyReport.setMonth((int) rowData[2]);
-            hourlyReport.setYear((int) rowData[3]);
-            hourlyReport.setBalanceAmount((int) rowData[4]);
-            hourlyReport.setTransactionCount((int) rowData[5]);
+            hourlyReport.setHour(((BigDecimal) rowData[0]).intValue());
+            hourlyReport.setDay(((BigDecimal) rowData[1]).intValue());
+            hourlyReport.setMonth(((BigDecimal) rowData[2]).intValue());
+            hourlyReport.setYear(((BigDecimal) rowData[3]).intValue());
+            hourlyReport.setBalanceAmount(((BigDecimal) rowData[4]).intValue());
+            hourlyReport.setTransactionCount(((Long) rowData[5]).intValue());
 
             hourlyReportDTOS.add(hourlyReport);
-
         }
-        return new PageImpl<>(hourlyReportDTOS, reportData.getPageable(), reportData.getTotalElements());
-
+        return hourlyReportDTOS;
     }
-    @Transactional
+    public Page<HourlyReportDTO> generateHourlyReportsByDateTime(Date startDate,int startTime, Pageable pageable) {
+        Page<Object[]> reportData = hourlyReportRepository.getHourlyReportDataByDateTime(startDate,startTime, pageable);
+        List<HourlyReportDTO> hourlyReportDTOS = mapReportDataToList(reportData.getContent());
+        return new PageImpl<>(hourlyReportDTOS, reportData.getPageable(), reportData.getTotalElements());
+    }
+    public Page<HourlyReportDTO> generateHourlyReportsByDate(Date startDate, Pageable pageable) {
+        Page<Object[]> reportData = hourlyReportRepository.getHourlyReportDataByDate(startDate, pageable);
+        List<HourlyReportDTO> hourlyReportDTOS = mapReportDataToList(reportData.getContent());
+        return new PageImpl<>(hourlyReportDTOS, reportData.getPageable(), reportData.getTotalElements());
+    }
+    public Page<HourlyReportDTO> generateHourlyReports(Date startDateTime, Date endDateTime, Pageable pageable) {
+        Page<Object[]> reportData = hourlyReportRepository.getHourlyReportData(startDateTime, endDateTime, pageable);
+        List<HourlyReportDTO> hourlyReportDTOS = mapReportDataToList(reportData.getContent());
+        return new PageImpl<>(hourlyReportDTOS, reportData.getPageable(), reportData.getTotalElements());
+    }
+
     public List<HourlyReportDTO> saveHourlyReports(List<HourlyReportDTO> hourlyReportDTOS) {
 
         for (HourlyReportDTO hourlyReportDTO : hourlyReportDTOS) {

@@ -52,4 +52,5 @@ public interface TransactionHistoryRepository extends JpaRepository<TransactionH
     Page<TransactionHistory> findTransactionHistoryByEndDate(
             @Param("endDate") Date endDate,
             Pageable pageable);
+
 }

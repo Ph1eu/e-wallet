@@ -11,7 +11,6 @@ public class ResponsePagedEntityWrapper<T> {
     @JsonProperty("PaginationInfor")
     private PaginationInfor paginationInfo;
 
-    @JsonProperty("Message")
     private String Message;
     @JsonProperty("link")
     private List<Link> link;
@@ -39,5 +38,13 @@ public class ResponsePagedEntityWrapper<T> {
 
     public void setLink(List<Link> link) {
         this.link = link;
+    }
+
+    public String getMessage() {
+        return Message;
+    }
+
+    public void setMessage(String message) {
+        Message = message;
     }
 }
