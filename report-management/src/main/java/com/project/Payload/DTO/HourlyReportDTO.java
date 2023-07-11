@@ -6,6 +6,8 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 
+import java.util.Objects;
+
 public class HourlyReportDTO {
 
         private String id;
@@ -97,5 +99,18 @@ public class HourlyReportDTO {
 
     public void setYear(int year) {
         this.year = year;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        HourlyReportDTO that = (HourlyReportDTO) o;
+        return balanceAmount == that.balanceAmount && transactionCount == that.transactionCount && hour == that.hour && day == that.day && month == that.month && year == that.year && Objects.equals(id, that.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, balanceAmount, transactionCount, hour, day, month, year);
     }
 }
