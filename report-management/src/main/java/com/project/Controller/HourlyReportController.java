@@ -88,4 +88,9 @@ public class HourlyReportController {
         return ResponseEntity.ok().body(responsePagedEntityWrapper);
 
     }
+    @GetMapping("/kafka")
+    public ResponseEntity<?>getall(){
+        hourlyReportService.fetchAndPublishTransactions();
+        return ResponseEntity.ok().body("sucesss");
+    }
 }

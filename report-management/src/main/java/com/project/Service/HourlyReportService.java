@@ -1,12 +1,18 @@
 package com.project.Service;
 
+import com.project.Kafka.Producer.TransactionProducer;
+import com.project.Kafka.Stream.OneSecAggregration;
 import com.project.Model.HourlyReport;
+import com.project.Model.TransactionHistory;
 import com.project.Payload.DTO.HourlyReportDTO;
+import com.project.Payload.DTO.TransactionHistoryDTO;
 import com.project.Repository.HourlyReportRepository;
+import com.project.Repository.TransactionHistoryRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,6 +27,12 @@ import java.util.List;
 public class HourlyReportService {
     @Autowired
     HourlyReportRepository hourlyReportRepository;
+    @Autowired
+    TransactionHistoryRepository transactionHistoryRepository;
+    @Autowired
+    TransactionProducer transactionProducer;
+    @Autowired
+    OneSecAggregration oneSecAggregration;
 
     private List<HourlyReportDTO> mapReportDataToList(List<Object[]> reportData) {
         List<HourlyReportDTO> hourlyReportDTOS = new ArrayList<>();
@@ -61,6 +73,15 @@ public class HourlyReportService {
         }
         return hourlyReportDTOS;
     }
+    public void fetchAndPublishTransactions() {
+        List<TransactionHistory> transactionHistoryList = transactionHistoryRepository.findAll();
 
+        for (TransactionHistory transaction : transactionHistoryList) {
+
+            transactionProducer.publish(transaction.getId(), transaction);
+
+        }
+        oneSecAggregration.stream();
+    }
 
 }
