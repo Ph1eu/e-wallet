@@ -9,10 +9,12 @@ public class ResponseEntityWrapper<T> {
     @JsonProperty("data")
     private List<T> data;
 
-    @JsonProperty("Message")
     private String Message;
     @JsonProperty("link")
     private List<Link> link;
+
+    public ResponseEntityWrapper() {
+    }
 
     public ResponseEntityWrapper(String message) {
         Message = message;

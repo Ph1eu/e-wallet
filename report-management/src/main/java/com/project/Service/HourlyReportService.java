@@ -1,24 +1,23 @@
 package com.project.Service;
 
+import com.project.Kafka.Consumer.AggregatedTransactionConsumer;
 import com.project.Kafka.Producer.TransactionProducer;
-import com.project.Kafka.Stream.OneSecAggregration;
+import com.project.Kafka.Stream.GlobalAggregation;
+import com.project.Kafka.Stream.OneSecAggregation;
 import com.project.Model.HourlyReport;
 import com.project.Model.TransactionHistory;
 import com.project.Payload.DTO.HourlyReportDTO;
-import com.project.Payload.DTO.TransactionHistoryDTO;
 import com.project.Repository.HourlyReportRepository;
 import com.project.Repository.TransactionHistoryRepository;
+import org.apache.avro.Schema;
+import org.apache.avro.generic.GenericRecord;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.sql.Time;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -32,7 +31,11 @@ public class HourlyReportService {
     @Autowired
     TransactionProducer transactionProducer;
     @Autowired
-    OneSecAggregration oneSecAggregration;
+    AggregatedTransactionConsumer aggregatedTransactionConsumer;
+    @Autowired
+    GlobalAggregation globalAggregation;
+    @Autowired
+    OneSecAggregation oneSecAggregation;
 
     private List<HourlyReportDTO> mapReportDataToList(List<Object[]> reportData) {
         List<HourlyReportDTO> hourlyReportDTOS = new ArrayList<>();
@@ -73,15 +76,32 @@ public class HourlyReportService {
         }
         return hourlyReportDTOS;
     }
-    public void fetchAndPublishTransactions() {
+    public void StreamTransactions() {
+//        List<TransactionHistory> transactionHistoryList = transactionHistoryRepository.findAll();
+//
+//        for (TransactionHistory transaction : transactionHistoryList) {
+//
+//            transactionProducer.publish(transaction.getId(), transaction);
+//
+//        }
+        oneSecAggregation.startStream();
+
+    }
+    public void PublishTransactions() {
         List<TransactionHistory> transactionHistoryList = transactionHistoryRepository.findAll();
 
         for (TransactionHistory transaction : transactionHistoryList) {
 
-            transactionProducer.publish(transaction.getId(), transaction);
-
+            transactionProducer.publish(transaction);
         }
-        oneSecAggregration.stream();
-    }
 
+    }
+    public GenericRecord ReceiveLatestRecord() {
+
+        System.out.println("About to get the latest records");
+        return aggregatedTransactionConsumer.getLatestRecord();
+    }
+    public void StartListen(){
+        aggregatedTransactionConsumer.listenFromOneSec();
+    }
 }
