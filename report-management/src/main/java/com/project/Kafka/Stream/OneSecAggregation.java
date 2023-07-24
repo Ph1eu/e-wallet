@@ -86,6 +86,10 @@ public class OneSecAggregation {
                         (totalAmount, data) -> totalAmount + data,
                         Materialized.with(Serdes.String(), Serdes.Double())
                 );
+//        sumAggregatedTable.toStream().foreach((key, value) -> {
+//            System.out.println("sumAggregatedTable key: " + key + ", value: " + value);
+//        });
+
 
 // Perform aggregation for counting transactions with 1-second time windows
         KTable<Windowed<String>, Long> countAggregatedTable = transactionsStream
@@ -93,7 +97,9 @@ public class OneSecAggregation {
                 .groupByKey(Grouped.with(Serdes.String(), valueGenericAvroSerde()))
                 .windowedBy(TimeWindows.of(Duration.ofSeconds(1)))
                 .count(Materialized.with(Serdes.String(), Serdes.Long()));
-
+//        countAggregatedTable.toStream().foreach((key, value) -> {
+//            System.out.println("countAggregatedTable key: " + key + ", value: " + value);
+//        });
 // Merge the two aggregated tables into one with 1-second time windows
         KTable<Windowed<String>, GenericRecord> mergedTable = sumAggregatedTable
                 .join(
@@ -106,9 +112,7 @@ public class OneSecAggregation {
                             return result;
                         }
                 );
-        //.mapValues(result -> "1-second " + result);
 
-// Convert the KTable to KStream for output (optional)
         KStream<String, GenericRecord> mergedStream = mergedTable.toStream()
                 .map((windowedTransactionId, result) -> {
                     GenericRecord record = new GenericData.Record(schema);
@@ -120,7 +124,7 @@ public class OneSecAggregation {
                     return KeyValue.pair(windowedTransactionId.key(), record);
                 });
         // Map the merged stream to the final format
-  //      mergedStream.peek((key, value) -> System.out.println("key: " + key + " value: " + value));
+        mergedStream.peek((key, value) -> System.out.println("key: " + key + " value: " + value));
 
         mergedStream.to(this.topic, Produced.with(Serdes.String(), valueGenericAvroSerde()));
 
@@ -140,7 +144,7 @@ public class OneSecAggregation {
             }));
         try {
             this.stream.start();
-            int maxWaitTimeMs = 30000; // 30 seconds
+            int maxWaitTimeMs = 300000; // 300 seconds
             int pollIntervalMs = 100; // 100 milliseconds
             int timeWaitedMs = 0;
 

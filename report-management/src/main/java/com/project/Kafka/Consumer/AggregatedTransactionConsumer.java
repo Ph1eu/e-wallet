@@ -38,41 +38,35 @@ public class AggregatedTransactionConsumer {
         this.latestRecord = null;
         this.running = false;
     }
-//    @PostConstruct
-//    public void init() {
-//        this.kafkaConsumer = createConsumer();
-//        this.running = true;
-//        new Thread(() -> {
-//            this.kafkaConsumer.subscribe(Collections.singleton(this.OneSectopic));
-//            System.out.println("Kafka consumer created and subscribed to topic: " + this.OneSectopic);
-//            while (this.running) {
-//                try {
-//                    ConsumerRecords<String, GenericRecord> consumerRecords = kafkaConsumer.poll(Duration.ofSeconds(30));
-//                    consumerRecords.forEach(record -> {
-//                        // Update the latestRecord with the latest consumed record
-//                        latestRecord = record.value();
-//                        System.out.println("Record.value = " + record.value() + " ,Partition=" + record.partition());
-//                    });
-//                } catch (Exception e) {
-//                    e.printStackTrace(); // Handle the exception appropriately (e.g., log it)
-//                }
-//            }
-//            this.kafkaConsumer.close(); // Close the consumer when running is set to false (application shutdown)
-//            System.out.println("Kafka consumer closed.");
-//
-//        }).start();
-//    }
+    public void init() {
+        this.kafkaConsumer = createConsumer();
+        this.running = true;
+        this.kafkaConsumer.subscribe(Collections.singletonList(this.OneSectopic));
+
+        Thread consumerThread = new Thread(() -> {
+            while (!Thread.currentThread().isInterrupted()) {
+                ConsumerRecords<String, GenericRecord> consumerRecords = this.kafkaConsumer.poll(Duration.ofSeconds(5));
+                consumerRecords.forEach(record -> {
+                    latestRecord = record.value();
+                    System.out.println("Record.value = " + record.value() + " ,Partition=" + record.partition());
+                });
+                this.kafkaConsumer.commitSync();
+            }
+            this.kafkaConsumer.close();
+        });
+
+        consumerThread.start();
+    }
     private KafkaConsumer<String, GenericRecord> createConsumer() {
         return new KafkaConsumer<>(this.properties);
     }
-
     public void listenFromOneSec(){
         try (KafkaConsumer<String, GenericRecord> kafkaConsumer = new KafkaConsumer<>(this.properties)) {
             kafkaConsumer.subscribe(Collections.singletonList(this.OneSectopic));
            System.out.println("Kafka consumer created and subscribed to topic: " + this.OneSectopic);
 
             while (true) {
-                ConsumerRecords<String, GenericRecord> consumerRecords = kafkaConsumer.poll(Duration.ofSeconds(1));
+                ConsumerRecords<String, GenericRecord> consumerRecords = kafkaConsumer.poll(Duration.ofSeconds(30));
                 consumerRecords.forEach(record -> {
                         // Update the latestRecord with the latest consumed record
                         latestRecord = record.value();

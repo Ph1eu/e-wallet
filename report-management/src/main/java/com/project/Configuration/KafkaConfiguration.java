@@ -66,6 +66,9 @@ public class KafkaConfiguration {
         //properties.setProperty("specific.avro.reader", "true");//Activate Avro to use Specific Type Serializer not Generic Type
         properties.setProperty("schema.registry.url", "http://localhost:8090");
         properties.setProperty(ConsumerConfig.GROUP_ID_CONFIG, "Aggregated");
+        properties.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "latest"); // or "earliest" depending on your requirements
+        properties.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "true");
+        properties.put(ConsumerConfig.AUTO_COMMIT_INTERVAL_MS_CONFIG, "1000");
 
         return properties;
 
