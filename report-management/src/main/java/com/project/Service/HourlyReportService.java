@@ -10,7 +10,9 @@ import com.project.Payload.DTO.HourlyReportDTO;
 import com.project.Repository.HourlyReportRepository;
 import com.project.Repository.TransactionHistoryRepository;
 import org.apache.avro.Schema;
+import org.apache.avro.generic.GenericData;
 import org.apache.avro.generic.GenericRecord;
+import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -21,6 +23,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class HourlyReportService {
@@ -96,10 +99,43 @@ public class HourlyReportService {
         }
 
     }
-    public GenericRecord ReceiveLatestRecord() {
-
-        System.out.println("About to get the latest records");
-        return aggregatedTransactionConsumer.getLatestRecord();
+    public Optional<GenericRecord> ReceiveLatestRecord() {
+        Date date = new Date();
+        GenericRecord record = aggregatedTransactionConsumer.getLatestRecord();
+        Date recordTimeStamp = new Date(Long.parseLong(record.get("start_time").toString()));
+        long timeIntervalMillis = 5* 1000;
+        long intervalStart = date.getTime() - timeIntervalMillis ;
+        long intervalEnd = date.getTime() + timeIntervalMillis;
+        boolean isRecordTimeInInterval = recordTimeStamp.getTime() >= intervalStart && recordTimeStamp.getTime() <= intervalEnd;
+        if (isRecordTimeInInterval) {
+            System.out.println("record is in interval");
+            return Optional.of(record);
+        } else if (record.toString() == null) {
+            Schema.Parser parser = new Schema.Parser();
+            Schema schema = parser.parse("{\n" +
+                    "    \"type\": \"record\",\n" +
+                    "    \"name\":\"Aggregated_Transaction\",\n" +
+                    "    \"fields\":[\n" +
+                    "        {\"name\":\"total_transaction_amount\", \"type\":\"long\"},\n" +
+                    "        {\"name\":\"total_record_count\", \"type\":\"int\"},\n" +
+                    "        {\"name\":\"start_time\", \"type\":\"long\"},\n" +
+                    "        {\"name\":\"end_time\", \"type\":\"long\"}\n" +
+                    "    ]\n" +
+                    "}");
+            GenericRecord Nullrecord = new GenericData.Record(schema);
+            Nullrecord.put("total_transaction_amount", 0);
+            Nullrecord.put("total_record_count", 0);
+            Nullrecord.put("start_time",date.getTime());
+            Nullrecord.put("end_time", date.getTime() + timeIntervalMillis);
+            return Optional.of(Nullrecord);
+        } else {
+            record.put("total_transaction_amount","0");
+            record.put("total_record_count", "0");
+            record.put("start_time",date.getTime());
+            record.put("end_time", date.getTime() + timeIntervalMillis);
+            return Optional.of(record);
+        }
+        //return aggregatedTransactionConsumer.getLatestRecord();
     }
     public void StartListen(){
         aggregatedTransactionConsumer.listenFromOneSec();

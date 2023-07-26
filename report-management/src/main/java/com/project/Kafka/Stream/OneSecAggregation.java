@@ -15,6 +15,9 @@ import org.apache.kafka.streams.KeyValue;
 import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.Topology;
 import org.apache.kafka.streams.kstream.*;
+import org.apache.kafka.streams.processor.AbstractProcessor;
+import org.apache.kafka.streams.processor.ProcessorContext;
+import org.apache.kafka.streams.processor.PunctuationType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,6 +47,7 @@ public class OneSecAggregation {
 
     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
             .withZone(ZoneId.systemDefault());
+
     @Autowired
     public OneSecAggregation(@Qualifier("kafkaOneSecAggregationProp") Properties properties,
                              @Value("${one_sec_transaction_aggregrated.topic}") String topic) {
@@ -51,11 +55,13 @@ public class OneSecAggregation {
         this.topic = topic;
         createTopicIfNotExists();
     }
+
     @PostConstruct
     public void initializeKafkaStreams() {
         // Initialize the Kafka Streams application during application startup
         startStream();
     }
+
     Schema.Parser parser = new Schema.Parser();
     Schema schema = parser.parse("{\n" +
             "    \"type\": \"record\",\n" +
@@ -73,7 +79,7 @@ public class OneSecAggregation {
 
         KStream<String, GenericRecord> transactionsStream = builder.stream("transaction",
                 Consumed.with(Serdes.String(), valueGenericAvroSerde()));
-//
+
 
 // Perform aggregation for sum of transaction amounts with 1-second time windows
         KTable<Windowed<String>, Double> sumAggregatedTable = transactionsStream
@@ -85,7 +91,8 @@ public class OneSecAggregation {
                 .reduce(
                         (totalAmount, data) -> totalAmount + data,
                         Materialized.with(Serdes.String(), Serdes.Double())
-                );
+                )//.suppress(Suppressed.untilWindowCloses(Suppressed.BufferConfig.unbounded()))
+                ;
 //        sumAggregatedTable.toStream().foreach((key, value) -> {
 //            System.out.println("sumAggregatedTable key: " + key + ", value: " + value);
 //        });
@@ -96,12 +103,13 @@ public class OneSecAggregation {
                 .selectKey((key, value) -> "Aggregated result") // Assign a constant key for all records
                 .groupByKey(Grouped.with(Serdes.String(), valueGenericAvroSerde()))
                 .windowedBy(TimeWindows.of(Duration.ofSeconds(1)))
-                .count(Materialized.with(Serdes.String(), Serdes.Long()));
+                .count(Materialized.with(Serdes.String(), Serdes.Long()))
+                ;
 //        countAggregatedTable.toStream().foreach((key, value) -> {
 //            System.out.println("countAggregatedTable key: " + key + ", value: " + value);
 //        });
 // Merge the two aggregated tables into one with 1-second time windows
-        KTable<Windowed<String>, GenericRecord> mergedTable = sumAggregatedTable
+        KTable<Windowed<String>, GenericRecord> finalTable = sumAggregatedTable
                 .join(
                         countAggregatedTable,
                         (sum, count) -> {
@@ -111,9 +119,10 @@ public class OneSecAggregation {
 
                             return result;
                         }
-                );
+                )//.suppress(Suppressed.untilWindowCloses(Suppressed.BufferConfig.unbounded()))
+                ;
 
-        KStream<String, GenericRecord> mergedStream = mergedTable.toStream()
+        KStream<String, GenericRecord> finalStream = finalTable.toStream()
                 .map((windowedTransactionId, result) -> {
                     GenericRecord record = new GenericData.Record(schema);
                     record.put("total_transaction_amount", result.get("total_transaction_amount"));
@@ -124,13 +133,14 @@ public class OneSecAggregation {
                     return KeyValue.pair(windowedTransactionId.key(), record);
                 });
         // Map the merged stream to the final format
-        mergedStream.peek((key, value) -> System.out.println("key: " + key + " value: " + value));
+        finalStream.peek((key, value) -> System.out.println("key: " + key + " value: " + value));
 
-        mergedStream.to(this.topic, Produced.with(Serdes.String(), valueGenericAvroSerde()));
+        finalStream.to(this.topic, Produced.with(Serdes.String(), valueGenericAvroSerde()));
 
         return builder.build();
     }
-        public void startStream(){
+
+    public void startStream() {
         Topology topology = CreateStream();
         this.stream = new KafkaStreams(topology, this.properties);
         this.stream.setUncaughtExceptionHandler((thread, throwable) -> logger.error("Error in Kafka Streams application", throwable));
@@ -138,10 +148,10 @@ public class OneSecAggregation {
 
 
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-                logger.info("Shutting down Kafka Streams application...");
-                this.stream.close();
-                logger.info("Kafka Streams application has been shut down.");
-            }));
+            logger.info("Shutting down Kafka Streams application...");
+            this.stream.close();
+            logger.info("Kafka Streams application has been shut down.");
+        }));
         try {
             this.stream.start();
             int maxWaitTimeMs = 300000; // 300 seconds
@@ -165,6 +175,7 @@ public class OneSecAggregation {
         }
 
     }
+
 
     private void createTopicIfNotExists() {
         try (AdminClient adminClient = AdminClient.create(this.properties)) {
@@ -222,24 +233,45 @@ public class OneSecAggregation {
             return ((Integer) amountValue).doubleValue();
         }
         return null;
+
     }
 
+//    private KStream<String, GenericRecord> generateContinuousRecords() {
+//        StreamsBuilder builder = new StreamsBuilder();
+//        // Continuous record generation with a timestamp within 1-second time windows
+//        KStream<String, GenericRecord> dummyStream = builder.stream("transaction");
+//
+//        // Transform the dummy stream using the punctuate function to emit a continuous record with the current timestamp
+//        return dummyStream.transform(() -> new ContinuousRecordGenerator(), Named.as("ContinuousRecordGenerator"));
+//    }
 
-
-    private boolean isIn5SecondsWindow(Long transactionDate) {
-        Instant now = Instant.now();
-        Instant transactionInstant = Instant.ofEpochMilli(transactionDate);
-        Instant fiveSecondsAfterTransaction = transactionInstant.plusSeconds(5);
-        return now.isBefore(fiveSecondsAfterTransaction);
-    }
-
-    private Long extractTransactionDate(GenericRecord genericRecord) {
-        // Assuming you have the logic to extract transaction_date field from genericRecord
-        // Example: If your transaction_date field is named "transaction_date" in the Avro schema
-        return (Long) genericRecord.get("transaction_date");
-    }
-    private String formatInstant(Instant instant, DateTimeFormatter formatter) {
-        return formatter.format(instant);
-    }
-
+//    private  class ContinuousRecordGenerator implements Transformer<String, GenericRecord, KeyValue<String, GenericRecord>> {
+//
+//        private ProcessorContext context;
+//
+//        @Override
+//        public void init(ProcessorContext context) {
+//            this.context = context;
+//            this.context.schedule(Duration.ofSeconds(1), PunctuationType.WALL_CLOCK_TIME, this::punctuate);
+//
+//        }
+//
+//        @Override
+//        public KeyValue<String, GenericRecord> transform(String key, GenericRecord value) {
+//            // No need to emit records here since we emit them in the punctuate method
+//            return null;
+//        }
+//        private void punctuate(long timestamp) {
+//            // Emit a continuous record with the current timestamp
+//            GenericRecord record = new GenericData.Record(schema);
+//            record.put("total_transaction_amount", 0.0);
+//            record.put("total_record_count", 0L);
+//            this.context.forward("Aggregated result", record);
+//            this.context.commit(); // Commit the punctuated record
+//        }
+//        @Override
+//        public void close() {
+//            // Cleanup if needed
+//        }
+//    }
 }

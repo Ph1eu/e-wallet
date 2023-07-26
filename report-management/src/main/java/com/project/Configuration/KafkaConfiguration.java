@@ -76,7 +76,7 @@ public class KafkaConfiguration {
     @Bean
     public Properties kafkaOneSecAggregationProp(){
         Properties properties = new Properties();
-        properties.put(StreamsConfig.APPLICATION_ID_CONFIG, "OneSec-Aggregated-stream");
+        properties.put(StreamsConfig.APPLICATION_ID_CONFIG, "OneSec-Aggregated-stream-1");
         properties.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
         properties.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
         properties.put(AbstractKafkaAvroSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG, "http://localhost:8090");
