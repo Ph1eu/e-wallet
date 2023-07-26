@@ -3,6 +3,7 @@ package com.project.Controller;
 import com.project.Assembler.BalanceResourceAssembler;
 import com.project.Assembler.TransactionResourceAssembler;
 import com.project.Payload.DTO.TransactionHistoryDTO;
+import com.project.Payload.Response.ResponsePagedEntityWrapper;
 import com.project.Service.BalanceInformationService;
 import com.project.Service.TransactionHistoryService;
 import com.project.Service.UserDetailServiceImpl;
@@ -65,7 +66,7 @@ public class AdminController {
             }
         } catch (ParseException e) {
             // Handle the exception if the input date strings are not in the expected format
-            return ResponseEntity.badRequest().body("Invalid date format. Expected format: dd-MM-yyyy");
+            return ResponseEntity.badRequest().body(new ResponsePagedEntityWrapper("Invalid date format. Expected format: dd-MM-yyyy"));
         }
         PageRequest pageable = PageRequest.of(page, size);
         // all params are null

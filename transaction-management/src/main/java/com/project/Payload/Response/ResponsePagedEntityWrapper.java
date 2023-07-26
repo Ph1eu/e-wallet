@@ -6,10 +6,10 @@ import org.springframework.hateoas.Link;
 import java.util.List;
 
 public class ResponsePagedEntityWrapper<T> {
+    private String message;
     @JsonProperty("data")
     private List<T> data;
     @JsonProperty("PaginationInfor")
-
     private PaginationInfor paginationInfo;
     @JsonProperty("link")
     private List<Link> link;
@@ -37,5 +37,20 @@ public class ResponsePagedEntityWrapper<T> {
 
     public void setLink(List<Link> link) {
         this.link = link;
+    }
+
+    public ResponsePagedEntityWrapper() {
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
+    }
+
+    public ResponsePagedEntityWrapper(String message) {
+        this.message = message;
     }
 }

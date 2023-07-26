@@ -1,5 +1,9 @@
 package com.project.Service;
 
+import com.project.Exceptions.BalanceNotFoundException;
+import com.project.Exceptions.InsufficientBalanceException;
+import com.project.Exceptions.TransferFailedException;
+import com.project.Exceptions.UserNotFoundException;
 import com.project.Model.BalanceInformation;
 import com.project.Model.User;
 import com.project.Payload.DTO.BalanceInformationDTO;
@@ -97,7 +101,7 @@ public class BalanceInformationService {
             balanceInformation = balanaceInformationRepository.findBalanceInformationByUser(user);
         } else {
             logger.error("User not found with username: {}", username);
-            throw new RuntimeException("User not found");
+            throw new UserNotFoundException("User not found");
         }
 
         int current_amount = balanceInformation.getBalance_amount();
@@ -109,7 +113,7 @@ public class BalanceInformationService {
             return Optional.of(balanceInformationDTO);
         }catch (RuntimeException e){
             logger.error("can't increase balance information with phone {}",username);
-            throw  new RuntimeException("can't find balance information ");
+            throw  new TransferFailedException("can't increase balance information");
         }
     }
     @Transactional(isolation = Isolation.SERIALIZABLE,rollbackFor = {RuntimeException.class})
@@ -121,11 +125,16 @@ public class BalanceInformationService {
             balanceInformation = balanaceInformationRepository.findBalanceInformationByUser(user);
         } else {
             logger.error("User not found with username: {}", username);
-            throw new RuntimeException("User not found");
+            throw new UserNotFoundException("User not found");
         }
 
         int current_amount = balanceInformation.getBalance_amount();
+        if (current_amount == 0) {
+            logger.error("Insufficient balance for user: {}", username);
+            throw new InsufficientBalanceException("Insufficient balance");
+        }
         int after_amount = current_amount - amount;
+
         balanceInformation.setBalance_amount(after_amount);
         BalanceInformationDTO balanceInformationDTO = new BalanceInformationDTO(balanceInformation);
         try {
@@ -133,7 +142,7 @@ public class BalanceInformationService {
             return Optional.of(balanceInformationDTO);
         }catch (RuntimeException e){
             logger.error("can't decrease balance information with username {}",username);
-            throw  new RuntimeException("can't find balance information ");
+            throw new TransferFailedException("can't decrease balance information");
         }
     }
     @Transactional(isolation = Isolation.SERIALIZABLE,rollbackFor = {RuntimeException.class})
@@ -148,11 +157,13 @@ public class BalanceInformationService {
             recipientBalanceInformation = balanaceInformationRepository.findBalanceInformationsByPhonenumber(phone);
         } else {
             logger.error("User not found with username: {}", username);
-            throw new RuntimeException("User not found");
+            throw new UserNotFoundException("User not found");
         }
-        balanaceInformationRepository.findBalanceInformationsByPhonenumber(phone);
 
         int current_sender_amount = senderBalanceInformation.getBalance_amount();
+        if (current_sender_amount == 0){
+            throw new InsufficientBalanceException("Sender doesn't have sufficient balance");
+        }
         int current_recipient_amount = recipientBalanceInformation.getBalance_amount();
 
         int after_sender_amount = current_sender_amount - amount;
@@ -169,7 +180,7 @@ public class BalanceInformationService {
             return List.of(Optional.of(senderBalanceInformationDTO),Optional.of(recipientBalanceInformationDTO));
         }catch (RuntimeException e){
             logger.error("can't transfer balance");
-            throw  new RuntimeException("can't find balance information ");
+            throw  new TransferFailedException("failed to transfer balance");
         }
     }
 }

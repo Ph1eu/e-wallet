@@ -34,8 +34,6 @@ public class AdminController {
     @Autowired
     UserResourceAssembler userResourceAssembler;
     private static final Logger logger = LoggerFactory.getLogger(JwtServices.class);
-
-
     @GetMapping("/all")
     public ResponseEntity<?> getAllUsers(@RequestParam(value = "email",required = false) String email,
                                          @RequestParam(value = "balance",required = false) Integer balance,

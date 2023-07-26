@@ -10,6 +10,15 @@ public class ResponseEntityWrapper<T> {
     private List<T> data;
     @JsonProperty("link")
     private List<Link> link;
+    private String message;
+
+    public ResponseEntityWrapper() {
+
+    }
+
+    public ResponseEntityWrapper(String message) {
+        this.message = message;
+    }
 
     public List<T> getData() {
         return data;
@@ -25,5 +34,13 @@ public class ResponseEntityWrapper<T> {
 
     public void setLink(List<Link> link) {
         this.link = link;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
     }
 }

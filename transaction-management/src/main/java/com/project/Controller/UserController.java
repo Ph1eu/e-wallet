@@ -2,10 +2,14 @@ package com.project.Controller;
 
 import com.project.Assembler.BalanceResourceAssembler;
 import com.project.Assembler.TransactionResourceAssembler;
+import com.project.Exceptions.InsufficientBalanceException;
+import com.project.Exceptions.TransferFailedException;
+import com.project.Exceptions.UserNotFoundException;
 import com.project.Payload.DTO.BalanceInformationDTO;
 import com.project.Payload.DTO.TransactionHistoryDTO;
 import com.project.Payload.DTO.UserDTO;
 import com.project.Payload.Enum.TransactionType;
+import com.project.Payload.Response.ResponseEntityWrapper;
 import com.project.Repository.BalanceInformationRepository;
 import com.project.Repository.UserRepository;
 import com.project.Service.BalanceInformationService;
@@ -15,6 +19,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -46,6 +52,7 @@ public class UserController {
     }
     @GetMapping("/{username}/deposit")
     public ResponseEntity<?> depositMoney(@PathVariable("username") String username,@RequestParam("amount") int amount){
+        try {
         BalanceInformationDTO balanceInformationDTO=  balanceInformationService.IncreaseBalance(username,amount).get();
         int current_amount = balanceInformationDTO.getBalance_amount();
         balanceInformationDTO.setBalance_amount(current_amount+ amount);
@@ -54,9 +61,20 @@ public class UserController {
                  TransactionType.DEPOSIT.getDisplayName(),amount,new Date());
         transactionHistoryService.saveTransaction(transactionHistoryDTO);
         return ResponseEntity.ok().body(balanceResourceAssembler.toModelByTransaction(balanceInformationDTO,transactionHistoryDTO,username));
+        }
+        catch(UserNotFoundException userNotFoundException){
+            ResponseEntityWrapper<?> responseEntityWrapper = new ResponseEntityWrapper<>("USER NOT FOUND");
+            return  ResponseEntity.status(HttpStatus.NOT_FOUND).body(responseEntityWrapper);
+        }
+        catch(TransferFailedException transferFailedException){
+            ResponseEntityWrapper<?> responseEntityWrapper = new ResponseEntityWrapper<>("TRANSFER FAILED DUE TO SERVER ERROR");
+            return  ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(responseEntityWrapper);
+        }
+
     }
     @GetMapping("/{username}/withdrawal")
     public ResponseEntity<?> withdrawalMoney(@PathVariable("username") String username,@RequestParam("amount") int amount){
+        try{
         BalanceInformationDTO balanceInformationDTO=  balanceInformationService.DecreaseBalance(username,amount).get();
         int current_amount = balanceInformationDTO.getBalance_amount();
         balanceInformationDTO.setBalance_amount(current_amount- amount);
@@ -65,11 +83,25 @@ public class UserController {
                 TransactionType.WITHDRAWAL.getDisplayName(),amount,new Date());
         transactionHistoryService.saveTransaction(transactionHistoryDTO);
         return ResponseEntity.ok().body(balanceResourceAssembler.toModelByTransaction(balanceInformationDTO,transactionHistoryDTO,username));
+        }
+        catch(UserNotFoundException userNotFoundException){
+            ResponseEntityWrapper<?> responseEntityWrapper = new ResponseEntityWrapper<>("USER NOT FOUND");
+            return  ResponseEntity.status(HttpStatus.NOT_FOUND).body(responseEntityWrapper);
+        }
+        catch(InsufficientBalanceException insufficientBalanceException){
+            ResponseEntityWrapper<?> responseEntityWrapper = new ResponseEntityWrapper<>("INSUFFICIENT BALANCE");
+            return  ResponseEntity.status(HttpStatus.NOT_FOUND).body(responseEntityWrapper);
+        }
+        catch(TransferFailedException transferFailedException){
+            ResponseEntityWrapper<?> responseEntityWrapper = new ResponseEntityWrapper<>("TRANSFER FAILED DUE TO SERVER ERROR");
+            return  ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(responseEntityWrapper);
+        }
     }
 
     @GetMapping("/{username}/transfer")
     public ResponseEntity<?> transferMoney(@PathVariable("username") String username,@RequestParam("amount") int amount,
                                            @RequestParam("phone") String phone){
+        try{
         List<Optional<BalanceInformationDTO>> optionalList = balanceInformationService.TransferBalance(username,phone,amount);
         BalanceInformationDTO senderInformation =  optionalList.get(0).get();
         BalanceInformationDTO receiverInformation= optionalList.get(1).get();
@@ -80,6 +112,19 @@ public class UserController {
         transactionHistoryService.saveTransaction(transactionHistoryDTO);
         return ResponseEntity.ok().body(balanceResourceAssembler.toModelByTransferTransaction(senderInformation,receiverInformation,
                 transactionHistoryDTO,username));
+        }
+        catch(UserNotFoundException userNotFoundException){
+            ResponseEntityWrapper<?> responseEntityWrapper = new ResponseEntityWrapper<>("USER NOT FOUND");
+            return  ResponseEntity.status(HttpStatus.NOT_FOUND).body(responseEntityWrapper);
+        }
+        catch(InsufficientBalanceException insufficientBalanceException){
+            ResponseEntityWrapper<?> responseEntityWrapper = new ResponseEntityWrapper<>("INSUFFICIENT BALANCE");
+            return  ResponseEntity.status(HttpStatus.NOT_FOUND).body(responseEntityWrapper);
+        }
+        catch(TransferFailedException transferFailedException){
+            ResponseEntityWrapper<?> responseEntityWrapper = new ResponseEntityWrapper<>("TRANSFER FAILED DUE TO SERVER ERROR");
+            return  ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(responseEntityWrapper);
+        }
     }
     @GetMapping("/{username}/balance/history")
     public ResponseEntity<?> getHistory(@PathVariable("username") String username,

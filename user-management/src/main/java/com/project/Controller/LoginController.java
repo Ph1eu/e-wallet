@@ -3,6 +3,7 @@ package com.project.Controller;
 import java.util.*;
 
 import com.project.Configuration.jwt.JwtServices;
+import com.project.Exceptions.RoleNotFoundException;
 import com.project.Model.ERole;
 import com.project.Model.Role;
 import com.project.Model.User;
@@ -11,6 +12,7 @@ import com.project.Payload.DTO.UserDTO;
 import com.project.Payload.Request.AuthenticationRequest.LoginRequest;
 import com.project.Payload.Request.AuthenticationRequest.SignUpRequest;
 import com.project.Payload.Response.MessageResponse;
+import com.project.Payload.Response.ResponseEntityWrapper;
 import com.project.Payload.Response.UserInforResponse;
 import com.project.Repository.RoleRepository;
 import com.project.Repository.UserRepository;
@@ -26,6 +28,7 @@ import org.springframework.http.*;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -52,6 +55,7 @@ public class LoginController{
 
     @PostMapping("/signin")
     public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
+        try{
         Authentication authentication = authenticationManager
                 .authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
 
@@ -60,14 +64,22 @@ public class LoginController{
         CustomUserDetail userDetails = (CustomUserDetail) authentication.getPrincipal();
 
 		String jwtToken = jwtServices.generateToken(userDetails);
-
+        ResponseEntityWrapper<UserInforResponse> responseEntityWrapper = new ResponseEntityWrapper<>("SIGN IN SUCCESSFULLY");
+        responseEntityWrapper.setData(List.of(new UserInforResponse(userDetails.getEmail(),
+                userDetails.getUsername(), userDetails.getRole())));
         return ResponseEntity.ok().header(HttpHeaders.AUTHORIZATION,"Bearer "+jwtToken)
-                .body(new UserInforResponse(userDetails.getEmail(),
-                        userDetails.getUsername(), userDetails.getRole())
-                     );
+                .body(responseEntityWrapper);
+        }
+        catch(UsernameNotFoundException usernameNotFoundException){
+            ResponseEntityWrapper<UserInforResponse> responseEntityWrapper = new ResponseEntityWrapper<>("USER'S INFORMATION NOT FOUND");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(responseEntityWrapper
+                    );
+        }
     }
     @PostMapping("/signup")
     public ResponseEntity<?> registerUser(@Valid @RequestBody SignUpRequest signUpRequest) {
+        try{
         if (userDetailService.existByUsername(signUpRequest.getUsername())) {
             return ResponseEntity.badRequest().body(new MessageResponse("Error: Username is already taken!"));
         }
@@ -88,12 +100,11 @@ public class LoginController{
         if (strRoles == null || strRoles.equals("user")) {
 
             RoleDTO userRole = roleService.findbyName(ERole.ROLE_USER);
-
             System.out.println(userRole);
             if(userRole == null){
                 logger.error("can find role user");
+                throw new RoleNotFoundException("Role not found: ROLE_USER");
 
-                return ResponseEntity.badRequest().body(new MessageResponse("can find role user"));
             }
             user.setRoles(userRole);
         } else if(strRoles.equals("admin") && Objects.equals(signUpkey, this.signUpKey)){
@@ -101,16 +112,24 @@ public class LoginController{
             RoleDTO adminRole = roleService.findbyName(ERole.ROLE_ADMIN);
             if(adminRole == null){
                 logger.error("can find role admin");
-                return ResponseEntity.badRequest().body(new MessageResponse("can find role admin"));
-            }
+                throw new RoleNotFoundException("Role not found: ROLE_ADMIN");            }
             user.setRoles(adminRole);
-
             }
 
 
         userDetailService.saveUser(user);
-
-        return ResponseEntity.ok(new MessageResponse("User registered successfully!"));
+        ResponseEntityWrapper<?> responseEntityWrapper = new ResponseEntityWrapper<>("REGISTRATION SUCCESSFULLY");
+        return ResponseEntity.ok(responseEntityWrapper);
+        }
+        catch(RoleNotFoundException roleNotFoundException){
+            ResponseEntityWrapper<?> responseEntityWrapper = new ResponseEntityWrapper<>();
+            responseEntityWrapper.setMessage("REGISTRATION ERROR: CAN'T FIND ROLE IN DATABASE");
+            return ResponseEntity.badRequest().body(responseEntityWrapper);
+        }catch (Exception ex) {
+            ResponseEntityWrapper<?> responseEntityWrapper = new ResponseEntityWrapper<>();
+            responseEntityWrapper.setMessage("AN ERROR OCCURRED DURING USER REGISTRATION");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(responseEntityWrapper);
+        }
 }
 //    @PostMapping("/signout")
 ////    public ResponseEntity<?> logoutUser() {
