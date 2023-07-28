@@ -1,4 +1,4 @@
-package com.project.Exceptions;
+package com.project.Exceptions.CustomExceptions.BusinessLogic;
 
 public class BalanceNotFoundException extends RuntimeException {
     public BalanceNotFoundException(String message) {

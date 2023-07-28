@@ -13,7 +13,6 @@ import java.util.Objects;
 @Table(name="cards")
 public class Paymentcard {
     @Id()
-    @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name="card_id")
     String id;
     @Column(name = "card_number",unique = true)

@@ -1,27 +1,25 @@
 package com.project.Service;
 
-import com.project.Exceptions.BalanceNotFoundException;
-import com.project.Exceptions.InsufficientBalanceException;
-import com.project.Exceptions.TransferFailedException;
-import com.project.Exceptions.UserNotFoundException;
+import com.project.Exceptions.CustomExceptions.BusinessLogic.InsufficientBalanceException;
+import com.project.Exceptions.CustomExceptions.BusinessLogic.TransferFailedException;
+import com.project.Exceptions.CustomExceptions.BusinessLogic.UserNotFoundException;
+import com.project.Exceptions.CustomExceptions.Database.DatabaseException;
+import com.project.Exceptions.CustomExceptions.Database.EmptyResultDataAccessException;
 import com.project.Model.BalanceInformation;
 import com.project.Model.User;
 import com.project.Payload.DTO.BalanceInformationDTO;
-import com.project.Payload.DTO.TransactionHistoryDTO;
-import com.project.Payload.Enum.TransactionType;
 import com.project.Repository.BalanceInformationRepository;
 import com.project.Repository.UserRepository;
+import jakarta.persistence.OptimisticLockException;
+import jakarta.persistence.PessimisticLockException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -36,9 +34,12 @@ public class BalanceInformationService {
 
     public BalanceInformationDTO getUserBalanceInformationByUsername(String  username)
     {
+//        if(username == null){
+//            throw new MissingRequiredFieldException("username");
+//        }
         try
             {
-            User user = userRepository.findByUsername(username).orElseThrow();
+            User user = userRepository.findByUsername(username).orElseThrow(() -> new UserNotFoundException("User with username:"+username+" not found"));
             System.out.println(user);
             BalanceInformation balanceInformation = balanaceInformationRepository.findBalanceInformationByUser(user);
             System.out.println(balanceInformation);
@@ -51,17 +52,18 @@ public class BalanceInformationService {
     catch(Exception e)
     {
         logger.error("Failed to fetch balance of user  from database.", e);
-        throw new RuntimeException("Failed to fetch balance of user  from database.", e);
+        throw new DatabaseException("Error while retrieving user", e);
     }
 
 
     }
     public BalanceInformationDTO getUserBalanceInformationByPhone(String  phone)
     {
+
         try
         {
 
-            BalanceInformation balanceInformation = balanaceInformationRepository.findBalanceInformationsByPhonenumber(phone);
+            BalanceInformation balanceInformation = balanaceInformationRepository.findBalanceInformationsByPhonenumber(phone).orElseThrow(() -> new UserNotFoundException("balance information with phone "+phone+" not found"));
             System.out.println(balanceInformation);
 
             BalanceInformationDTO balanceInformationDTO = new BalanceInformationDTO(balanceInformation);
@@ -92,8 +94,10 @@ public class BalanceInformationService {
             throw new RuntimeException("Failed to Save balance of user to database", e);
         }
     }
-    @Transactional(isolation = Isolation.SERIALIZABLE,rollbackFor = {RuntimeException.class})
-    public Optional<BalanceInformationDTO> IncreaseBalance( String username,  int amount){
+    @Transactional(isolation = Isolation.SERIALIZABLE,rollbackFor = {RuntimeException.class,PessimisticLockException.class})
+    public Optional<BalanceInformationDTO> IncreaseBalance( String username,  Integer amount){
+
+
         BalanceInformation balanceInformation;
         Optional<User> optionalUser = userRepository.findByUsername(username);
         if (optionalUser.isPresent()) {
@@ -116,7 +120,7 @@ public class BalanceInformationService {
             throw  new TransferFailedException("can't increase balance information");
         }
     }
-    @Transactional(isolation = Isolation.SERIALIZABLE,rollbackFor = {RuntimeException.class})
+    @Transactional(isolation = Isolation.SERIALIZABLE,rollbackFor = {RuntimeException.class, PessimisticLockException.class})
     public Optional<BalanceInformationDTO> DecreaseBalance( String username,  int amount){
         BalanceInformation balanceInformation;
         Optional<User> optionalUser = userRepository.findByUsername(username);
@@ -145,7 +149,7 @@ public class BalanceInformationService {
             throw new TransferFailedException("can't decrease balance information");
         }
     }
-    @Transactional(isolation = Isolation.SERIALIZABLE,rollbackFor = {RuntimeException.class})
+    @Transactional(isolation = Isolation.SERIALIZABLE,rollbackFor = {RuntimeException.class,PessimisticLockException.class})
     public List<Optional<BalanceInformationDTO>> TransferBalance(String username, String phone , int amount){
         BalanceInformation senderBalanceInformation;
         BalanceInformation recipientBalanceInformation;
@@ -154,7 +158,7 @@ public class BalanceInformationService {
         if (optionalSender.isPresent()) {
             User user = optionalSender.get();
             senderBalanceInformation = balanaceInformationRepository.findBalanceInformationByUser(user);
-            recipientBalanceInformation = balanaceInformationRepository.findBalanceInformationsByPhonenumber(phone);
+            recipientBalanceInformation = balanaceInformationRepository.findBalanceInformationsByPhonenumber(phone).orElseThrow(() -> new EmptyResultDataAccessException("balance information with phone "+phone+" not found"));
         } else {
             logger.error("User not found with username: {}", username);
             throw new UserNotFoundException("User not found");

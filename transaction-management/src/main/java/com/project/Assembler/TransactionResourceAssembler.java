@@ -29,7 +29,7 @@ public class TransactionResourceAssembler implements RepresentationModelAssemble
     @Override
     public CollectionModel<EntityModel<TransactionHistoryDTO>> toCollectionModel(Iterable<? extends TransactionHistoryDTO> entities) {
         return CollectionModel.of(RepresentationModelAssembler.super.toCollectionModel(entities),
-                linkTo(methodOn(UserController.class).getHistory("username",1,10)).withSelfRel());
+                linkTo(methodOn(UserController.class).getHistory("username","1","10")).withSelfRel());
 
     }
     public ResponsePagedEntityWrapper<EntityModel<TransactionHistoryDTO>> toCollectionModelWithUsername(Page<TransactionHistoryDTO> page, String username) {
@@ -46,7 +46,7 @@ public class TransactionResourceAssembler implements RepresentationModelAssemble
                 page.getSize(),
                 page.getNumberOfElements());
         entityWrapper.setPaginationInfo(paginationInfor);
-        entityWrapper.setLink(List.of(linkTo(methodOn(UserController.class).getHistory(username,0,10)).withSelfRel()));
+        entityWrapper.setLink(List.of(linkTo(methodOn(UserController.class).getHistory(username,"0","10")).withSelfRel()));
         return entityWrapper;
 
     }

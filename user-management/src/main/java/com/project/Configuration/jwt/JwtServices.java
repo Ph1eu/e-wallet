@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
+import com.project.Exceptions.CustomException.ValidationInput.ExpiredJwtException;
+import com.project.Exceptions.CustomException.ValidationInput.InvalidJwtException;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import org.slf4j.Logger;
@@ -71,6 +73,9 @@ public class JwtServices {
 	}
 	public boolean validateToken(String token, UserDetails userDetails) {
 			final String username = extractUsername(token);
+			if(!username.equals(userDetails.getUsername())){
+				throw new InvalidJwtException("INVALID JWT");
+			}
 			return (username.equals(userDetails.getUsername())) && !isTokenExpired(token);
 		}
 
@@ -81,7 +86,7 @@ public class JwtServices {
 		}
 		else{
 			logger.error("JWT token is expired");
-			return false;
+			throw new ExpiredJwtException("EXPIRED JWT");
 		}
 	}
 

@@ -2,10 +2,14 @@ package com.project.Configuration.jwt;
 
 import java.io.IOException;
 
-import com.project.Service.CustomUserDetail;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.project.Exceptions.CustomException.ValidationInput.NoJwtAuthenticationException;
+import com.project.Payload.Response.ResponseEntityWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -43,13 +47,20 @@ public class JwtAuthenticationFilter  extends OncePerRequestFilter{
 			final String authHeader = request.getHeader("Authorization");
 			final String jwt;
 			final String username;
+			final String requestURI = request.getRequestURI();
+
+			if (requestURI.startsWith("/api/auth/")) {
+				filterChain.doFilter(request, response);
+				return;
+			}
 
 			if (authHeader == null ||!authHeader.startsWith("Bearer ")) {
 				filterChain.doFilter(request, response);
 				logger.error("no token");
-				return;
+				throw new NoJwtAuthenticationException("No jwt");
 			}
-			jwt = authHeader.substring(7);
+
+				jwt = authHeader.substring(7);
 			username = jwtServices.extractUsername(jwt);
 			if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
 				UserDetails userDetails =  userDetailServiceImpl.loadUserByUsername(username);
@@ -81,8 +92,5 @@ public class JwtAuthenticationFilter  extends OncePerRequestFilter{
 		    filterChain.doFilter(request, response);
 		  }
 
-		
-		
-		
 
 }

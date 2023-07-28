@@ -10,7 +10,6 @@ import java.util.Objects;
 @Table(name="balance_information")
 public class BalanceInformation {
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
     @OneToOne(fetch = FetchType.LAZY,cascade = CascadeType.ALL)
     @JoinColumn(name = "user_id",referencedColumnName = "id_email")
@@ -20,6 +19,8 @@ public class BalanceInformation {
     private int balance_amount;
     @Column
     private String phone_number;
+    @Version
+    private Long version;
 
     public BalanceInformation(String id, User user, int balance_amount, String phone_number) {
         this.id = id;

@@ -1,5 +1,6 @@
 package com.project.Service;
 
+import com.project.Exceptions.CustomExceptions.BusinessLogic.UserNotFoundException;
 import com.project.Model.*;
 import com.project.Payload.DTO.TransactionHistoryDTO;
 import com.project.Repository.BalanceInformationRepository;
@@ -32,8 +33,8 @@ public class TransactionHistoryService {
 
     public void saveTransaction( TransactionHistoryDTO transactionHistoryDTO){
         try{
-        User sender = userRepository.getReferenceById(transactionHistoryDTO.getSenderid());
-        User recipient = userRepository.getReferenceById(transactionHistoryDTO.getRecipientid());
+        User sender = userRepository.findById(transactionHistoryDTO.getSenderid()).orElseThrow(()-> new UserNotFoundException("Sender for transaction not found"));
+        User recipient = userRepository.findById(transactionHistoryDTO.getRecipientid()).orElseThrow(()-> new UserNotFoundException("Recipient for transaction not found"));
         TransactionHistory transactionHistory = new TransactionHistory(transactionHistoryDTO);
         transactionHistory.setSender(sender);
         transactionHistory.setRecipient(recipient);

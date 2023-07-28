@@ -1,10 +1,14 @@
 package com.project.Payload.Request.CRUDUserInforRequest;
 
-public class AddressCRUD {
+import jakarta.validation.constraints.NotBlank;
 
+import java.lang.reflect.Field;
+
+public class AddressCRUD {
     String street_address;
     String city;
     String province;
+
     String country;
 
     public AddressCRUD( String street_address, String city, String province, String country) {

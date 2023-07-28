@@ -107,7 +107,7 @@ class BalanceInformationServiceTest {
         mockBalanceInformation.setPhone_number(phone);
 
         Mockito.when(balanceInformationRepository.findBalanceInformationsByPhonenumber(phone))
-                .thenReturn(mockBalanceInformation);
+                .thenReturn(Optional.of(mockBalanceInformation));
 
         BalanceInformationDTO mockBalanceInformationDTO = Mockito.mock(BalanceInformationDTO.class);
         mockBalanceInformationDTO = new BalanceInformationDTO();

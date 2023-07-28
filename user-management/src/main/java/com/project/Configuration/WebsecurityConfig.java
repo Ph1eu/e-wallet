@@ -1,7 +1,7 @@
 package com.project.Configuration;
 
 import com.project.Configuration.jwt.JwtAuthenticationFilter;
-import com.project.Configuration.jwt.JwtEntryPoint;
+//import com.project.Configuration.jwt.JwtEntryPoint;
 import com.project.Configuration.jwt.JwtServices;
 import com.project.Service.UserDetailServiceImpl;
 
@@ -22,15 +22,18 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.servlet.HandlerExceptionResolver;
+import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 @Configuration
 @EnableWebSecurity()
+
 public class WebsecurityConfig {
 
     @Autowired
     UserDetailServiceImpl userDetailsService;
-    @Autowired
-    JwtEntryPoint unauthorizedHandler;
+//    @Autowired
+//    JwtEntryPoint unauthorizedHandler;
 
 	@Autowired
     JwtServices jwtServices;
@@ -75,9 +78,7 @@ public class WebsecurityConfig {
    ("/api/auth/**").permitAll()
   .requestMatchers("/api/admin/**").hasRole("ADMIN")
    .requestMatchers("/api/user/**").hasAnyRole("ADMIN","USER")
-   .anyRequest().authenticated().and().
-   formLogin().disable();
-
+   .anyRequest().authenticated();
     http.authenticationProvider(authenticationProvider());
     http.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
 

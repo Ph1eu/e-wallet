@@ -2,14 +2,18 @@ package com.project.Payload.Request.AuthenticationRequest;
 
 import jakarta.validation.constraints.*;
 public class SignUpRequest {
+    @NotBlank
 
     private String username;
-
+    @NotBlank
     private String password;
+    @NotBlank
     private String first_name;
+    @NotBlank
     private String last_name;
     @Email
     private String email;
+    @NotBlank
     private String role;
     private String signUpKey;
     public SignUpRequest(String username, String password,String first_name,String last_name, String email, String role,String signUpKey) {

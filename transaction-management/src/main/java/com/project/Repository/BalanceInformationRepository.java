@@ -9,13 +9,14 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.Optional;
+
 public interface BalanceInformationRepository extends JpaRepository<BalanceInformation,String> {
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     BalanceInformation findBalanceInformationByUser(User user);
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT b FROM BalanceInformation b WHERE b.phone_number = :phone")
-
-    BalanceInformation findBalanceInformationsByPhonenumber(String phone);
+    Optional<BalanceInformation> findBalanceInformationsByPhonenumber(String phone);
     @Modifying
     @Query("UPDATE BalanceInformation bi SET bi.balance_amount = :newBalance WHERE bi.id = :id")
     void updateBalanceWithID(@Param("id") String id, @Param("newBalance") Integer newBalance);

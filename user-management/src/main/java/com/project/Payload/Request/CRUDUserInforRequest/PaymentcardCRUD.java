@@ -1,10 +1,17 @@
 package com.project.Payload.Request.CRUDUserInforRequest;
 
+import jakarta.validation.constraints.NotBlank;
+
 public class PaymentcardCRUD {
+    @NotBlank
     String card_number;
+    @NotBlank
     String card_holder_name;
+    @NotBlank
     String card_type;
+    @NotBlank
     String registration_date;
+    @NotBlank
     String expiration_date;
 
     public PaymentcardCRUD(String card_number, String card_holder_name, String card_type, String registration_date, String expiration_date) {

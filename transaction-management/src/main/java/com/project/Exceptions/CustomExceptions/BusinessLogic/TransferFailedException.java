@@ -1,4 +1,4 @@
-package com.project.Exceptions;
+package com.project.Exceptions.CustomExceptions.BusinessLogic;
 
 public class TransferFailedException extends RuntimeException{
     public TransferFailedException(String message) {

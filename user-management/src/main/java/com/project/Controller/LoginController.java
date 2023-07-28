@@ -3,10 +3,11 @@ package com.project.Controller;
 import java.util.*;
 
 import com.project.Configuration.jwt.JwtServices;
-import com.project.Exceptions.RoleNotFoundException;
+import com.project.Exceptions.CustomException.BusinessLogic.RoleNotFoundException;
+import com.project.Exceptions.CustomException.BusinessLogic.SignUpKeyNotFoundException;
+import com.project.Exceptions.CustomException.Database.ExistedInformationException;
+import com.project.Exceptions.CustomException.ValidationInput.MissingRequiredFieldException;
 import com.project.Model.ERole;
-import com.project.Model.Role;
-import com.project.Model.User;
 import com.project.Payload.DTO.RoleDTO;
 import com.project.Payload.DTO.UserDTO;
 import com.project.Payload.Request.AuthenticationRequest.LoginRequest;
@@ -14,8 +15,6 @@ import com.project.Payload.Request.AuthenticationRequest.SignUpRequest;
 import com.project.Payload.Response.MessageResponse;
 import com.project.Payload.Response.ResponseEntityWrapper;
 import com.project.Payload.Response.UserInforResponse;
-import com.project.Repository.RoleRepository;
-import com.project.Repository.UserRepository;
 import com.project.Service.CustomUserDetail;
 import com.project.Service.RoleService;
 import com.project.Service.UserDetailServiceImpl;
@@ -81,13 +80,15 @@ public class LoginController{
     public ResponseEntity<?> registerUser(@Valid @RequestBody SignUpRequest signUpRequest) {
         try{
         if (userDetailService.existByUsername(signUpRequest.getUsername())) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Error: Username is already taken!"));
-        }
+            throw new ExistedInformationException("Username is existed");
+            }
 
         if (userDetailService.existByIdemail(signUpRequest.getEmail())) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Error: Email is already in use!"));
+            throw new ExistedInformationException("Email is already in use");
         }
-
+        if (signUpRequest.getRole().equals(ERole.ROLE_ADMIN.toString()) && signUpRequest.getSignUpKey() == null){
+            throw new SignUpKeyNotFoundException("Missing Sign Up Key");
+        }
         // Create new user's account
         UserDTO user = new UserDTO(signUpRequest.getEmail(),
                 signUpRequest.getUsername(),
@@ -120,11 +121,6 @@ public class LoginController{
         userDetailService.saveUser(user);
         ResponseEntityWrapper<?> responseEntityWrapper = new ResponseEntityWrapper<>("REGISTRATION SUCCESSFULLY");
         return ResponseEntity.ok(responseEntityWrapper);
-        }
-        catch(RoleNotFoundException roleNotFoundException){
-            ResponseEntityWrapper<?> responseEntityWrapper = new ResponseEntityWrapper<>();
-            responseEntityWrapper.setMessage("REGISTRATION ERROR: CAN'T FIND ROLE IN DATABASE");
-            return ResponseEntity.badRequest().body(responseEntityWrapper);
         }catch (Exception ex) {
             ResponseEntityWrapper<?> responseEntityWrapper = new ResponseEntityWrapper<>();
             responseEntityWrapper.setMessage("AN ERROR OCCURRED DURING USER REGISTRATION");

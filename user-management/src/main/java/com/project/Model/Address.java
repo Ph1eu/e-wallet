@@ -7,7 +7,6 @@ import jakarta.persistence.*;
 @Table(name="address")
 public class Address {
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name="address_id")
 
     String id;

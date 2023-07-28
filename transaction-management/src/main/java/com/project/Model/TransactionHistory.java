@@ -11,7 +11,6 @@ import java.util.Date;
 public class TransactionHistory {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "sender_id",referencedColumnName = "id_email")

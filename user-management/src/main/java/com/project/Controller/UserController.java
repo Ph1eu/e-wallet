@@ -20,6 +20,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.EntityModel;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -27,6 +28,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 
+import java.lang.reflect.Field;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -98,25 +100,25 @@ public class UserController {
         }
         else if(user.getAddress() == null){
             ResponseEntityWrapper<MessageResponse> responseEntityWrapper = new ResponseEntityWrapper<>();
-            MessageResponse messageResponse = new MessageResponse("Address is empty");
-            responseEntityWrapper.setData(List.of(messageResponse));
+            responseEntityWrapper.setMessage("ADDRESS IS EMPTY");
             responseEntityWrapper.setLink(List.of( linkTo(methodOn(UserController.class).deleteAddress(username)).withRel("delete address for user"),
                     linkTo(methodOn(UserController.class).getAddress(username)).withSelfRel(),
                     linkTo(methodOn(UserController.class).setAddress(new AddressCRUD(),username)).withRel("Add address").withType("POST")));
-            return ResponseEntity.ok().body(responseEntityWrapper);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(responseEntityWrapper);
         }
         else {
             return ResponseEntity.ok().body(EntityModel.of(userResourceAssembler.toAddressModel(user)));
         }
     }
     @PostMapping("/{username}/address")
-    public ResponseEntity<?> setAddress(@Valid @RequestBody AddressCRUD addressCRUD,@PathVariable("username") String username){
+    public ResponseEntity<?> setAddress(@Valid @RequestBody AddressCRUD addressCRUD,@PathVariable("username") String username) {
         UserDTO user = verifyUserInstance(username);
         if (user == null){
             return ResponseEntity.badRequest().body(new MessageResponse("Invalid User"));
         }
         else {
-            AddressDTO address = new AddressDTO(addressCRUD.getStreet_address(),
+            Class<?> clazz = addressCRUD.getClass();
+            AddressDTO address = new AddressDTO(UUID.randomUUID().toString(),addressCRUD.getStreet_address(),
                     addressCRUD.getCity(), addressCRUD.getProvince(), addressCRUD.getCountry()
             );
             addressService.saveAddressForUser(address,user);
@@ -134,8 +136,7 @@ public class UserController {
         else {
             addressService.deleteAddressByUser(user);
             ResponseEntityWrapper<MessageResponse> responseEntityWrapper = new ResponseEntityWrapper<>();
-            MessageResponse messageResponse = new MessageResponse("Address is empty");
-            responseEntityWrapper.setData(List.of(messageResponse));
+            responseEntityWrapper.setMessage("ADDRESS IS NOW DELETED");
             responseEntityWrapper.setLink(List.of(linkTo(methodOn(UserController.class).deleteAddress(username)).withSelfRel(),
                     linkTo(methodOn(UserController.class).getAddress(username)).withRel("Get address from username"),
                     linkTo(methodOn(UserController.class).setAddress(new AddressCRUD(),username)).withRel("Add address").withType("POST")));
@@ -175,7 +176,7 @@ public class UserController {
                 }
                 Date expDate = new SimpleDateFormat("dd/MM/yyyy").parse(paymentcardCRUD.getExpiration_date());
                 Date regDate = new SimpleDateFormat("dd/MM/yyyy").parse(paymentcardCRUD.getRegistration_date());
-                PaymentcardDTO paymentcard = new PaymentcardDTO(paymentcardCRUD.getCard_number(),user,
+                PaymentcardDTO paymentcard = new PaymentcardDTO(UUID.randomUUID().toString(),paymentcardCRUD.getCard_number(),user,
                         paymentcardCRUD.getCard_holder_name(),paymentcardCRUD.getCard_type(),
                         regDate,expDate);
                 paymentcards.add(paymentcard);

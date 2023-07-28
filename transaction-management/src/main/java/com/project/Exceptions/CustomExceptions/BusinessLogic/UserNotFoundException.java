@@ -1,4 +1,4 @@
-package com.project.Exceptions;
+package com.project.Exceptions.CustomExceptions.BusinessLogic;
 
 public class UserNotFoundException extends RuntimeException {
     public UserNotFoundException(String message) {
