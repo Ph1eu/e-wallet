@@ -29,6 +29,8 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -53,7 +55,8 @@ public class LoginController{
     private final Logger logger = LoggerFactory.getLogger(LoginController.class);
 
     @PostMapping("/signin")
-    public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
+    public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest,BindingResult bindingResult) {
+        handMissingField(bindingResult);
         try{
         Authentication authentication = authenticationManager
                 .authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
@@ -76,9 +79,23 @@ public class LoginController{
                     );
         }
     }
+
+    private void handMissingField(BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            StringBuilder errorMessage = new StringBuilder("Validation errors: ");
+            for (FieldError error : bindingResult.getFieldErrors()) {
+                String fieldName = error.getField();
+                String errorMessageForField = error.getDefaultMessage();
+                errorMessage.append(fieldName).append(" - ").append(errorMessageForField).append(";");
+            }
+            throw  new MissingRequiredFieldException(errorMessage.toString());
+
+        }
+    }
+
     @PostMapping("/signup")
-    public ResponseEntity<?> registerUser(@Valid @RequestBody SignUpRequest signUpRequest) {
-        try{
+    public ResponseEntity<?> registerUser(@Valid @RequestBody SignUpRequest signUpRequest, BindingResult bindingResult) {
+        handMissingField(bindingResult);
         if (userDetailService.existByUsername(signUpRequest.getUsername())) {
             throw new ExistedInformationException("Username is existed");
             }
@@ -86,9 +103,11 @@ public class LoginController{
         if (userDetailService.existByIdemail(signUpRequest.getEmail())) {
             throw new ExistedInformationException("Email is already in use");
         }
-        if (signUpRequest.getRole().equals(ERole.ROLE_ADMIN.toString()) && signUpRequest.getSignUpKey() == null){
+        if (signUpRequest.getRole().equalsIgnoreCase("admin") && signUpRequest.getSignUpKey() == null){
+            logger.error("missing sign up key");
             throw new SignUpKeyNotFoundException("Missing Sign Up Key");
         }
+
         // Create new user's account
         UserDTO user = new UserDTO(signUpRequest.getEmail(),
                 signUpRequest.getUsername(),
@@ -117,7 +136,7 @@ public class LoginController{
             user.setRoles(adminRole);
             }
 
-
+        try{
         userDetailService.saveUser(user);
         ResponseEntityWrapper<?> responseEntityWrapper = new ResponseEntityWrapper<>("REGISTRATION SUCCESSFULLY");
         return ResponseEntity.ok(responseEntityWrapper);

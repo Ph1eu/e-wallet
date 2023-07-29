@@ -2,6 +2,7 @@ package com.project.Controller;
 
 import com.project.Assembler.UserResourceAssembler;
 import com.project.Configuration.jwt.JwtServices;
+import com.project.Exceptions.CustomException.ValidationInput.MissingRequiredFieldException;
 import com.project.Model.Address;
 import com.project.Model.Paymentcard;
 import com.project.Model.User;
@@ -25,6 +26,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 
 
@@ -111,7 +114,8 @@ public class UserController {
         }
     }
     @PostMapping("/{username}/address")
-    public ResponseEntity<?> setAddress(@Valid @RequestBody AddressCRUD addressCRUD,@PathVariable("username") String username) {
+    public ResponseEntity<?> setAddress(@Valid @RequestBody AddressCRUD addressCRUD,@PathVariable("username") String username,BindingResult bindingResult) {
+        handMissingField(bindingResult);
         UserDTO user = verifyUserInstance(username);
         if (user == null){
             return ResponseEntity.badRequest().body(new MessageResponse("Invalid User"));
@@ -163,7 +167,8 @@ public class UserController {
         }
     }
     @PostMapping("/{username}/cards/")
-    public ResponseEntity<?> setPaymentCards(@PathVariable("username")String username,@RequestBody List<PaymentcardCRUD> paymentcardCRUDs) throws ParseException {
+    public ResponseEntity<?> setPaymentCards(@PathVariable("username")String username,@RequestBody List<PaymentcardCRUD> paymentcardCRUDs,BindingResult bindingResult) throws ParseException {
+        handMissingField(bindingResult);
         UserDTO user = verifyUserInstance(username);
         List<PaymentcardDTO> paymentcards = new ArrayList<>();
         if(user == null){
@@ -186,7 +191,7 @@ public class UserController {
         }
     }
     @DeleteMapping("/{username}/cards")
-    public ResponseEntity<?> deletePaymentCardbyID(@PathVariable String username ,@RequestParam(value = "id") String id) throws ParseException {
+    public ResponseEntity<?> deletePaymentCardbyID(@PathVariable String username ,@RequestParam String id) throws ParseException {
         UserDTO user = verifyUserInstance(username);
         if(user == null){
             return ResponseEntity.badRequest().body(new MessageResponse("Invalid User"));
@@ -194,10 +199,12 @@ public class UserController {
         else{
             paymentCardsService.deleteByID(id);
             List<PaymentcardCRUD> paymentcardCRUDS = new ArrayList<>();
+            BindingResult bindingResult= null;
+
             return ResponseEntity.ok().body(EntityModel.of(new MessageResponse("Deleted card for user"),
                     linkTo(methodOn(UserController.class).deletePaymentCardbyID(username,id)).withSelfRel(),
                     linkTo(methodOn(UserController.class).deleteAllPaymentCard(username)).withRel("delete all payment cards"),
-                    linkTo(methodOn(UserController.class).setPaymentCards(username,paymentcardCRUDS )).withRel("Set payment cards"),
+                    linkTo(methodOn(UserController.class).setPaymentCards(username,paymentcardCRUDS,bindingResult)).withRel("Set payment cards"),
                     linkTo(methodOn(UserController.class).getPaymentCards(username)).withRel("get all payment cards")
             ));
     }
@@ -210,12 +217,25 @@ public class UserController {
         } else {
             paymentCardsService.deleteAllByUser(user);
             List<PaymentcardCRUD> paymentcardCRUDS = new ArrayList<>();
+            BindingResult bindingResult= null;
             return ResponseEntity.ok().body(EntityModel.of(new MessageResponse("Deleted all card for user"),
                     linkTo(methodOn(UserController.class).deleteAllPaymentCard(username)).withSelfRel(),
                     linkTo(methodOn(UserController.class).deletePaymentCardbyID(username, "id")).withRel("Delete by ID"),
-                    linkTo(methodOn(UserController.class).setPaymentCards(username, paymentcardCRUDS)).withRel("Set payment cards"),
+                    linkTo(methodOn(UserController.class).setPaymentCards(username, paymentcardCRUDS,bindingResult)).withRel("Set payment cards"),
                     linkTo(methodOn(UserController.class).getPaymentCards(username)).withRel("get all payment cards")
             ));
+        }
+    }
+    private void handMissingField(BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            StringBuilder errorMessage = new StringBuilder("Validation errors: ");
+            for (FieldError error : bindingResult.getFieldErrors()) {
+                String fieldName = error.getField();
+                String errorMessageForField = error.getDefaultMessage();
+                errorMessage.append(fieldName).append(" - ").append(errorMessageForField).append(";");
+            }
+            throw  new MissingRequiredFieldException(errorMessage.toString());
+
         }
     }
     }

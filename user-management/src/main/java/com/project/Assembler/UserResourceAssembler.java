@@ -20,6 +20,7 @@ import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.server.RepresentationModelAssembler;
 import org.springframework.lang.NonNullApi;
 import org.springframework.stereotype.Component;
+import org.springframework.validation.BindingResult;
 
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -80,8 +81,9 @@ public class UserResourceAssembler implements RepresentationModelAssembler<UserD
         EntityModel<AddressDTO> addressEntityModel = EntityModel.of(entity.getAddress());
         ResponseEntityWrapper<EntityModel<AddressDTO>> responseEntityWrapper = new ResponseEntityWrapper<>();
         responseEntityWrapper.setData(List.of(addressEntityModel));
+        BindingResult bindingResult=null;
         responseEntityWrapper.setLink(List.of(linkTo(methodOn(UserController.class).getAddress(entity.getUsername())).withRel("Get User Address"),
-                linkTo(methodOn(UserController.class).setAddress(new AddressCRUD(),entity.getUsername())).withRel("Set User Address").withType("POST")));
+                linkTo(methodOn(UserController.class).setAddress(new AddressCRUD(),entity.getUsername(),bindingResult)).withRel("Set User Address").withType("POST")));
         return responseEntityWrapper;
     }
     public ResponseEntityWrapper<EntityModel<PaymentcardDTO>> toCardsCollectionModel(Iterable<PaymentcardDTO> entities, UserDTO entity) throws ParseException {
@@ -92,9 +94,10 @@ public class UserResourceAssembler implements RepresentationModelAssembler<UserD
         }
         ResponseEntityWrapper<EntityModel<PaymentcardDTO>> responseEntityWrapper = new ResponseEntityWrapper<>();
         responseEntityWrapper.setData(entityModels);
+        BindingResult bindingResult = null;
         List<PaymentcardCRUD> paymentcardCRUDS = new ArrayList<>();
         responseEntityWrapper.setLink(List.of(linkTo(methodOn(UserController.class).getPaymentCards(entity.getUsername())).withSelfRel(),
-                linkTo(methodOn(UserController.class).setPaymentCards(entity.getUsername(),paymentcardCRUDS)).withRel("Set information for current cards"),
+                linkTo(methodOn(UserController.class).setPaymentCards(entity.getUsername(),paymentcardCRUDS,bindingResult)).withRel("Set information for current cards"),
                 linkTo(methodOn(UserController.class).deletePaymentCardbyID(entity.getUsername(),"id")).withRel("delete one card"),
                 linkTo(methodOn(UserController.class).deleteAllPaymentCard(entity.getUsername())).withRel("delete all cards")));
         return responseEntityWrapper;

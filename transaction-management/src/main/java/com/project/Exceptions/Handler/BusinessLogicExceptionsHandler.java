@@ -25,7 +25,7 @@ public class BusinessLogicExceptionsHandler {
     @ExceptionHandler(InsufficientBalanceException.class)
     public ResponseEntity<ResponseEntityWrapper<?>> handleInsufficientBalanceException(InsufficientBalanceException ex) {
         ResponseEntityWrapper<?> responseEntityWrapper = new ResponseEntityWrapper<>("INSUFFICIENT BALANCE");
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(responseEntityWrapper);
+        return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body(responseEntityWrapper);
     }
 
     @ExceptionHandler(TransferFailedException.class)

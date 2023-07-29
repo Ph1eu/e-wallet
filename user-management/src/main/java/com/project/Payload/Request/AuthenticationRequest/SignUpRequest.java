@@ -3,7 +3,6 @@ package com.project.Payload.Request.AuthenticationRequest;
 import jakarta.validation.constraints.*;
 public class SignUpRequest {
     @NotBlank
-
     private String username;
     @NotBlank
     private String password;
@@ -82,4 +81,5 @@ public class SignUpRequest {
     public void setLast_name(String last_name) {
         this.last_name = last_name;
     }
+
 }

@@ -6,6 +6,7 @@ import com.project.Payload.Response.ResponseEntityWrapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingPathVariableException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -23,6 +24,11 @@ public class ValidationInputHandler {
     }
     @ExceptionHandler(MissingServletRequestParameterException.class)
     public ResponseEntity<?> handleRequestParamException(MissingServletRequestParameterException exception){
+        ResponseEntityWrapper<?> responseEntityWrapper = new ResponseEntityWrapper<>(exception.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(responseEntityWrapper);
+    }
+    @ExceptionHandler(MissingPathVariableException.class)
+    public ResponseEntity<?> handlePathVariableException(MissingPathVariableException exception){
         ResponseEntityWrapper<?> responseEntityWrapper = new ResponseEntityWrapper<>(exception.getMessage());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(responseEntityWrapper);
     }
