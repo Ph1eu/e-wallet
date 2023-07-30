@@ -57,7 +57,7 @@ public class LoginController{
     @PostMapping("/signin")
     public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest,BindingResult bindingResult) {
         handMissingField(bindingResult);
-        try{
+
         Authentication authentication = authenticationManager
                 .authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
 
@@ -71,13 +71,7 @@ public class LoginController{
                 userDetails.getUsername(), userDetails.getRole())));
         return ResponseEntity.ok().header(HttpHeaders.AUTHORIZATION,"Bearer "+jwtToken)
                 .body(responseEntityWrapper);
-        }
-        catch(UsernameNotFoundException usernameNotFoundException){
-            ResponseEntityWrapper<UserInforResponse> responseEntityWrapper = new ResponseEntityWrapper<>("USER'S INFORMATION NOT FOUND");
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(responseEntityWrapper
-                    );
-        }
+
     }
 
     private void handMissingField(BindingResult bindingResult) {
@@ -115,7 +109,6 @@ public class LoginController{
                 signUpRequest.getFirst_name(),signUpRequest.getLast_name(),new Date(),null,null,null,null);
 
         String strRoles = signUpRequest.getRole();
-        System.out.println(strRoles);
         String signUpkey = signUpRequest.getSignUpKey();
         if (strRoles == null || strRoles.equals("user")) {
 

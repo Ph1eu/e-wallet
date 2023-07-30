@@ -85,7 +85,8 @@ public class UserController {
         UserDTO user = verifyUserInstance(username);
         UserDTO userwithBalance = userDetailService.getUserWithBalanceInformation(user.getId_email());
         if (user == null){
-            return ResponseEntity.badRequest().body(new MessageResponse("Invalid User"));
+            ResponseEntityWrapper<MessageResponse> responseEntityWrapper = new ResponseEntityWrapper<>("Unmatched user in session");
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(responseEntityWrapper);
         }
         else{
             List<PaymentcardDTO> paymentcardDTOS= paymentCardsService.findByAllUser(user);
@@ -99,7 +100,8 @@ public class UserController {
         UserDTO user = verifyUserInstance(username);
 
         if (user == null){
-            return ResponseEntity.badRequest().body(new MessageResponse("Invalid User"));
+            ResponseEntityWrapper<MessageResponse> responseEntityWrapper = new ResponseEntityWrapper<>("Unmatched user in session");
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(responseEntityWrapper);
         }
         else if(user.getAddress() == null){
             ResponseEntityWrapper<MessageResponse> responseEntityWrapper = new ResponseEntityWrapper<>();
@@ -119,7 +121,8 @@ public class UserController {
         handMissingField(bindingResult);
         UserDTO user = verifyUserInstance(username);
         if (user == null){
-            return ResponseEntity.badRequest().body(new MessageResponse("Invalid User"));
+            ResponseEntityWrapper<MessageResponse> responseEntityWrapper = new ResponseEntityWrapper<>("Unmatched user in session");
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(responseEntityWrapper);
         }
         else {
             Class<?> clazz = addressCRUD.getClass();
@@ -136,7 +139,8 @@ public class UserController {
     public ResponseEntity<?> deleteAddress(@PathVariable("username") String username){
         UserDTO user = verifyUserInstance(username);
         if (user == null){
-            return ResponseEntity.badRequest().body(new MessageResponse("Invalid User"));
+            ResponseEntityWrapper<MessageResponse> responseEntityWrapper = new ResponseEntityWrapper<>("Unmatched user in session");
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(responseEntityWrapper);
         }
         else {
             addressService.deleteAddressByUser(user);
@@ -155,7 +159,8 @@ public class UserController {
     public ResponseEntity<?> getPaymentCards(@PathVariable("username")String username ) throws ParseException {
         UserDTO user = verifyUserInstance(username);
         if (user == null){
-            return ResponseEntity.badRequest().body(new MessageResponse("Invalid User"));
+            ResponseEntityWrapper<MessageResponse> responseEntityWrapper = new ResponseEntityWrapper<>("Unmatched user in session");
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(responseEntityWrapper);
         }
         else {
             List<PaymentcardDTO> paymentcards = paymentCardsService.findByAllUser(user);
@@ -175,7 +180,8 @@ public class UserController {
         UserDTO user = verifyUserInstance(username);
         List<PaymentcardDTO> paymentcards = new ArrayList<>();
         if(user == null){
-            return ResponseEntity.badRequest().body(new MessageResponse("Invalid User"));
+            ResponseEntityWrapper<MessageResponse> responseEntityWrapper = new ResponseEntityWrapper<>("Unmatched user in session");
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(responseEntityWrapper);
         }
         else{
             for(PaymentcardCRUD paymentcardCRUD :paymentcardCRUDs){
@@ -197,7 +203,8 @@ public class UserController {
     public ResponseEntity<?> deletePaymentCardbyID(@PathVariable String username ,@RequestParam String id) throws ParseException {
         UserDTO user = verifyUserInstance(username);
         if(user == null){
-            return ResponseEntity.badRequest().body(new MessageResponse("Invalid User"));
+            ResponseEntityWrapper<MessageResponse> responseEntityWrapper = new ResponseEntityWrapper<>("Unmatched user in session");
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(responseEntityWrapper);
         }
         else{
             paymentCardsService.deleteByID(id);
@@ -216,7 +223,8 @@ public class UserController {
     public ResponseEntity<?> deleteAllPaymentCard(@PathVariable String username ) throws ParseException {
         UserDTO user = verifyUserInstance(username);
         if (user == null) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Invalid User"));
+            ResponseEntityWrapper<MessageResponse> responseEntityWrapper = new ResponseEntityWrapper<>("Unmatched user in session");
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(responseEntityWrapper);
         } else {
             paymentCardsService.deleteAllByUser(user);
             List<PaymentcardCRUD> paymentcardCRUDS = new ArrayList<>();
