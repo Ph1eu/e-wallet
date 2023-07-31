@@ -280,4 +280,5 @@ class BalanceInformationServiceTest {
         assertThrows(InsufficientBalanceException.class, () -> balanceInformationService.DecreaseBalance(mockUser.getUsername(), bonus_amount));
 
     }
+
 }

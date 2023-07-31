@@ -27,7 +27,7 @@ public class ValidationInputExceptionHandler {
     }
     @ExceptionHandler(InvalidPhoneNumberFormatException.class)
     public ResponseEntity<?> handleInvalidPhoneNumberFormatException(InvalidPhoneNumberFormatException e){
-        ResponseEntityWrapper<?> responseEntityWrapper = new ResponseEntityWrapper<>("invalid email format");
+        ResponseEntityWrapper<?> responseEntityWrapper = new ResponseEntityWrapper<>("invalid phone number format");
         logger.error("InvalidPhoneNumberFormatException occurred: "+e.getMessage());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(responseEntityWrapper);
     }

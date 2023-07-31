@@ -81,6 +81,9 @@ public class UserController {
                                            @RequestParam("phone") String phone){
 
         int amount = Integer.parseInt(amountstr);
+        if(!PhoneNumberValidator.isValidPhoneNumber(phone)){
+            throw  new InvalidPhoneNumberFormatException();
+        }
         List<Optional<BalanceInformationDTO>> optionalList = balanceInformationService.TransferBalance(username,phone,amount);
         BalanceInformationDTO senderInformation =  optionalList.get(0).get();
         BalanceInformationDTO receiverInformation= optionalList.get(1).get();
