@@ -50,16 +50,7 @@ public class UserDTO{
         else{
             this.addressDTO = new AddressDTO(user.getAddress());
         }
-
-//        if (user.getPaymentcards() == null){
-//            this.paymentcardsDTO= new ArrayList<>();
-//        }
-//        else{
-//            for (Paymentcard paymentcard :user.getPaymentcards()){
-//                this.paymentcardsDTO.add(new PaymentcardDTO(paymentcard));
-//            }
-//        }
-
+        // add card in controller layer to avoid collision
     }
 
     public UserDTO(String idemail, String username, String password, String first_name, String last_name, Date registration_date, RoleDTO roles, AddressDTO addressDTO, List<PaymentcardDTO> paymentcardsDTO, BalanceInformationDTO balanceInformation) {

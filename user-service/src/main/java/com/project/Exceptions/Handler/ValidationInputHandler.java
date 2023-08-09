@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 public class ValidationInputHandler {
     private static final Logger logger = LoggerFactory.getLogger(DatabaseExceptionHandler.class);
 
-
     @ExceptionHandler(MissingRequiredFieldException.class)
     public ResponseEntity<?> handleMissingRequiredField(MissingRequiredFieldException e){
         ResponseEntityWrapper<?> responseEntityWrapper = new ResponseEntityWrapper<>(e.getMessage());

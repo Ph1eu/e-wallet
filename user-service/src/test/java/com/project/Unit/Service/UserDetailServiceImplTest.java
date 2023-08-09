@@ -11,7 +11,6 @@ import com.project.Repository.UserRepository;
 import com.project.Service.UserDetailServiceImpl;
 import com.project.Ultils.MockUserGenerator;
 import com.project.Ultils.ObjectComparator;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;

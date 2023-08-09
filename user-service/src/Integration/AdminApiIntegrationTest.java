@@ -9,7 +9,7 @@ public class AdminApiIntegrationTest {
     private String jwtToken;
 
     public String retrieveToken() {
-        String authorizationHeader = given()
+        String authorizationHeader = RestAssured.given()
                 .baseUri("http://localhost:8081")
                 .contentType("application/json")
                 .body("{\"username\":\"admin\",\"password\":\"admin\"}")
@@ -33,7 +33,7 @@ public class AdminApiIntegrationTest {
     }
     @Test
     void getAllUsers() {
-        String response_case_1 = given().
+        String response_case_1 = RestAssured.given().
                 header("Authorization", "Bearer " + jwtToken)
                 .queryParam("")
                 .when()
@@ -41,7 +41,7 @@ public class AdminApiIntegrationTest {
                 .then()
                 .statusCode(200)
                 .extract().asString();
-        String response_case_2 = given().
+        String response_case_2 = RestAssured.given().
                 header("Authorization", "Bearer " + jwtToken)
                 .queryParam("email","admin@admin.com")
                 .when()
@@ -49,7 +49,7 @@ public class AdminApiIntegrationTest {
                 .then()
                 .statusCode(200)
                 .extract().asString();
-        String response_case_3 = given().
+        String response_case_3 = RestAssured.given().
                 header("Authorization", "Bearer " + jwtToken)
                 .queryParam("email","banyamanohg@gmail.com").
                 queryParam("amount",1001600)
@@ -58,7 +58,7 @@ public class AdminApiIntegrationTest {
                 .then()
                 .statusCode(200)
                 .extract().asString();
-        String response_case_4 = given().
+        String response_case_4 = RestAssured.given().
                 header("Authorization", "Bearer " + jwtToken).
                 queryParam("amount",1001600)
                 .when()

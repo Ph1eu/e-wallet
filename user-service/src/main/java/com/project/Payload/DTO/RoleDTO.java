@@ -18,6 +18,12 @@ public class RoleDTO {
     public RoleDTO(){
 
     }
+
+    public RoleDTO(String id, ERole name) {
+        this.id = id;
+        this.name = name;
+    }
+
     public RoleDTO(Role role){
         this.id = role.getId();
 

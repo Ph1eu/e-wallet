@@ -5,7 +5,9 @@ import com.project.Assembler.TransactionResourceAssembler;
 import com.project.Exceptions.CustomExceptions.ValidationInput.InvalidPhoneNumberFormatException;
 import com.project.Payload.DTO.BalanceInformationDTO;
 import com.project.Payload.DTO.TransactionHistoryDTO;
+import com.project.Payload.DTO.UserDTO;
 import com.project.Payload.Enum.TransactionType;
+import com.project.Payload.Request.BalanceCRUD;
 import com.project.Payload.Response.ResponseEntityWrapper;
 import com.project.Service.BalanceInformationService;
 import com.project.Service.TransactionHistoryService;
@@ -37,13 +39,22 @@ public class UserController {
     BalanceResourceAssembler    balanceResourceAssembler;
     @Autowired
     TransactionResourceAssembler transactionResourceAssembler;
-    @GetMapping("/{username}/balance")
-    public ResponseEntity<?> getOnlineBalance(@PathVariable("username") String username){
+    @GetMapping("/balance")
+    public ResponseEntity<?> getOnlineBalance(@RequestParam("username") String username){
 
         BalanceInformationDTO balanceInformationDTO=  balanceInformationService.getUserBalanceInformationByUsername(username);
         return ResponseEntity.ok().body(balanceResourceAssembler.toModelWithWrapper(balanceInformationDTO,username));
     }
-    @GetMapping("/{username}/deposit")
+    @PostMapping("/balance")
+    public ResponseEntity<?> createBalance(@RequestBody BalanceCRUD balanceCRUD){
+        UserDTO user = userDetailService.findByUsername(balanceCRUD.getUsername());
+        BalanceInformationDTO balanceInformationDTO = new BalanceInformationDTO(UUID.randomUUID().toString(),user.getId_email(),balanceCRUD.getBalance_amount(),balanceCRUD.getPhone_number());
+        balanceInformationService.saveBalanceInformation(balanceInformationDTO);
+        ResponseEntityWrapper<?> responseEntityWrapper = new ResponseEntityWrapper<>("Successfully generated balance information");
+        return ResponseEntity.ok().body(responseEntityWrapper);
+    }
+
+    @GetMapping("/deposit")
     public ResponseEntity<?> depositMoney(@RequestParam("username") String username,@RequestParam("amount") String amountstr){
 
         int amount = Integer.parseInt(amountstr);
@@ -60,7 +71,7 @@ public class UserController {
 
 
     }
-    @GetMapping("/{username}/withdrawal")
+    @GetMapping("/withdrawal")
     public ResponseEntity<?> withdrawalMoney(@RequestParam("username") String username,@RequestParam("amount") String amountstr){
         int amount = Integer.parseInt(amountstr);
         BalanceInformationDTO balanceInformationDTO=  balanceInformationService.DecreaseBalance(username,amount).get();
@@ -76,7 +87,7 @@ public class UserController {
 
     }
 
-    @GetMapping("/{username}/transfer")
+    @GetMapping("/transfer")
     public ResponseEntity<?> transferMoney(@RequestParam("username") String username,@RequestParam("amount") String amountstr,
                                            @RequestParam("phone") String phone){
 
@@ -96,8 +107,8 @@ public class UserController {
                 transactionHistoryDTO,username);
         return ResponseEntity.ok().body(responseEntityWrapper);
     }
-    @GetMapping("/{username}/balance/history")
-    public ResponseEntity<?> getHistory(@PathVariable("username") String username,
+    @GetMapping("/balance/history")
+    public ResponseEntity<?> getHistory(@RequestParam("username") String username,
                                         @RequestParam(required = false,defaultValue = "0") String  pagestr,
                                         @RequestParam(required = false,defaultValue = "10")String sizestr){
         int page = Integer.parseInt(pagestr);

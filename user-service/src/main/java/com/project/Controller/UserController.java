@@ -79,8 +79,8 @@ public class UserController {
         String pattern = "^\\d{2}/\\d{2}/\\d{4}$";
         return Pattern.matches(pattern, dateStr);
     }
-    @GetMapping("/{username}")
-    public ResponseEntity<?> getOneUser(@PathVariable("username") String username){
+    @GetMapping("")
+    public ResponseEntity<?> getOneUser(@RequestParam("username") String username){
 
         UserDTO user = verifyUserInstance(username);
         UserDTO userwithBalance = userDetailService.getUserWithBalanceInformation(user.getId_email());
@@ -95,8 +95,8 @@ public class UserController {
         }
 
     }
-    @GetMapping("/{username}/address")
-    public ResponseEntity<?> getAddress(@PathVariable("username")String username){
+    @GetMapping("/address")
+    public ResponseEntity<?> getAddress(@RequestParam("username")String username){
         UserDTO user = verifyUserInstance(username);
 
         if (user == null){
@@ -116,8 +116,8 @@ public class UserController {
             return ResponseEntity.ok().body(EntityModel.of(userResourceAssembler.toAddressModel(user)));
         }
     }
-    @PostMapping("/{username}/address")
-    public ResponseEntity<?> setAddress(@Valid @RequestBody AddressCRUD addressCRUD,@PathVariable("username") String username,BindingResult bindingResult) {
+    @PostMapping("/address")
+    public ResponseEntity<?> setAddress(@Valid @RequestBody AddressCRUD addressCRUD,@RequestParam("username") String username,BindingResult bindingResult) {
         handMissingField(bindingResult);
         UserDTO user = verifyUserInstance(username);
         if (user == null){
@@ -135,8 +135,8 @@ public class UserController {
         }
     }
 
-    @DeleteMapping("/{username}/address")
-    public ResponseEntity<?> deleteAddress(@PathVariable("username") String username){
+    @DeleteMapping("/address")
+    public ResponseEntity<?> deleteAddress(@RequestParam("username") String username){
         UserDTO user = verifyUserInstance(username);
         if (user == null){
             ResponseEntityWrapper<MessageResponse> responseEntityWrapper = new ResponseEntityWrapper<>("Unmatched user in session");
@@ -155,8 +155,8 @@ public class UserController {
 
         }
     }
-    @GetMapping("/{username}/cards")
-    public ResponseEntity<?> getPaymentCards(@PathVariable("username")String username ) throws ParseException {
+    @GetMapping("/cards")
+    public ResponseEntity<?> getPaymentCards(@RequestParam("username")String username ) throws ParseException {
         UserDTO user = verifyUserInstance(username);
         if (user == null){
             ResponseEntityWrapper<MessageResponse> responseEntityWrapper = new ResponseEntityWrapper<>("Unmatched user in session");
@@ -174,8 +174,8 @@ public class UserController {
             }
         }
     }
-    @PostMapping("/{username}/cards/")
-    public ResponseEntity<?> setPaymentCards(@PathVariable("username")String username,@RequestBody List<PaymentcardCRUD> paymentcardCRUDs,BindingResult bindingResult) throws ParseException {
+    @PostMapping("/cards")
+    public ResponseEntity<?> setPaymentCards(@RequestParam("username")String username,@RequestBody List<PaymentcardCRUD> paymentcardCRUDs,BindingResult bindingResult) throws ParseException {
         handMissingField(bindingResult);
         UserDTO user = verifyUserInstance(username);
         List<PaymentcardDTO> paymentcards = new ArrayList<>();
@@ -199,8 +199,8 @@ public class UserController {
             return ResponseEntity.ok().body(userResourceAssembler.toCardsCollectionModel(paymentcards,user));
         }
     }
-    @DeleteMapping("/{username}/cards")
-    public ResponseEntity<?> deletePaymentCardbyID(@PathVariable String username ,@RequestParam String id) throws ParseException {
+    @DeleteMapping("/cards")
+    public ResponseEntity<?> deletePaymentCardbyID(@RequestParam String username ,@RequestParam String id) throws ParseException {
         UserDTO user = verifyUserInstance(username);
         if(user == null){
             ResponseEntityWrapper<MessageResponse> responseEntityWrapper = new ResponseEntityWrapper<>("Unmatched user in session");
@@ -219,8 +219,8 @@ public class UserController {
             ));
     }
     }
-    @DeleteMapping("/{username}/cards/delete/all")
-    public ResponseEntity<?> deleteAllPaymentCard(@PathVariable String username ) throws ParseException {
+    @DeleteMapping("/cards/delete/all")
+    public ResponseEntity<?> deleteAllPaymentCard(@RequestParam String username ) throws ParseException {
         UserDTO user = verifyUserInstance(username);
         if (user == null) {
             ResponseEntityWrapper<MessageResponse> responseEntityWrapper = new ResponseEntityWrapper<>("Unmatched user in session");

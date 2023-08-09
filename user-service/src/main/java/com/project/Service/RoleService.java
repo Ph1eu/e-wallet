@@ -24,4 +24,11 @@ public class RoleService {
             logger.info("User's role found");
             return new RoleDTO(role);
     }
+    public void addRole(RoleDTO roleDTO){
+        Role role = new Role(roleDTO);
+        roleRepository.save(role);
+    }
+    public boolean checkExistRole(RoleDTO roleDTO){
+        return roleRepository.existsByName(roleDTO.getName());
+    }
 }

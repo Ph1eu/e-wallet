@@ -1,5 +1,6 @@
 package com.project.Service;
 
+import com.project.Exceptions.CustomExceptions.BusinessLogic.UserNotFoundException;
 import com.project.Model.User;
 import com.project.Payload.DTO.UserDTO;
 import com.project.Repository.UserRepository;
@@ -32,19 +33,10 @@ public class UserDetailServiceImpl implements UserDetailsService {
 
 
 
-    public boolean existByUsername(String username){
-        try {
-            if (userRepository.existsByUsername(username)) {
-                logger.info(" username exist {}",username);
-                return true;
-            }
-            else{
-                return false;
-            }
-        }catch (Exception e){
-            logger.error("username doesn't exist {}",username);
-            throw new RuntimeException("username doesn't exist.", e);
-        }
+    public UserDTO findByUsername(String username){
+        User user = userRepository.findByUsername(username).
+                orElseThrow(() -> new UserNotFoundException("User Not Found with username: " + username));
+        return new UserDTO(user);
     }
     public boolean existByIdemail(String email){
         try {
@@ -59,22 +51,6 @@ public class UserDetailServiceImpl implements UserDetailsService {
             logger.error("username doesn't exist {}",email);
             throw new RuntimeException("username doesn't exist.", e);
         }
-    }
-    public List<UserDTO> findAll(){
-        try{
-            List<User> users = userRepository.findAll();
-            List<UserDTO> userDTOS = new ArrayList<>();
-            for(User user:users){
-                userDTOS.add(new UserDTO(user));
-            }
-            logger.info("Fetched all users {}");
-            return userDTOS;
-        }
-        catch (Exception e){
-            logger.error("Failed to fetch all users");
-            throw new RuntimeException("Failed to fetch all users.", e);
-        }
-
     }
 
 }

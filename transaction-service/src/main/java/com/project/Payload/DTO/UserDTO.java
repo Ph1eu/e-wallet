@@ -26,7 +26,6 @@ public class UserDTO {
 
 
     @JsonIgnore
-
     private List<String> paymentcardsDTO ;
     public UserDTO(){
 
@@ -43,6 +42,7 @@ public class UserDTO {
             this.paymentcardsDTO= new ArrayList<>();
         }
         else{
+            this.paymentcardsDTO= new ArrayList<>();
             this.paymentcardsDTO.addAll(user.getPaymentcards());
         }
 

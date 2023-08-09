@@ -8,7 +8,7 @@ import static io.restassured.RestAssured.given;
 
 public class UserApiIntegrationTest {
     public String retrieveToken() {
-        String authorizationHeader = given()
+        String authorizationHeader = RestAssured.given()
                 .baseUri("http://localhost:8081")
                 .contentType("application/json")
                 .body("{\"username\":\"hieuhg123456\",\"password\":\"hieuhg123456\"}")

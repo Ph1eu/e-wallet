@@ -106,7 +106,7 @@ public class PaymentCardsService {
         try{
             List<Paymentcard> paymentcards = new ArrayList<>();
             for (PaymentcardDTO paymentcardDTO: paymentcardDTOList){
-                paymentcards.add(new Paymentcard(paymentcardDTO.getCard_number(),new User(paymentcardDTO.getUser()),
+                paymentcards.add(new Paymentcard(paymentcardDTO.getId(),paymentcardDTO.getCard_number(),new User(paymentcardDTO.getUser()),
                         paymentcardDTO.getCard_holder_name(),paymentcardDTO.getCard_type(),paymentcardDTO.getRegistration_date()
                 ,paymentcardDTO.getExpiration_date()));
             }
