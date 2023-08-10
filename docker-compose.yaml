@@ -2,8 +2,27 @@ version: '3'
 services:
   user_service:
     image: user_service:latest
+    container_name: user-service
     ports:
       - "8081:8081"
+    links:
+      - post_gres_db
+    depends_on:
+      - post_gres_db
+  transaction_service:
+    image: transaction:latest
+    container_name: user-service
+    ports:
+      - "8082:8082"
+    links:
+      - post_gres_db
+    depends_on:
+      - post_gres_db
+  report_service:
+    image: transaction:latest
+    container_name: user-service
+    ports:
+      - "8083:8083"
     links:
       - post_gres_db
     depends_on:
