@@ -102,13 +102,15 @@ public class HourlyReportService {
     public Optional<GenericRecord> ReceiveLatestRecord() {
         Date date = new Date();
         GenericRecord record = aggregatedTransactionConsumer.getLatestRecord();
+        System.out.println(record);
         Date recordTimeStamp = new Date(Long.parseLong(record.get("start_time").toString()));
-        long timeIntervalMillis = 5* 1000;
+        long timeIntervalMillis = 10* 1000;
         long intervalStart = date.getTime() - timeIntervalMillis ;
         long intervalEnd = date.getTime() + timeIntervalMillis;
         boolean isRecordTimeInInterval = recordTimeStamp.getTime() >= intervalStart && recordTimeStamp.getTime() <= intervalEnd;
         if (isRecordTimeInInterval) {
             System.out.println("record is in interval");
+          //  System.out.println(record);
             return Optional.of(record);
         } else if (record.toString() == null) {
             Schema.Parser parser = new Schema.Parser();

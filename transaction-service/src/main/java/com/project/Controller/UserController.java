@@ -9,6 +9,7 @@ import com.project.Payload.DTO.UserDTO;
 import com.project.Payload.Enum.TransactionType;
 import com.project.Payload.Request.BalanceCRUD;
 import com.project.Payload.Response.ResponseEntityWrapper;
+import com.project.Payload.Response.ResponsePagedEntityWrapper;
 import com.project.Service.BalanceInformationService;
 import com.project.Service.TransactionHistoryService;
 import com.project.Service.UserDetailServiceImpl;
@@ -105,6 +106,8 @@ public class UserController {
         transactionHistoryService.saveTransaction(transactionHistoryDTO);
         ResponseEntityWrapper<TransactionHistoryDTO> responseEntityWrapper =balanceResourceAssembler.toModelByTransferTransaction(senderInformation,receiverInformation,
                 transactionHistoryDTO,username);
+        responseEntityWrapper.setMessage("Successfully transfer money");
+
         return ResponseEntity.ok().body(responseEntityWrapper);
     }
     @GetMapping("/balance/history")
@@ -115,6 +118,8 @@ public class UserController {
         int size = Integer.parseInt(sizestr);
         Pageable pageable = PageRequest.of(page,size);
         Page<TransactionHistoryDTO> historyDTOS = transactionHistoryService.getAllTransactionHistory(pageable);
-        return ResponseEntity.ok().body(transactionResourceAssembler.toCollectionModelWithUsername(historyDTOS,username));
+        ResponsePagedEntityWrapper<?> responsePagedEntityWrapper = transactionResourceAssembler.toCollectionModelWithUsername(historyDTOS,username);
+        responsePagedEntityWrapper.setMessage("successfully fetch user history");
+        return ResponseEntity.ok().body(responsePagedEntityWrapper);
     }
 }
