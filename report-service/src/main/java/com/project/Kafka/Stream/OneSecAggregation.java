@@ -18,6 +18,9 @@ import org.apache.kafka.streams.kstream.*;
 import org.apache.kafka.streams.processor.AbstractProcessor;
 import org.apache.kafka.streams.processor.ProcessorContext;
 import org.apache.kafka.streams.processor.PunctuationType;
+import org.apache.kafka.streams.state.KeyValueStore;
+import org.apache.kafka.streams.state.StoreBuilder;
+import org.apache.kafka.streams.state.Stores;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -91,11 +94,9 @@ public class OneSecAggregation {
                 .reduce(
                         (totalAmount, data) -> totalAmount + data,
                         Materialized.with(Serdes.String(), Serdes.Double())
-                )//.suppress(Suppressed.untilWindowCloses(Suppressed.BufferConfig.unbounded()))
-                ;
-//        sumAggregatedTable.toStream().foreach((key, value) -> {
-//            System.out.println("sumAggregatedTable key: " + key + ", value: " + value);
-//        });
+                );
+
+sumAggregatedTable.toStream().peek((key, value) -> System.out.println("key sum: " + key + " value sum: " + value));
 
 
 // Perform aggregation for counting transactions with 1-second time windows
@@ -103,24 +104,22 @@ public class OneSecAggregation {
                 .selectKey((key, value) -> "Aggregated result") // Assign a constant key for all records
                 .groupByKey(Grouped.with(Serdes.String(), valueGenericAvroSerde()))
                 .windowedBy(TimeWindows.of(Duration.ofSeconds(1)))
-                .count(Materialized.with(Serdes.String(), Serdes.Long()))
-                ;
-//        countAggregatedTable.toStream().foreach((key, value) -> {
-//            System.out.println("countAggregatedTable key: " + key + ", value: " + value);
-//        });
-// Merge the two aggregated tables into one with 1-second time windows
+                .count(Materialized.with(Serdes.String(), Serdes.Long()));
+ //countAggregatedTable.toStream().peek((key, value) -> System.out.println("key count: " + key + " value count: " + value));
+
         KTable<Windowed<String>, GenericRecord> finalTable = sumAggregatedTable
                 .join(
                         countAggregatedTable,
                         (sum, count) -> {
+
                             GenericRecord result = new GenericData.Record(schema);
                             result.put("total_transaction_amount", sum);
                             result.put("total_record_count", count);
 
                             return result;
                         }
-                )//.suppress(Suppressed.untilWindowCloses(Suppressed.BufferConfig.unbounded()))
-                ;
+                );
+finalTable.toStream().peek((key, value) -> System.out.println("key : " + key + " value : " + value));
 
         KStream<String, GenericRecord> finalStream = finalTable.toStream()
                 .map((windowedTransactionId, result) -> {
@@ -133,7 +132,7 @@ public class OneSecAggregation {
                     return KeyValue.pair(windowedTransactionId.key(), record);
                 });
         // Map the merged stream to the final format
-        finalStream.peek((key, value) -> System.out.println("key: " + key + " value: " + value));
+
 
         finalStream.to(this.topic, Produced.with(Serdes.String(), valueGenericAvroSerde()));
 
@@ -234,6 +233,9 @@ public class OneSecAggregation {
         }
         return null;
 
+    }
+    private String generateUniqueKey(Windowed<String> windowedKey, double sumValue, long countValue) {
+        return windowedKey.key() + "|" + sumValue + "|" + countValue;
     }
 
 //    private KStream<String, GenericRecord> generateContinuousRecords() {

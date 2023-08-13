@@ -99,47 +99,5 @@ public class HourlyReportService {
         }
 
     }
-    public Optional<GenericRecord> ReceiveLatestRecord() {
-        Date date = new Date();
-        GenericRecord record = aggregatedTransactionConsumer.getLatestRecord();
-        System.out.println(record);
-        Date recordTimeStamp = new Date(Long.parseLong(record.get("start_time").toString()));
-        long timeIntervalMillis = 10* 1000;
-        long intervalStart = date.getTime() - timeIntervalMillis ;
-        long intervalEnd = date.getTime() + timeIntervalMillis;
-        boolean isRecordTimeInInterval = recordTimeStamp.getTime() >= intervalStart && recordTimeStamp.getTime() <= intervalEnd;
-        if (isRecordTimeInInterval) {
-            System.out.println("record is in interval");
-          //  System.out.println(record);
-            return Optional.of(record);
-        } else if (record.toString() == null) {
-            Schema.Parser parser = new Schema.Parser();
-            Schema schema = parser.parse("{\n" +
-                    "    \"type\": \"record\",\n" +
-                    "    \"name\":\"Aggregated_Transaction\",\n" +
-                    "    \"fields\":[\n" +
-                    "        {\"name\":\"total_transaction_amount\", \"type\":\"long\"},\n" +
-                    "        {\"name\":\"total_record_count\", \"type\":\"int\"},\n" +
-                    "        {\"name\":\"start_time\", \"type\":\"long\"},\n" +
-                    "        {\"name\":\"end_time\", \"type\":\"long\"}\n" +
-                    "    ]\n" +
-                    "}");
-            GenericRecord Nullrecord = new GenericData.Record(schema);
-            Nullrecord.put("total_transaction_amount", 0);
-            Nullrecord.put("total_record_count", 0);
-            Nullrecord.put("start_time",date.getTime());
-            Nullrecord.put("end_time", date.getTime() + timeIntervalMillis);
-            return Optional.of(Nullrecord);
-        } else {
-            record.put("total_transaction_amount","0");
-            record.put("total_record_count", "0");
-            record.put("start_time",date.getTime());
-            record.put("end_time", date.getTime() + timeIntervalMillis);
-            return Optional.of(record);
-        }
-        //return aggregatedTransactionConsumer.getLatestRecord();
-    }
-    public void StartListen(){
-        aggregatedTransactionConsumer.listenFromOneSec();
-    }
+
 }

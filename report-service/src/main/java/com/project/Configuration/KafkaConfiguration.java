@@ -69,6 +69,7 @@ public class KafkaConfiguration {
         properties.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "latest"); // or "earliest" depending on your requirements
         properties.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "true");
         properties.put(ConsumerConfig.AUTO_COMMIT_INTERVAL_MS_CONFIG, "1000");
+     //   properties.put("enable.idempotence", "true"); // Enable idempotence
 
         return properties;
 
@@ -83,7 +84,8 @@ public class KafkaConfiguration {
         properties.put(StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG,Serdes.String().getClass().getName());
         properties.put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, Serdes.String().getClass().getName());
         properties.put(StreamsConfig.TOPOLOGY_OPTIMIZATION_CONFIG, StreamsConfig.OPTIMIZE);
-    //    properties.put(StreamsConfig.REPLICATION_FACTOR_CONFIG, 3); // Set the replication factor as needed
+       // properties.put(StreamsConfig.Cac, 10 * 1024 * 1024L);
+        //    properties.put(StreamsConfig.REPLICATION_FACTOR_CONFIG, 3); // Set the replication factor as needed
 
         return properties;
     }

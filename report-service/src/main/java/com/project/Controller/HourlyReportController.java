@@ -2,10 +2,12 @@ package com.project.Controller;
 
 import com.project.Assembler.HourlyReportAssembler;
 import com.project.Payload.DTO.HourlyReportDTO;
+import com.project.Payload.DTO.WindowAggregatedResultDTO;
 import com.project.Payload.Response.ResponseEntityWrapper;
 import com.project.Payload.Response.ResponsePagedEntityWrapper;
 import com.project.Payload.Response.WindowResult;
 import com.project.Service.HourlyReportService;
+import com.project.Service.WindowAggregatedResultService;
 import org.apache.avro.generic.GenericRecord;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -34,6 +36,8 @@ import java.util.Optional;
 public class HourlyReportController {
     @Autowired
     HourlyReportService hourlyReportService;
+    @Autowired
+    WindowAggregatedResultService windowAggregatedResultService;
 
     @Autowired
     HourlyReportAssembler hourlyReportAssembler;
@@ -107,31 +111,27 @@ public class HourlyReportController {
     @GetMapping("/onesec")
     public ResponseEntity<?>oneSecReport(){
         try {
-            Optional<GenericRecord> result = hourlyReportService.ReceiveLatestRecord();
-            if (Double.parseDouble(result.get().get("total_transaction_amount").toString())==0){
-                GenericRecord genericRecord = result.get();
-
-
+            Optional<WindowAggregatedResultDTO> result = windowAggregatedResultService.ReceiveLatestRecord();
+            if (result.isEmpty()){
+               //GenericRecord genericRecord = result.get();
+                Date date = new Date();
                 ResponseEntityWrapper<WindowResult> entityWrapper = new ResponseEntityWrapper<>("There is no transaction in the system");
                 WindowResult windowResult = new WindowResult();
-                windowResult.setTotal_amount(Double.parseDouble(genericRecord.get("total_transaction_amount").toString()));
-                windowResult.setTotal_count(Integer.parseInt(genericRecord.get("total_record_count").toString()));
-                windowResult.setStartTimeWithString(genericRecord.get("start_time").toString());
-                windowResult.setEndTimeWithString(genericRecord.get("end_time").toString());
+                windowResult.setTotal_amount(0.0);
+                windowResult.setTotal_count(0);
                 entityWrapper.setData(List.of(windowResult));
-                return    ResponseEntity.ok().body(entityWrapper);
+                return   ResponseEntity.ok().body(entityWrapper);
             }
             else{
-                GenericRecord genericRecord = result.get();
-                WindowResult windowResult = new WindowResult();
-                windowResult.setTotal_amount(Double.parseDouble(genericRecord.get("total_transaction_amount").toString()));
-                windowResult.setTotal_count(Integer.parseInt(genericRecord.get("total_record_count").toString()));
-                windowResult.setStartTimeWithString(genericRecord.get("start_time").toString());
-                windowResult.setEndTimeWithString(genericRecord.get("end_time").toString());
-
+                WindowAggregatedResultDTO windowAggregatedResultDTO = result.get();
                 ResponseEntityWrapper<WindowResult> entityWrapper = new ResponseEntityWrapper<>();
+                entityWrapper.setMessage("Successfully fetched the latest aggregated result satisfied 1-minute period");
+                WindowResult windowResult = new WindowResult();
+                windowResult.setTotal_amount(windowAggregatedResultDTO.getTotal_amount());
+                windowResult.setTotal_count(windowAggregatedResultDTO.getTotal_count());
+                windowResult.setStartTimeWithString(String.valueOf(windowAggregatedResultDTO.getStart_time()));
+                windowResult.setEndTimeWithString(String.valueOf(windowAggregatedResultDTO.getEnd_time()));
                 entityWrapper.setData(List.of(windowResult));
-                entityWrapper.setMessage("Successfully fetched the latest aggregated 1-second period result ");
                 return ResponseEntity.ok().body(entityWrapper);
             }
         } catch (Exception e) {
@@ -139,11 +139,6 @@ public class HourlyReportController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(entityWrapper);
         }
     }
-    @GetMapping("/listen")
-    public ResponseEntity<?>listen(){
-        hourlyReportService.StartListen();
- ;
-        return ResponseEntity.ok().body("ok");
-    }
+
 
 }

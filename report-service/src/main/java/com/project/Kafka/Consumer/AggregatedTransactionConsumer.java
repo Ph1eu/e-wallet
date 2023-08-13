@@ -1,5 +1,8 @@
 package com.project.Kafka.Consumer;
 
+import com.project.Payload.DTO.WindowAggregatedResultDTO;
+import com.project.Repository.WindowAggregatedResultRepository;
+import com.project.Service.WindowAggregatedResultService;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import org.apache.avro.generic.GenericRecord;
@@ -16,6 +19,10 @@ import org.springframework.stereotype.Component;
 import java.time.Duration;
 import java.util.Collections;
 import java.util.Properties;
+import java.util.UUID;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.Executor;
 
 @Component
 @Scope(ConfigurableBeanFactory.SCOPE_SINGLETON)
@@ -26,8 +33,13 @@ public class AggregatedTransactionConsumer {
     private  KafkaConsumer<String, GenericRecord> kafkaConsumer;
     private GenericRecord latestRecord;
     private volatile boolean running; // To control the consumer loop
-
-
+    private BlockingQueue<GenericRecord> recordQueue = new ArrayBlockingQueue<>(1000); // Adjust the size as needed
+    private Thread kafkaConsumerThread;
+    private Thread dbInsertionThread;
+    @Autowired
+    WindowAggregatedResultService windowAggregatedResultService;
+    @Autowired
+    private Executor executor;
     @Autowired
     public AggregatedTransactionConsumer(@Qualifier("kafkaTransactionConsumerProp")Properties properties,
                                @Value("${one_sec_transaction_aggregrated.topic}") String OneSectopic,
@@ -44,47 +56,54 @@ public class AggregatedTransactionConsumer {
         this.running = true;
         this.kafkaConsumer.subscribe(Collections.singletonList(this.OneSectopic));
 
-        Thread consumerThread = new Thread(() -> {
+        kafkaConsumerThread = new Thread(() -> {
             while (!Thread.currentThread().isInterrupted()) {
                 ConsumerRecords<String, GenericRecord> consumerRecords = this.kafkaConsumer.poll(Duration.ofSeconds(5));
                 consumerRecords.forEach(record -> {
                     latestRecord = record.value();
+                    recordQueue.offer(record.value()); // Add records to the queue
                     System.out.println("Record.value = " + record.value() + " ,Partition=" + record.partition());
                 });
+
                 this.kafkaConsumer.commitSync();
             }
             this.kafkaConsumer.close();
         });
+        dbInsertionThread = new Thread(() -> {
+            while (!Thread.currentThread().isInterrupted()) {
+                try {
+                    GenericRecord record = recordQueue.poll(); // Take records from the queue
+                    if (record != null) {
+                        // Insert logic - Modify this according to your data structure
+                        WindowAggregatedResultDTO windowAggregatedResultDTO = new WindowAggregatedResultDTO(
+                                UUID.randomUUID().toString(),
+                                Double.parseDouble(record.get("total_transaction_amount").toString()),
+                                Integer.parseInt(record.get("total_record_count").toString()),
+                                Long.parseLong(record.get("start_time").toString()),
+                                Long.parseLong(record.get("end_time").toString()));
 
-        consumerThread.start();
+                        windowAggregatedResultService.insertRecord(windowAggregatedResultDTO);
+                    }
+                }  catch (Exception e) {
+                    // Handle exceptions during insertion
+                    e.printStackTrace();
+                }
+            }
+        });
+        kafkaConsumerThread.start();
+        dbInsertionThread.start();
     }
     private KafkaConsumer<String, GenericRecord> createConsumer() {
         return new KafkaConsumer<>(this.properties);
     }
-    public void listenFromOneSec(){
-        try (KafkaConsumer<String, GenericRecord> kafkaConsumer = new KafkaConsumer<>(this.properties)) {
-            kafkaConsumer.subscribe(Collections.singletonList(this.OneSectopic));
-           System.out.println("Kafka consumer created and subscribed to topic: " + this.OneSectopic);
 
-            while (true) {
-                ConsumerRecords<String, GenericRecord> consumerRecords = kafkaConsumer.poll(Duration.ofSeconds(30));
-                consumerRecords.forEach(record -> {
-                        // Update the latestRecord with the latest consumed record
-                        latestRecord = record.value();
-                        System.out.println("Record.value = " + record.value() + " ,Partition=" + record.partition());
-                    });
-
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-    }
     public GenericRecord getLatestRecord() {
         return latestRecord;
     }
     @PreDestroy
     public void stop() {
         this.running = false;
+        kafkaConsumerThread.interrupt();
+       // dbInsertionThread.interrupt();
     }
 }
