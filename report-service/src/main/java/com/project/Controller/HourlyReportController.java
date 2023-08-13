@@ -125,7 +125,7 @@ public class HourlyReportController {
             else{
                 WindowAggregatedResultDTO windowAggregatedResultDTO = result.get();
                 ResponseEntityWrapper<WindowResult> entityWrapper = new ResponseEntityWrapper<>();
-                entityWrapper.setMessage("Successfully fetched the latest aggregated result satisfied 1-minute period");
+                entityWrapper.setMessage("Successfully fetched the latest aggregated result satisfied 30-seconds period");
                 WindowResult windowResult = new WindowResult();
                 windowResult.setTotal_amount(windowAggregatedResultDTO.getTotal_amount());
                 windowResult.setTotal_count(windowAggregatedResultDTO.getTotal_count());
