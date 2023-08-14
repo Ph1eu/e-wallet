@@ -37,7 +37,7 @@ public class WindowAggregatedResultService {
         WindowAggregatedResult windowAggregatedResult = windowAggregatedResultRepository.findLatestSingleRecord();
       //  GenericRecord record = aggregatedTransactionConsumer.getLatestRecord();
       //  System.out.println(record);
-        long timeIntervalMillis = 15* 1000;
+        long timeIntervalMillis = 30* 1000;
         long intervalStart = date.getTime() - timeIntervalMillis ;
         long intervalEnd = date.getTime() + timeIntervalMillis;
         boolean isRecordTimeInInterval = windowAggregatedResult.getStart_time() >= intervalStart && windowAggregatedResult.getEnd_time() <= intervalEnd;
