@@ -165,12 +165,15 @@ public class UserController {
         else {
             List<PaymentcardDTO> paymentcards = paymentCardsService.findByAllUser(user);
             if (paymentcards.isEmpty() ) {
-                return ResponseEntity.ok().body(EntityModel.of(new MessageResponse("User has no card yet "),
-                        linkTo(methodOn(UserController.class).getPaymentCards(username)).withRel("get all payment cards")
-                ));
+                ResponseEntityWrapper<EntityModel<PaymentcardDTO>> responseEntityWrapper = new ResponseEntityWrapper<>();
+                responseEntityWrapper.setMessage("User has no card yet ");
+                responseEntityWrapper.setLink(List.of(linkTo(methodOn(UserController.class).getPaymentCards(username)).withRel("get all payment cards")));
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(responseEntityWrapper);
             } else {
-                return ResponseEntity.ok().body(EntityModel.of(
-                        userResourceAssembler.toCardsCollectionModel(paymentcards,user)));
+                ResponseEntityWrapper<EntityModel<PaymentcardDTO>> responseEntityWrapper =userResourceAssembler.toCardsCollectionModel(paymentcards,user);
+                responseEntityWrapper.setMessage("Get cards successfully");
+                return ResponseEntity.ok().body(
+                        responseEntityWrapper);
             }
         }
     }
@@ -196,7 +199,9 @@ public class UserController {
                 paymentcards.add(paymentcard);
             }
             paymentCardsService.saveAllByCards(paymentcards);
-            return ResponseEntity.ok().body(userResourceAssembler.toCardsCollectionModel(paymentcards,user));
+            ResponseEntityWrapper<EntityModel<PaymentcardDTO>> responseEntityWrapper =userResourceAssembler.toCardsCollectionModel(paymentcards,user);
+            responseEntityWrapper.setMessage("Set cards successfully");
+            return ResponseEntity.ok().body(responseEntityWrapper);
         }
     }
     @DeleteMapping("/cards")
@@ -210,13 +215,14 @@ public class UserController {
             paymentCardsService.deleteByID(id);
             List<PaymentcardCRUD> paymentcardCRUDS = new ArrayList<>();
             BindingResult bindingResult= null;
-
-            return ResponseEntity.ok().body(EntityModel.of(new MessageResponse("Deleted card for user"),
-                    linkTo(methodOn(UserController.class).deletePaymentCardbyID(username,id)).withSelfRel(),
+            ResponseEntityWrapper<EntityModel<PaymentcardDTO>> responseEntityWrapper = new ResponseEntityWrapper<>();
+            responseEntityWrapper.setMessage("Deleted card for user");
+            responseEntityWrapper.setLink(List.of(linkTo(methodOn(UserController.class).deletePaymentCardbyID(username,id)).withSelfRel(),
                     linkTo(methodOn(UserController.class).deleteAllPaymentCard(username)).withRel("delete all payment cards"),
                     linkTo(methodOn(UserController.class).setPaymentCards(username,paymentcardCRUDS,bindingResult)).withRel("Set payment cards"),
                     linkTo(methodOn(UserController.class).getPaymentCards(username)).withRel("get all payment cards")
             ));
+            return ResponseEntity.ok().body(responseEntityWrapper);
     }
     }
     @DeleteMapping("/cards/delete/all")

@@ -20,10 +20,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.concurrent.BlockingQueue;
 
 @Service
 public class HourlyReportService {
@@ -35,10 +33,7 @@ public class HourlyReportService {
     TransactionProducer transactionProducer;
     @Autowired
     AggregatedTransactionConsumer aggregatedTransactionConsumer;
-    @Autowired
-    GlobalAggregation globalAggregation;
-    @Autowired
-    OneSecAggregation oneSecAggregation;
+
 
     private List<HourlyReportDTO> mapReportDataToList(List<Object[]> reportData) {
         List<HourlyReportDTO> hourlyReportDTOS = new ArrayList<>();
@@ -79,22 +74,22 @@ public class HourlyReportService {
         }
         return hourlyReportDTOS;
     }
-    public void StreamTransactions() {
-//        List<TransactionHistory> transactionHistoryList = transactionHistoryRepository.findAll();
+//    public void StreamTransactions() {
+////        List<TransactionHistory> transactionHistoryList = transactionHistoryRepository.findAll();
+////
+////        for (TransactionHistory transaction : transactionHistoryList) {
+////
+////            transactionProducer.publish(transaction.getId(), transaction);
+////
+////        }
+//        oneSecAggregation.startStream();
 //
-//        for (TransactionHistory transaction : transactionHistoryList) {
-//
-//            transactionProducer.publish(transaction.getId(), transaction);
-//
-//        }
-        oneSecAggregation.startStream();
-
-    }
+//    }
     public void PublishTransactions() {
         List<TransactionHistory> transactionHistoryList = transactionHistoryRepository.findAll();
 
         for (TransactionHistory transaction : transactionHistoryList) {
-
+            transaction.hashCode();
             transactionProducer.publish(transaction);
         }
 

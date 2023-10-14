@@ -14,22 +14,22 @@ import java.util.Objects;
 public class Paymentcard {
     @Id()
     @Column(name="card_id")
-    String id;
+    private String id;
     @Column(name = "card_number",unique = true)
-    String card_number;
+    private String card_number;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     @JsonBackReference
 
     private User user;
     @Column(name="card_holder_name")
-    String card_holder_name;
+    private String card_holder_name;
     @Column(name="card_type")
-    String card_type;
+    private String card_type;
     @Column(name = "registration_date")
-    Date registration_date;
+    private Date registration_date;
     @Column(name = "expiration_date")
-    Date expiration_date;
+    private  Date expiration_date;
 
     public Paymentcard(String card_number, User user, String card_holder_name, String card_type, Date registration_date, Date expiration_date) {
         this.card_number = card_number;

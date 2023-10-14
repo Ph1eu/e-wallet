@@ -29,7 +29,7 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/user")
-public class UserController {
+public class  UserController {
     @Autowired
     BalanceInformationService balanceInformationService;
     @Autowired

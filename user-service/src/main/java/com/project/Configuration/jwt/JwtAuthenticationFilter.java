@@ -49,7 +49,7 @@ public class JwtAuthenticationFilter  extends OncePerRequestFilter{
 			final String username;
 			final String requestURI = request.getRequestURI();
 
-			if (requestURI.startsWith("/api/auth/")) {
+			if (requestURI.startsWith("/api/auth/signup") || requestURI.startsWith("/api/auth/signin")) {
 				filterChain.doFilter(request, response);
 				return;
 			}

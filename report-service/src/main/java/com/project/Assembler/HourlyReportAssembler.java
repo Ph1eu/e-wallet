@@ -1,6 +1,5 @@
 package com.project.Assembler;
 
-import com.project.Controller.HourlyReportController;
 import com.project.Payload.DTO.HourlyReportDTO;
 import com.project.Payload.Response.PaginationInfor;
 import com.project.Payload.Response.ResponsePagedEntityWrapper;
@@ -14,7 +13,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @Component
 public class HourlyReportAssembler implements RepresentationModelAssembler<HourlyReportDTO, EntityModel<HourlyReportDTO>> {

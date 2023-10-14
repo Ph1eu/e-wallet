@@ -97,9 +97,9 @@ public class UserResourceAssembler implements RepresentationModelAssembler<UserD
         BindingResult bindingResult = null;
         List<PaymentcardCRUD> paymentcardCRUDS = new ArrayList<>();
         responseEntityWrapper.setLink(List.of(linkTo(methodOn(UserController.class).getPaymentCards(entity.getUsername())).withSelfRel(),
-                linkTo(methodOn(UserController.class).setPaymentCards(entity.getUsername(),paymentcardCRUDS,bindingResult)).withRel("Set information for current cards"),
-                linkTo(methodOn(UserController.class).deletePaymentCardbyID(entity.getUsername(),"id")).withRel("delete one card"),
-                linkTo(methodOn(UserController.class).deleteAllPaymentCard(entity.getUsername())).withRel("delete all cards")));
+                linkTo(methodOn(UserController.class).setPaymentCards(entity.getUsername(),paymentcardCRUDS,bindingResult)).withRel("Set information for current cards").withType("POST"),
+                linkTo(methodOn(UserController.class).deletePaymentCardbyID(entity.getUsername(),"id")).withRel("delete one card").withType("DELETE"),
+                linkTo(methodOn(UserController.class).deleteAllPaymentCard(entity.getUsername())).withRel("delete all cards").withType("DELETE")));
         return responseEntityWrapper;
 
     }

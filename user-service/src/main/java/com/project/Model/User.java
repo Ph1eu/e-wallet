@@ -1,6 +1,9 @@
 package com.project.Model;
 
 import java.util.*;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.project.Payload.DTO.PaymentcardDTO;
@@ -47,6 +50,7 @@ public class User{
     public User(){
 
     }
+
     public User(UserDTO userDTO){
         this.idemail = userDTO.getId_email();
         this.username = userDTO.getUsername();
@@ -171,7 +175,7 @@ public class User{
         this.last_name = last_name;
     }
 
-
+    
     @Override
     public String toString() {
         return "User{" +

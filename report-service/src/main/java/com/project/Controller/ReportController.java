@@ -8,14 +8,12 @@ import com.project.Payload.Response.ResponsePagedEntityWrapper;
 import com.project.Payload.Response.WindowResult;
 import com.project.Service.HourlyReportService;
 import com.project.Service.WindowAggregatedResultService;
-import org.apache.avro.generic.GenericRecord;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -24,16 +22,13 @@ import org.springframework.web.bind.annotation.RestController;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
 @RestController()
 @RequestMapping("/api/report")
-public class HourlyReportController {
+public class ReportController {
     @Autowired
     HourlyReportService hourlyReportService;
     @Autowired
@@ -108,8 +103,8 @@ public class HourlyReportController {
         hourlyReportService.PublishTransactions();
         return ResponseEntity.ok().body("sucesss");
     }
-    @GetMapping("/onesec")
-    public ResponseEntity<?>oneSecReport(){
+    @GetMapping("/livereport")
+    public ResponseEntity<?>GetLiveReport(){
         try {
             Optional<WindowAggregatedResultDTO> result = windowAggregatedResultService.ReceiveLatestRecord();
             if (result.isEmpty()){

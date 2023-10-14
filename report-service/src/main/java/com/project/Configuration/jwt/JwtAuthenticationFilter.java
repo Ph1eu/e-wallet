@@ -18,9 +18,11 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
 
 public class JwtAuthenticationFilter  extends OncePerRequestFilter{
-	
 	@Autowired
 	private JwtServices jwtServices;
 	

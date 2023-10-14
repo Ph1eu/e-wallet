@@ -8,7 +8,7 @@ import java.util.Objects;
 
 @Entity
 @Table(name="balance_information")
-public class BalanceInformation {
+public class  BalanceInformation {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;

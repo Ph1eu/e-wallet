@@ -2,8 +2,16 @@ package com.project.Payload.DTO;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.project.Model.*;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityManagerFactory;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 
 import java.util.*;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadPoolExecutor;
 
 
 public class UserDTO{
@@ -182,7 +190,6 @@ public class UserDTO{
     public int hashCode() {
         return Objects.hash(idemail, username, password, first_name, last_name, registration_date, roles, addressDTO, paymentcardsDTO, balanceInformation);
     }
-
     @Override
     public String toString() {
         return "UserDTO{" +
