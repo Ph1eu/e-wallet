@@ -8,7 +8,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Collection;
 import java.util.Collections;
 
-public class CustomUserDetail implements UserDetails   {
+public class CustomUserDetail implements UserDetails {
     UserDTO user;
     private Collection<? extends GrantedAuthority> authorities;
 
@@ -16,9 +16,10 @@ public class CustomUserDetail implements UserDetails   {
         this.user = user;
         this.authorities = authorities;
     }
+
     public static CustomUserDetail build(UserDTO user) {
-       // System.out.println(user.getRoles());
-        GrantedAuthority authorities =new SimpleGrantedAuthority(user.getRoles());
+        // System.out.println(user.getRoles());
+        GrantedAuthority authorities = new SimpleGrantedAuthority(user.getRoles());
 
         return new CustomUserDetail(
                 user,
@@ -30,15 +31,26 @@ public class CustomUserDetail implements UserDetails   {
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return authorities;
     }
-    public String getPassword(){
+
+    public String getPassword() {
         return user.getPassword();
     }
-    public String getUsername(){
+
+    public String getUsername() {
         return user.getUsername();
     }
 
-    public String getEmail(){return user.getId_email();};
-    public String getRole(){return user.getRoles();};
+    public String getEmail() {
+        return user.getId_email();
+    }
+
+    ;
+
+    public String getRole() {
+        return user.getRoles();
+    }
+
+    ;
 
     public UserDTO getUser() {
         return this.user;
@@ -48,6 +60,7 @@ public class CustomUserDetail implements UserDetails   {
     public boolean isAccountNonExpired() {
         return true;
     }
+
     @Override
     public boolean isAccountNonLocked() {
         return true;

@@ -38,12 +38,12 @@ public class ReportController {
     HourlyReportAssembler hourlyReportAssembler;
 
     @GetMapping("/hourlyreport")
-    public ResponseEntity<?> getHourlyReport(@RequestParam("startDate") String startDateString ,
-                                             @RequestParam(value = "endDate",required = false) String endDateString,
+    public ResponseEntity<?> getHourlyReport(@RequestParam("startDate") String startDateString,
+                                             @RequestParam(value = "endDate", required = false) String endDateString,
                                              @RequestParam(value = "startTime", required = false) Integer startTime,
-                                             @RequestParam(value = "page",defaultValue = "0") Integer page,
-                                             @RequestParam(value = "size",defaultValue = "7") Integer size
-                                             ){
+                                             @RequestParam(value = "page", defaultValue = "0") Integer page,
+                                             @RequestParam(value = "size", defaultValue = "7") Integer size
+    ) {
 
         Page<HourlyReportDTO> hourlyReportDTOS = null;
         DateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
@@ -71,21 +71,20 @@ public class ReportController {
         }
 
         PageRequest pageable = PageRequest.of(page, size);
-        ResponsePagedEntityWrapper<EntityModel<HourlyReportDTO>> responsePagedEntityWrapper= null;
-        if(startDate != null && endDate != null && startTime == null )
-        {
-            hourlyReportDTOS = hourlyReportService.generateHourlyReports(startDate,endDate,pageable);
-            responsePagedEntityWrapper= hourlyReportAssembler.toCollectionModelwithWrapper(hourlyReportDTOS);
+        ResponsePagedEntityWrapper<EntityModel<HourlyReportDTO>> responsePagedEntityWrapper = null;
+        if (startDate != null && endDate != null && startTime == null) {
+            hourlyReportDTOS = hourlyReportService.generateHourlyReports(startDate, endDate, pageable);
+            responsePagedEntityWrapper = hourlyReportAssembler.toCollectionModelwithWrapper(hourlyReportDTOS);
             responsePagedEntityWrapper.setMessage("Generated report successfully");
-        } else if (startDate != null && endDate == null && startTime == null ) {
-            hourlyReportDTOS = hourlyReportService.generateHourlyReportsByDate(startDate,pageable);
-            responsePagedEntityWrapper= hourlyReportAssembler.toCollectionModelwithWrapper(hourlyReportDTOS);
+        } else if (startDate != null && endDate == null && startTime == null) {
+            hourlyReportDTOS = hourlyReportService.generateHourlyReportsByDate(startDate, pageable);
+            responsePagedEntityWrapper = hourlyReportAssembler.toCollectionModelwithWrapper(hourlyReportDTOS);
             responsePagedEntityWrapper.setMessage("Generated report successfully");
         } else if (startDate != null && endDate == null) {
-            hourlyReportDTOS = hourlyReportService.generateHourlyReportsByDateTime(startDate,startTime,pageable);
-            responsePagedEntityWrapper= hourlyReportAssembler.toCollectionModelwithWrapper(hourlyReportDTOS);
+            hourlyReportDTOS = hourlyReportService.generateHourlyReportsByDateTime(startDate, startTime, pageable);
+            responsePagedEntityWrapper = hourlyReportAssembler.toCollectionModelwithWrapper(hourlyReportDTOS);
             responsePagedEntityWrapper.setMessage("Generated report successfully");
-        }else{
+        } else {
             responsePagedEntityWrapper = new ResponsePagedEntityWrapper<>();
             responsePagedEntityWrapper.setMessage("fail to generate report due to wrong parameter choices");
         }
@@ -93,31 +92,32 @@ public class ReportController {
         return ResponseEntity.ok().body(responsePagedEntityWrapper);
 
     }
-//    @GetMapping("/kafka")
+
+    //    @GetMapping("/kafka")
 //    public ResponseEntity<?>getall(){
 //     hourlyReportService.StreamTransactions();
 //        return ResponseEntity.ok().body("sucess");
 //    }
     @GetMapping("/publish")
-    public ResponseEntity<?>publish(){
+    public ResponseEntity<?> publish() {
         hourlyReportService.PublishTransactions();
         return ResponseEntity.ok().body("sucesss");
     }
+
     @GetMapping("/livereport")
-    public ResponseEntity<?>GetLiveReport(){
+    public ResponseEntity<?> GetLiveReport() {
         try {
             Optional<WindowAggregatedResultDTO> result = windowAggregatedResultService.ReceiveLatestRecord();
-            if (result.isEmpty()){
-               //GenericRecord genericRecord = result.get();
+            if (result.isEmpty()) {
+                //GenericRecord genericRecord = result.get();
                 Date date = new Date();
                 ResponseEntityWrapper<WindowResult> entityWrapper = new ResponseEntityWrapper<>("There is no transaction in the system");
                 WindowResult windowResult = new WindowResult();
                 windowResult.setTotal_amount(0.0);
                 windowResult.setTotal_count(0);
                 entityWrapper.setData(List.of(windowResult));
-                return   ResponseEntity.ok().body(entityWrapper);
-            }
-            else{
+                return ResponseEntity.ok().body(entityWrapper);
+            } else {
                 WindowAggregatedResultDTO windowAggregatedResultDTO = result.get();
                 ResponseEntityWrapper<WindowResult> entityWrapper = new ResponseEntityWrapper<>();
                 entityWrapper.setMessage("Successfully fetched the latest aggregated result satisfied 30-seconds period");

@@ -26,7 +26,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class TransactionHistoryServiceTest {
     @Mock
@@ -78,7 +78,7 @@ class TransactionHistoryServiceTest {
 
         List<TransactionHistory> mockTransactionHistoryList = mockTransactionHistoryGenerator.generateMockTransactions(2);
 
-        Pageable pageable = PageRequest.of(0,2);
+        Pageable pageable = PageRequest.of(0, 2);
         Page<TransactionHistory> mockPage = new PageImpl<>(mockTransactionHistoryList);
 
         Mockito.when(transactionHistoryRepository.findAll(pageable))
@@ -95,19 +95,19 @@ class TransactionHistoryServiceTest {
     }
 
     @Test
-    void getAllTransactionHistoryByFilter()throws ParseException  {
+    void getAllTransactionHistoryByFilter() throws ParseException {
         int object_count = 50;
         int size = 10;
         //int num_page = (int) Math.ceil((double) object_count / size);
-        Date start_date = DateUtils.convertStringToDate("10/01/2002","dd/MM/yyyy");
-        Date end_date = DateUtils.convertStringToDate("20/05/2002","dd/MM/yyyy");
+        Date start_date = DateUtils.convertStringToDate("10/01/2002", "dd/MM/yyyy");
+        Date end_date = DateUtils.convertStringToDate("20/05/2002", "dd/MM/yyyy");
         MockTransactionHistoryGenerator mockTransactionHistoryGenerator = new MockTransactionHistoryGenerator();
 
-        List<TransactionHistory> mockTransactionHistoryList = mockTransactionHistoryGenerator.generateTransactionWithinDateRange(object_count,start_date,end_date);
+        List<TransactionHistory> mockTransactionHistoryList = mockTransactionHistoryGenerator.generateTransactionWithinDateRange(object_count, start_date, end_date);
         List<List<TransactionHistory>> paginatedList = new ArrayList<>();
         List<TransactionHistory> mockDepositTransactionHistoryList = new ArrayList<>();
-        for (TransactionHistory transactionHistory :mockTransactionHistoryList){
-            if(transactionHistory.getTransaction_type().equals("Deposit")){
+        for (TransactionHistory transactionHistory : mockTransactionHistoryList) {
+            if (transactionHistory.getTransaction_type().equals("Deposit")) {
                 mockDepositTransactionHistoryList.add(transactionHistory);
             }
         }
@@ -119,31 +119,28 @@ class TransactionHistoryServiceTest {
             List<TransactionHistory> page = mockDepositTransactionHistoryList.subList(fromIndex, toIndex);
             paginatedList.add(page);
         }
-        for (int pageIndex = 0; pageIndex < paginatedList.size(); pageIndex++){
+        for (int pageIndex = 0; pageIndex < paginatedList.size(); pageIndex++) {
             List<TransactionHistory> page = paginatedList.get(pageIndex);
 
             Page<TransactionHistory> mockPage = new PageImpl<>(page);
-            Pageable pageable = PageRequest.of(pageIndex,size);
-            Mockito.when(transactionHistoryRepository.findTransactionHistoryByRange(start_date,end_date,pageable))
+            Pageable pageable = PageRequest.of(pageIndex, size);
+            Mockito.when(transactionHistoryRepository.findTransactionHistoryByRange(start_date, end_date, pageable))
                     .thenReturn(mockPage);
-            Page<TransactionHistoryDTO> result = transactionHistoryService.getAllTransactionHistoryByRange(start_date,end_date,pageable);
-            Mockito.verify(transactionHistoryRepository).findTransactionHistoryByRange(start_date,end_date,pageable);
+            Page<TransactionHistoryDTO> result = transactionHistoryService.getAllTransactionHistoryByRange(start_date, end_date, pageable);
+            Mockito.verify(transactionHistoryRepository).findTransactionHistoryByRange(start_date, end_date, pageable);
             Assertions.assertNotNull(result);
             Assertions.assertEquals(page.size(), result.getContent().size());
-            for (int i = 0; i < result.getContent().size(); i++){
+            for (int i = 0; i < result.getContent().size(); i++) {
                 TransactionHistoryDTO transactionHistory = result.getContent().get(i);
-                if(pageIndex == 0 && i == 0){
-                    Assertions.assertTrue((transactionHistory.getTransaction_date().after(start_date)||transactionHistory.getTransaction_date().equals(start_date)) &&
-                            transactionHistory.getTransaction_date().before(end_date) );
-                }
-
-                else if(pageIndex == num_page && i == (result.getContent().size() -1)){
+                if (pageIndex == 0 && i == 0) {
+                    Assertions.assertTrue((transactionHistory.getTransaction_date().after(start_date) || transactionHistory.getTransaction_date().equals(start_date)) &&
+                            transactionHistory.getTransaction_date().before(end_date));
+                } else if (pageIndex == num_page && i == (result.getContent().size() - 1)) {
                     Assertions.assertTrue(transactionHistory.getTransaction_date().after(start_date) &&
-                            (transactionHistory.getTransaction_date().before(end_date) ||transactionHistory.getTransaction_date().equals(end_date)) );
-                }
-                else{
+                            (transactionHistory.getTransaction_date().before(end_date) || transactionHistory.getTransaction_date().equals(end_date)));
+                } else {
                     Assertions.assertTrue(transactionHistory.getTransaction_date().after(start_date) &&
-                            transactionHistory.getTransaction_date().before(end_date) );
+                            transactionHistory.getTransaction_date().before(end_date));
                 }
                 assertEquals("Deposit", transactionHistory.getTransaction_type());
 
@@ -158,11 +155,11 @@ class TransactionHistoryServiceTest {
         int object_count = 50;
         int size = 10;
         int num_page = (int) Math.ceil((double) object_count / size);
-        Date start_date = DateUtils.convertStringToDate("10/01/2002","dd/MM/yyyy");
-        Date end_date = DateUtils.convertStringToDate("20/05/2002","dd/MM/yyyy");
+        Date start_date = DateUtils.convertStringToDate("10/01/2002", "dd/MM/yyyy");
+        Date end_date = DateUtils.convertStringToDate("20/05/2002", "dd/MM/yyyy");
         MockTransactionHistoryGenerator mockTransactionHistoryGenerator = new MockTransactionHistoryGenerator();
 
-        List<TransactionHistory> mockTransactionHistoryList = mockTransactionHistoryGenerator.generateTransactionWithinDateRange(object_count,start_date,end_date);
+        List<TransactionHistory> mockTransactionHistoryList = mockTransactionHistoryGenerator.generateTransactionWithinDateRange(object_count, start_date, end_date);
         List<List<TransactionHistory>> paginatedList = new ArrayList<>();
 
         for (int pageIndex = 0; pageIndex < num_page; pageIndex++) {
@@ -172,31 +169,28 @@ class TransactionHistoryServiceTest {
             List<TransactionHistory> page = mockTransactionHistoryList.subList(fromIndex, toIndex);
             paginatedList.add(page);
         }
-        for (int pageIndex = 0; pageIndex < paginatedList.size(); pageIndex++){
+        for (int pageIndex = 0; pageIndex < paginatedList.size(); pageIndex++) {
             List<TransactionHistory> page = paginatedList.get(pageIndex);
 
             Page<TransactionHistory> mockPage = new PageImpl<>(page);
-            Pageable pageable = PageRequest.of(pageIndex,size);
-            Mockito.when(transactionHistoryRepository.findTransactionHistoryByRange(start_date,end_date,pageable))
+            Pageable pageable = PageRequest.of(pageIndex, size);
+            Mockito.when(transactionHistoryRepository.findTransactionHistoryByRange(start_date, end_date, pageable))
                     .thenReturn(mockPage);
-            Page<TransactionHistoryDTO> result = transactionHistoryService.getAllTransactionHistoryByRange(start_date,end_date,pageable);
-            Mockito.verify(transactionHistoryRepository).findTransactionHistoryByRange(start_date,end_date,pageable);
+            Page<TransactionHistoryDTO> result = transactionHistoryService.getAllTransactionHistoryByRange(start_date, end_date, pageable);
+            Mockito.verify(transactionHistoryRepository).findTransactionHistoryByRange(start_date, end_date, pageable);
             Assertions.assertNotNull(result);
             Assertions.assertEquals(page.size(), result.getContent().size());
-            for (int i = 0; i < result.getContent().size(); i++){
+            for (int i = 0; i < result.getContent().size(); i++) {
                 TransactionHistoryDTO transactionHistory = result.getContent().get(i);
-                if(pageIndex == 0 && i == 0){
+                if (pageIndex == 0 && i == 0) {
                     Assertions.assertTrue(transactionHistory.getTransaction_date().equals(start_date) &&
-                            transactionHistory.getTransaction_date().before(end_date) );
-                }
-
-                else if(pageIndex == num_page && i == (result.getContent().size() -1)){
+                            transactionHistory.getTransaction_date().before(end_date));
+                } else if (pageIndex == num_page && i == (result.getContent().size() - 1)) {
                     Assertions.assertTrue(transactionHistory.getTransaction_date().after(start_date) &&
-                            transactionHistory.getTransaction_date().equals(end_date) );
-                }
-                else{
-                Assertions.assertTrue(transactionHistory.getTransaction_date().after(start_date) &&
-                        transactionHistory.getTransaction_date().before(end_date) );
+                            transactionHistory.getTransaction_date().equals(end_date));
+                } else {
+                    Assertions.assertTrue(transactionHistory.getTransaction_date().after(start_date) &&
+                            transactionHistory.getTransaction_date().before(end_date));
                 }
 
             }
@@ -205,14 +199,14 @@ class TransactionHistoryServiceTest {
     }
 
     @Test
-    void getAllTransactionHistoryByStartDate() throws ParseException{
+    void getAllTransactionHistoryByStartDate() throws ParseException {
         int object_count = 50;
         int size = 10;
         int num_page = (int) Math.ceil((double) object_count / size);
-        Date start_date = DateUtils.convertStringToDate("10/01/2002","dd/MM/yyyy");
+        Date start_date = DateUtils.convertStringToDate("10/01/2002", "dd/MM/yyyy");
         MockTransactionHistoryGenerator mockTransactionHistoryGenerator = new MockTransactionHistoryGenerator();
 
-        List<TransactionHistory> mockTransactionHistoryList = mockTransactionHistoryGenerator.generateTransactionWithStartDate(object_count,start_date);
+        List<TransactionHistory> mockTransactionHistoryList = mockTransactionHistoryGenerator.generateTransactionWithStartDate(object_count, start_date);
         List<List<TransactionHistory>> paginatedList = new ArrayList<>();
 
         for (int pageIndex = 0; pageIndex < num_page; pageIndex++) {
@@ -222,24 +216,23 @@ class TransactionHistoryServiceTest {
             List<TransactionHistory> page = mockTransactionHistoryList.subList(fromIndex, toIndex);
             paginatedList.add(page);
         }
-        for (int pageIndex = 0; pageIndex < paginatedList.size(); pageIndex++){
+        for (int pageIndex = 0; pageIndex < paginatedList.size(); pageIndex++) {
             List<TransactionHistory> page = paginatedList.get(pageIndex);
 
             Page<TransactionHistory> mockPage = new PageImpl<>(page);
-            Pageable pageable = PageRequest.of(pageIndex,size);
-            Mockito.when(transactionHistoryRepository.findTransactionHistoryByStartDate(start_date,pageable))
+            Pageable pageable = PageRequest.of(pageIndex, size);
+            Mockito.when(transactionHistoryRepository.findTransactionHistoryByStartDate(start_date, pageable))
                     .thenReturn(mockPage);
-            Page<TransactionHistoryDTO> result = transactionHistoryService.getAllTransactionHistoryByStartDate(start_date,pageable);
-            Mockito.verify(transactionHistoryRepository).findTransactionHistoryByStartDate(start_date,pageable);
+            Page<TransactionHistoryDTO> result = transactionHistoryService.getAllTransactionHistoryByStartDate(start_date, pageable);
+            Mockito.verify(transactionHistoryRepository).findTransactionHistoryByStartDate(start_date, pageable);
             Assertions.assertNotNull(result);
             Assertions.assertEquals(page.size(), result.getContent().size());
-            for (int i = 0; i < result.getContent().size(); i++){
+            for (int i = 0; i < result.getContent().size(); i++) {
                 TransactionHistoryDTO transactionHistory = result.getContent().get(i);
-                if(pageIndex == 0 && i == 0){
+                if (pageIndex == 0 && i == 0) {
                     assertEquals(transactionHistory.getTransaction_date(), start_date);
 
-                }
-                else{
+                } else {
                     Assertions.assertTrue(transactionHistory.getTransaction_date().after(start_date));
 
                 }
@@ -249,14 +242,14 @@ class TransactionHistoryServiceTest {
     }
 
     @Test
-    void getAllTransactionHistoryByEndDate() throws ParseException{
+    void getAllTransactionHistoryByEndDate() throws ParseException {
         int object_count = 50;
         int size = 10;
         int num_page = (int) Math.ceil((double) object_count / size);
-        Date end_date = DateUtils.convertStringToDate("20/05/2002","dd/MM/yyyy");
+        Date end_date = DateUtils.convertStringToDate("20/05/2002", "dd/MM/yyyy");
         MockTransactionHistoryGenerator mockTransactionHistoryGenerator = new MockTransactionHistoryGenerator();
 
-        List<TransactionHistory> mockTransactionHistoryList = mockTransactionHistoryGenerator.generateTransactionWithEndDate(object_count,end_date);
+        List<TransactionHistory> mockTransactionHistoryList = mockTransactionHistoryGenerator.generateTransactionWithEndDate(object_count, end_date);
         List<List<TransactionHistory>> paginatedList = new ArrayList<>();
 
         for (int pageIndex = 0; pageIndex < num_page; pageIndex++) {
@@ -266,26 +259,24 @@ class TransactionHistoryServiceTest {
             List<TransactionHistory> page = mockTransactionHistoryList.subList(fromIndex, toIndex);
             paginatedList.add(page);
         }
-        for (int pageIndex = 0; pageIndex < paginatedList.size(); pageIndex++){
+        for (int pageIndex = 0; pageIndex < paginatedList.size(); pageIndex++) {
             List<TransactionHistory> page = paginatedList.get(pageIndex);
 
             Page<TransactionHistory> mockPage = new PageImpl<>(page);
-            Pageable pageable = PageRequest.of(pageIndex,size);
-            Mockito.when(transactionHistoryRepository.findTransactionHistoryByEndDate(end_date,pageable))
+            Pageable pageable = PageRequest.of(pageIndex, size);
+            Mockito.when(transactionHistoryRepository.findTransactionHistoryByEndDate(end_date, pageable))
                     .thenReturn(mockPage);
-            Page<TransactionHistoryDTO> result = transactionHistoryService.getAllTransactionHistoryByEndDate(end_date,pageable);
-            Mockito.verify(transactionHistoryRepository).findTransactionHistoryByEndDate(end_date,pageable);
+            Page<TransactionHistoryDTO> result = transactionHistoryService.getAllTransactionHistoryByEndDate(end_date, pageable);
+            Mockito.verify(transactionHistoryRepository).findTransactionHistoryByEndDate(end_date, pageable);
             Assertions.assertNotNull(result);
             Assertions.assertEquals(page.size(), result.getContent().size());
-            for (int i = 0; i < result.getContent().size(); i++){
+            for (int i = 0; i < result.getContent().size(); i++) {
                 TransactionHistoryDTO transactionHistory = result.getContent().get(i);
-                if(pageIndex == 0 && i == 0){
+                if (pageIndex == 0 && i == 0) {
                     System.out.println(transactionHistory.getTransaction_date());
                     Assertions.assertTrue(transactionHistory.getTransaction_date().equals(end_date));
-                }
-
-                else{
-                    Assertions.assertTrue(transactionHistory.getTransaction_date().before(end_date) );
+                } else {
+                    Assertions.assertTrue(transactionHistory.getTransaction_date().before(end_date));
                 }
             }
 
@@ -299,10 +290,10 @@ class TransactionHistoryServiceTest {
         MockTransactionHistoryGenerator mockTransactionHistoryGenerator = new MockTransactionHistoryGenerator();
 
         List<TransactionHistory> mockTransactionHistoryList = mockTransactionHistoryGenerator.generateMockTransactions(object_count);
-        List<List<TransactionHistory>> paginatedList = new ArrayList<> ();
+        List<List<TransactionHistory>> paginatedList = new ArrayList<>();
         List<TransactionHistory> mockDepositTransactionHistoryList = new ArrayList<>();
-        for (TransactionHistory transactionHistory :mockTransactionHistoryList){
-            if(transactionHistory.getTransaction_type().equals("Deposit")){
+        for (TransactionHistory transactionHistory : mockTransactionHistoryList) {
+            if (transactionHistory.getTransaction_type().equals("Deposit")) {
                 mockDepositTransactionHistoryList.add(transactionHistory);
             }
         }
@@ -314,18 +305,18 @@ class TransactionHistoryServiceTest {
             List<TransactionHistory> page = mockDepositTransactionHistoryList.subList(fromIndex, toIndex);
             paginatedList.add(page);
         }
-        for (int pageIndex = 0; pageIndex < paginatedList.size(); pageIndex++){
+        for (int pageIndex = 0; pageIndex < paginatedList.size(); pageIndex++) {
             List<TransactionHistory> page = paginatedList.get(pageIndex);
 
             Page<TransactionHistory> mockPage = new PageImpl<>(page);
-            Pageable pageable = PageRequest.of(pageIndex,size);
-            Mockito.when(transactionHistoryRepository.findTransactionHistoryByTransactionType("Deposit",pageable))
+            Pageable pageable = PageRequest.of(pageIndex, size);
+            Mockito.when(transactionHistoryRepository.findTransactionHistoryByTransactionType("Deposit", pageable))
                     .thenReturn(mockPage);
-            Page<TransactionHistoryDTO> result = transactionHistoryService.getAllTransactionHistoryByType("Deposit",pageable);
-            Mockito.verify(transactionHistoryRepository).findTransactionHistoryByTransactionType("Deposit",pageable);
+            Page<TransactionHistoryDTO> result = transactionHistoryService.getAllTransactionHistoryByType("Deposit", pageable);
+            Mockito.verify(transactionHistoryRepository).findTransactionHistoryByTransactionType("Deposit", pageable);
             Assertions.assertNotNull(result);
             Assertions.assertEquals(page.size(), result.getContent().size());
-            for (int i = 0; i < result.getContent().size(); i++){
+            for (int i = 0; i < result.getContent().size(); i++) {
                 TransactionHistoryDTO transactionHistory = result.getContent().get(i);
                 assertEquals("Deposit", transactionHistory.getTransaction_type());
             }
@@ -401,7 +392,8 @@ class TransactionHistoryServiceTest {
         mockTransactionHistory2.setTransaction_date(new Date());
         mockTransactionHistoryList.add(mockTransactionHistory1);
         mockTransactionHistoryList.add(mockTransactionHistory2);
-        mockTransactionHistoryList.add(mockTransactionHistory2);Mockito.when(transactionHistoryRepository.findTransactionHistoryBySender(senderId))
+        mockTransactionHistoryList.add(mockTransactionHistory2);
+        Mockito.when(transactionHistoryRepository.findTransactionHistoryBySender(senderId))
                 .thenReturn(mockTransactionHistoryList);
 
         // Call the method under test

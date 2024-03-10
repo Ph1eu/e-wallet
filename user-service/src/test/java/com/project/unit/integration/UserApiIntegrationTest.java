@@ -1,7 +1,5 @@
 package com.project.unit.integration;
 
-import static io.restassured.RestAssured.given;
-
 public class UserApiIntegrationTest {
     public String retrieveToken() {
         String authorizationHeader = RestAssured.given()

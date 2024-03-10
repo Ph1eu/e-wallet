@@ -29,6 +29,7 @@ public interface HourlyReportRepository extends JpaRepository<HourlyReport, Long
             nativeQuery = true)
     @Transactional
     void generateHourlyReports(@Param("startDateTime") Date startDateTime, @Param("endDateTime") Date endDateTime);
+
     @Query(value = "SELECT EXTRACT(HOUR FROM transaction_date) AS hour, " +
             "EXTRACT(DAY FROM transaction_date) AS day, " +
             "EXTRACT(MONTH FROM transaction_date) AS month, " +
@@ -37,8 +38,9 @@ public interface HourlyReportRepository extends JpaRepository<HourlyReport, Long
             "COUNT(*) AS transactionCount " +
             "FROM transaction_history " +
             "WHERE transaction_date >= :startDateTime AND transaction_date < :endDateTime " +
-            "GROUP BY hour, day, month, year",nativeQuery = true)
+            "GROUP BY hour, day, month, year", nativeQuery = true)
     Page<Object[]> getHourlyReportData(@Param("startDateTime") Date startDateTime, @Param("endDateTime") Date endDateTime, Pageable pageable);
+
     @Query(value = "SELECT EXTRACT(HOUR FROM transaction_date) AS hour, " +
             "EXTRACT(DAY FROM transaction_date) AS day, " +
             "EXTRACT(MONTH FROM transaction_date) AS month, " +
@@ -49,6 +51,7 @@ public interface HourlyReportRepository extends JpaRepository<HourlyReport, Long
             "WHERE DATE(transaction_date) = :startDate " +
             "GROUP BY hour, day, month, year", nativeQuery = true)
     Page<Object[]> getHourlyReportDataByDate(@Param("startDate") Date startDate, Pageable pageable);
+
     @Query(value = "SELECT EXTRACT(HOUR FROM transaction_date) AS hour, " +
             "EXTRACT(DAY FROM transaction_date) AS day, " +
             "EXTRACT(MONTH FROM transaction_date) AS month, " +

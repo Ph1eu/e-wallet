@@ -12,25 +12,27 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
 @ControllerAdvice
-public class DatabaseExceptionHandler{
+public class DatabaseExceptionHandler {
     private static final Logger logger = LoggerFactory.getLogger(DatabaseExceptionHandler.class);
 
     @ExceptionHandler(ExistedInformationException.class)
-    public ResponseEntity<?> handleExistedInformation(ExistedInformationException e){
+    public ResponseEntity<?> handleExistedInformation(ExistedInformationException e) {
         ResponseEntityWrapper<?> responseEntityWrapper = new ResponseEntityWrapper<>(e.getMessage());
-        logger.error("ExistedInformationException occurred :"+e.getMessage());
+        logger.error("ExistedInformationException occurred :" + e.getMessage());
         return ResponseEntity.status(HttpStatus.CONFLICT).body(responseEntityWrapper);
     }
+
     @ExceptionHandler(UserNotFoundException.class)
-    public ResponseEntity<?> handleUserNotFound(UserNotFoundException e){
+    public ResponseEntity<?> handleUserNotFound(UserNotFoundException e) {
         ResponseEntityWrapper<?> responseEntityWrapper = new ResponseEntityWrapper<>(e.getMessage());
-        logger.error("UserNotFoundException occurred :"+e.getMessage());
+        logger.error("UserNotFoundException occurred :" + e.getMessage());
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(responseEntityWrapper);
     }
+
     @ExceptionHandler(UsernameNotFoundException.class)
-    public ResponseEntity<?> handleUsernameNotFound(UsernameNotFoundException e){
+    public ResponseEntity<?> handleUsernameNotFound(UsernameNotFoundException e) {
         ResponseEntityWrapper<?> responseEntityWrapper = new ResponseEntityWrapper<>(e.getMessage());
-        logger.error("UsernameNotFoundException occurred :"+e.getMessage());
+        logger.error("UsernameNotFoundException occurred :" + e.getMessage());
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(responseEntityWrapper);
     }
 }

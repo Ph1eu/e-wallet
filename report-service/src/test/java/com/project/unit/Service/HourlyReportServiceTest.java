@@ -27,6 +27,7 @@ class HourlyReportServiceTest {
 
     @InjectMocks
     HourlyReportService hourlyReportService;
+
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
@@ -69,5 +70,5 @@ class HourlyReportServiceTest {
 
         // Assert the expected and actual results
         assertEquals(expectedPage, resultPage);
-}
+    }
 }

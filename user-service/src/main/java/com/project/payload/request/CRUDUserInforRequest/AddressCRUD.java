@@ -7,7 +7,7 @@ public class AddressCRUD {
 
     String country;
 
-    public AddressCRUD( String street_address, String city, String province, String country) {
+    public AddressCRUD(String street_address, String city, String province, String country) {
         this.street_address = street_address;
         this.city = city;
         this.province = province;

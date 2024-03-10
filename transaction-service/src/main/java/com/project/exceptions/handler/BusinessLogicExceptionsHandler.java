@@ -18,21 +18,21 @@ public class BusinessLogicExceptionsHandler {
     @ExceptionHandler(UserNotFoundException.class)
     public ResponseEntity<ResponseEntityWrapper<?>> handleUserNotFoundException(UserNotFoundException ex) {
         ResponseEntityWrapper<?> responseEntityWrapper = new ResponseEntityWrapper<>("USER NOT FOUND");
-        logger.error("UserNotFoundException occurred: "+ex.getMessage());
+        logger.error("UserNotFoundException occurred: " + ex.getMessage());
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(responseEntityWrapper);
     }
 
     @ExceptionHandler(InsufficientBalanceException.class)
     public ResponseEntity<ResponseEntityWrapper<?>> handleInsufficientBalanceException(InsufficientBalanceException ex) {
         ResponseEntityWrapper<?> responseEntityWrapper = new ResponseEntityWrapper<>("INSUFFICIENT BALANCE");
-        logger.error("InsufficientBalanceException occurred: "+ex.getMessage());
+        logger.error("InsufficientBalanceException occurred: " + ex.getMessage());
         return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body(responseEntityWrapper);
     }
 
     @ExceptionHandler(TransferFailedException.class)
     public ResponseEntity<ResponseEntityWrapper<?>> handleTransferFailedException(TransferFailedException ex) {
         ResponseEntityWrapper<?> responseEntityWrapper = new ResponseEntityWrapper<>("TRANSFER FAILED DUE TO SERVER ERROR");
-        logger.error("TransferFailedException occurred: "+ex.getMessage());
+        logger.error("TransferFailedException occurred: " + ex.getMessage());
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(responseEntityWrapper);
     }
 }

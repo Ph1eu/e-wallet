@@ -21,7 +21,7 @@ public class MockUserGenerator {
         return users;
     }
 
-    public  UserDTO generateMockUser(int index) {
+    public UserDTO generateMockUser(int index) {
         String email = "user" + index + "@example.com";
         String username = "user" + index;
         String password = "password" + index;
@@ -34,8 +34,6 @@ public class MockUserGenerator {
         user.setPaymentcardsDTO(null);
         return user;
     }
-
-
 
 
 }

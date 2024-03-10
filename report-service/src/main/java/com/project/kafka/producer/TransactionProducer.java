@@ -16,7 +16,10 @@ import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
@@ -26,18 +29,19 @@ public class TransactionProducer {
 
     private final Properties properties;
     private final String topic; // The Kafka topic to which messages will be sent
-    private  KafkaProducer<String, GenericRecord> producerInstance;
+    private KafkaProducer<String, GenericRecord> producerInstance;
 
     @Autowired
-    public TransactionProducer(@Qualifier("kafkaTransactionProducerProp")Properties properties,
+    public TransactionProducer(@Qualifier("kafkaTransactionProducerProp") Properties properties,
                                @Value("${transaction.topic}") String topic) {
         this.properties = properties;
         this.topic = topic;
-        this.producerInstance=createProducer();
+        this.producerInstance = createProducer();
         createTopicIfNotExists();
 
 
     }
+
     private void createTopicIfNotExists() {
         try (AdminClient adminClient = AdminClient.create(properties)) {
             // Check if the topic already exists
@@ -59,7 +63,8 @@ public class TransactionProducer {
             // Handle the exception accordingly
         }
     }
-    public  KafkaProducer<String, GenericRecord> getProducerInstance() {
+
+    public KafkaProducer<String, GenericRecord> getProducerInstance() {
         if (producerInstance == null) {
             producerInstance = createProducer();
         }
@@ -70,7 +75,8 @@ public class TransactionProducer {
 
         return new KafkaProducer<>(this.properties);
     }
-    public void publish(  TransactionHistory value) {
+
+    public void publish(TransactionHistory value) {
         Schema.Parser parser = new Schema.Parser();
 
         Schema schema = parser.parse("{\n" +
@@ -89,12 +95,12 @@ public class TransactionProducer {
             GenericRecord transaction = new GenericData.Record(schema);
 //            transaction.put("senderid",value.getSender());
 //            transaction.put("recipientid",value.getRecipient());
-            transaction.put("transaction_type",value.getTransaction_type());
-            transaction.put("amount",value.getAmount());
-            transaction.put("transaction_date",value.getTransaction_date().getTime());
+            transaction.put("transaction_type", value.getTransaction_type());
+            transaction.put("amount", value.getAmount());
+            transaction.put("transaction_date", value.getTransaction_date().getTime());
 
             ProducerRecord<String, GenericRecord> record = new ProducerRecord<>(this.topic, value.getId(), transaction);
-           // System.out.println(record);
+            // System.out.println(record);
             kafkaProducer.send(record, (metadata, exception) -> {
                 if (exception == null) {
                     System.out.println("Record sent successfully. Topic: " + metadata.topic() +
@@ -145,5 +151,5 @@ public class TransactionProducer {
 //        }
 //    }
 
-    }
+}
 

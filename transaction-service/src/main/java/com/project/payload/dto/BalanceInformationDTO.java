@@ -14,12 +14,35 @@ public class BalanceInformationDTO {
 
     private String phone_number;
 
-    public void setId(String id) {
+    public BalanceInformationDTO(BalanceInformation balanceInformation) {
+        this.id = balanceInformation.getId();
+        this.balance_amount = balanceInformation.getBalance_amount();
+        this.phone_number = balanceInformation.getPhone_number();
+        this.userid = balanceInformation.getUser().getId_email();
+    }
+
+    public BalanceInformationDTO() {
+    }
+
+    public BalanceInformationDTO(String id, String userid, int balance_amount, String phone_number) {
         this.id = id;
+        this.userid = userid;
+        this.balance_amount = balance_amount;
+        this.phone_number = phone_number;
+    }
+
+    public BalanceInformationDTO(String user, int balance_amount, String phone_number) {
+        this.userid = user;
+        this.balance_amount = balance_amount;
+        this.phone_number = phone_number;
     }
 
     public String getId() {
         return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 
     public String getUser() {
@@ -43,29 +66,6 @@ public class BalanceInformationDTO {
     }
 
     public void setPhone_number(String phone_number) {
-        this.phone_number = phone_number;
-    }
-
-    public BalanceInformationDTO(BalanceInformation balanceInformation) {
-        this.id = balanceInformation.getId();
-        this.balance_amount = balanceInformation.getBalance_amount();
-        this.phone_number = balanceInformation.getPhone_number();
-        this.userid = balanceInformation.getUser().getId_email();
-    }
-
-    public BalanceInformationDTO() {
-    }
-
-    public BalanceInformationDTO(String id, String userid, int balance_amount, String phone_number) {
-        this.id = id;
-        this.userid = userid;
-        this.balance_amount = balance_amount;
-        this.phone_number = phone_number;
-    }
-
-    public BalanceInformationDTO(String user, int balance_amount, String phone_number) {
-        this.userid = user;
-        this.balance_amount = balance_amount;
         this.phone_number = phone_number;
     }
 

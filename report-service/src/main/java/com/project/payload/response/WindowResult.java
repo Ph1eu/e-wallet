@@ -14,7 +14,12 @@ public class WindowResult {
     public Double getTotal_amount() {
         return Total_amount;
     }
-    public String convertFromStringtoDate(String timeInMilliseconds){
+
+    public void setTotal_amount(Double total_amount) {
+        Total_amount = total_amount;
+    }
+
+    public String convertFromStringtoDate(String timeInMilliseconds) {
         long timeInMillis = Long.parseLong(timeInMilliseconds);
         LocalDateTime localDateTime = Instant.ofEpochMilli(timeInMillis)
                 .atZone(ZoneId.systemDefault())
@@ -24,15 +29,14 @@ public class WindowResult {
 
         return localDateTime.format(formatter);
     }
-    public void setStartTimeWithString(String timeInMilliseconds){
+
+    public void setStartTimeWithString(String timeInMilliseconds) {
 
         this.Start_time = convertFromStringtoDate(timeInMilliseconds);
     }
-    public void setEndTimeWithString(String timeInMilliseconds){
+
+    public void setEndTimeWithString(String timeInMilliseconds) {
         this.End_time = convertFromStringtoDate(timeInMilliseconds);
-    }
-    public void setTotal_amount(Double total_amount) {
-        Total_amount = total_amount;
     }
 
     public Integer getTotal_count() {

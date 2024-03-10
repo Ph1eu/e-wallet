@@ -17,10 +17,9 @@ import java.util.List;
 
 @Service
 public class UserDetailServiceImpl implements UserDetailsService {
+    private final Logger logger = LoggerFactory.getLogger(UserDetailServiceImpl.class);
     @Autowired
     UserRepository userRepository;
-
-    private final Logger logger = LoggerFactory.getLogger(UserDetailServiceImpl.class);
 
     @Override
     @Transactional
@@ -31,46 +30,44 @@ public class UserDetailServiceImpl implements UserDetailsService {
     }
 
 
-
-    public boolean existByUsername(String username){
+    public boolean existByUsername(String username) {
         try {
             if (userRepository.existsByUsername(username)) {
-                logger.info(" username exist {}",username);
+                logger.info(" username exist {}", username);
                 return true;
-            }
-            else{
+            } else {
                 return false;
             }
-        }catch (Exception e){
-            logger.error("username doesn't exist {}",username);
+        } catch (Exception e) {
+            logger.error("username doesn't exist {}", username);
             throw new RuntimeException("username doesn't exist.", e);
         }
     }
-    public boolean existByIdemail(String email){
+
+    public boolean existByIdemail(String email) {
         try {
             if (userRepository.existsByIdemail(email)) {
-                logger.info(" username exist {}",email);
+                logger.info(" username exist {}", email);
                 return true;
-            }
-            else{
+            } else {
                 return false;
             }
-        }catch (Exception e){
-            logger.error("username doesn't exist {}",email);
+        } catch (Exception e) {
+            logger.error("username doesn't exist {}", email);
             throw new RuntimeException("username doesn't exist.", e);
         }
     }
-    public List<UserDTO> findAll(){
-        try{
+
+    public List<UserDTO> findAll() {
+        try {
             List<User> users = userRepository.findAll();
             List<UserDTO> userDTOS = new ArrayList<>();
-            for(User user:users){
+            for (User user : users) {
                 userDTOS.add(new UserDTO(user));
             }
             logger.info("Fetched all users {}");
             return userDTOS;
-        }
-        catch (Exception e){
+        } catch (Exception e) {
             logger.error("Failed to fetch all users");
             throw new RuntimeException("Failed to fetch all users.", e);
         }

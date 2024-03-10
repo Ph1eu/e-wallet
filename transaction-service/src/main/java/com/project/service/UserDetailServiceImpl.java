@@ -15,10 +15,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class UserDetailServiceImpl implements UserDetailsService {
+    private final Logger logger = LoggerFactory.getLogger(UserDetailServiceImpl.class);
     @Autowired
     UserRepository userRepository;
-
-    private final Logger logger = LoggerFactory.getLogger(UserDetailServiceImpl.class);
 
     @Override
     @Transactional
@@ -29,23 +28,22 @@ public class UserDetailServiceImpl implements UserDetailsService {
     }
 
 
-
-    public UserDTO findByUsername(String username){
+    public UserDTO findByUsername(String username) {
         User user = userRepository.findByUsername(username).
                 orElseThrow(() -> new UserNotFoundException("User Not Found with username: " + username));
         return new UserDTO(user);
     }
-    public boolean existByIdemail(String email){
+
+    public boolean existByIdemail(String email) {
         try {
             if (userRepository.existsByIdemail(email)) {
-                logger.info(" username exist {}",email);
+                logger.info(" username exist {}", email);
                 return true;
-            }
-            else{
+            } else {
                 return false;
             }
-        }catch (Exception e){
-            logger.error("username doesn't exist {}",email);
+        } catch (Exception e) {
+            logger.error("username doesn't exist {}", email);
             throw new RuntimeException("username doesn't exist.", e);
         }
     }

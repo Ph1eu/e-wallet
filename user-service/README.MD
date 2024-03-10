@@ -1,6 +1,7 @@
-# User-Management Module 
+# User-Management Module
 
-## Application Properties 
+## Application Properties
+
 ```
 ## default connection pool
 spring.datasource.hikari.connectionTimeout=20000

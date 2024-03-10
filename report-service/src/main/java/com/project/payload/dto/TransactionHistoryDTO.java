@@ -30,6 +30,7 @@ public class TransactionHistoryDTO {
         this.amount = amount;
         this.transaction_date = transaction_date;
     }
+
     public TransactionHistoryDTO(String senderid, String recipientid, String transaction_type, int amount, Date transaction_date) {
         this.senderid = senderid;
         this.recipientid = recipientid;
@@ -37,8 +38,9 @@ public class TransactionHistoryDTO {
         this.amount = amount;
         this.transaction_date = transaction_date;
     }
+
     public TransactionHistoryDTO(TransactionHistory transactionhistory) {
-        this.id =transactionhistory.getId();
+        this.id = transactionhistory.getId();
         this.senderid = transactionhistory.getSender();
         this.recipientid = transactionhistory.getRecipient();
         this.transaction_type = transactionhistory.getTransaction_type();
@@ -89,12 +91,12 @@ public class TransactionHistoryDTO {
         this.transaction_date = transaction_date;
     }
 
-    public void setId(String id) {
-        this.id = id;
-    }
-
     public String getId() {
         return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 
     @Override

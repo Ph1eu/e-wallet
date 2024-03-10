@@ -21,13 +21,14 @@ public class TransactionConsumer {
     private final String topic; // The Kafka topic to which messages will be sent
 
     @Autowired
-    public TransactionConsumer(@Qualifier("kafkaTransactionConsumerProp")Properties properties,
+    public TransactionConsumer(@Qualifier("kafkaTransactionConsumerProp") Properties properties,
                                @Value("${transaction.topic}") String topic) {
         this.properties = properties;
         this.topic = topic;
 
     }
-    public void listen(Properties properties){
+
+    public void listen(Properties properties) {
         try (KafkaConsumer<String, GenericRecord> kafkaConsumer = new KafkaConsumer<>(properties)) {
             kafkaConsumer.subscribe(Collections.singletonList(this.topic));
             while (true) {

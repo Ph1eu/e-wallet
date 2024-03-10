@@ -2,13 +2,13 @@ package com.project.controller;
 
 import com.project.assembler.UserResourceAssembler;
 import com.project.configuration.jwt.JwtServices;
-import com.project.model.ERole;
-import com.project.payload.dto.RoleDTO;
-import com.project.payload.dto.UserDTO;
+import com.project.service.role.dto.ERole;
+import com.project.service.role.dto.RoleDTO;
+import com.project.service.user.dto.UserDto;
 import com.project.payload.request.CRUDUserInforRequest.RoleCRUD;
 import com.project.payload.response.ResponseEntityWrapper;
-import com.project.service.RoleService;
-import com.project.service.UserDetailServiceImpl;
+import com.project.service_impl.role.RoleServiceImpl;
+import com.project.service_impl.user.UserServiceImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,19 +23,20 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/admin")
 public class AdminController {
+    private static final Logger logger = LoggerFactory.getLogger(JwtServices.class);
     @Autowired
-    UserDetailServiceImpl userDetailService;
+    UserServiceImpl userDetailService;
     @Autowired
-    RoleService roleService;
+    RoleServiceImpl roleServiceImpl;
     @Autowired
     UserResourceAssembler userResourceAssembler;
-    private static final Logger logger = LoggerFactory.getLogger(JwtServices.class);
+
     @GetMapping("/all")
-    public ResponseEntity<?> getAllUsers(@RequestParam(value = "email",required = false) String email,
-                                         @RequestParam(value = "balance",required = false) Integer balance,
+    public ResponseEntity<?> getAllUsers(@RequestParam(value = "email", required = false) String email,
+                                         @RequestParam(value = "balance", required = false) Integer balance,
                                          @RequestParam(defaultValue = "0") int page,
-                                         @RequestParam(defaultValue = "10") int size){
-        Page<UserDTO> users;
+                                         @RequestParam(defaultValue = "10") int size) {
+        Page<UserDto> users= null;
 
         PageRequest pageable = PageRequest.of(page, size);
 
@@ -46,13 +47,13 @@ public class AdminController {
             // Other cases where at least one parameter is specified
             if (email != null && balance != null) {
                 // Case: Both email and balance specified
-                users = userDetailService.getAllUsersWithEmailandBalance(email, balance,pageable);
+                users = userDetailService.getAllUsersWithEmailandBalance(email, balance, pageable);
             } else if (email != null) {
                 // Case: Only email specified
-                users = userDetailService.getAllUsersWithEmail(email,pageable);
-            } else {
-                // Case: Only balance specified
-                users = userDetailService.getAllUsersWithBalance(balance,pageable);
+                users = userDetailService.getAllUsersWithEmail(email, pageable);
+//            } else {
+//                // Case: Only balance specified
+//                users = userDetailService.getAllUsersWithBalance(balance, pageable);
             }
         }
 
@@ -63,25 +64,26 @@ public class AdminController {
         }
 
     }
+
     @PostMapping("/role")
-    public ResponseEntity<?> addRole(@RequestBody RoleCRUD roleCRUD){
+    public ResponseEntity<?> addRole(@RequestBody RoleCRUD roleCRUD) {
         if (roleCRUD.getRole() == null || roleCRUD.getRole().equals("user")) {
             RoleDTO roleDTO = new RoleDTO(UUID.randomUUID().toString(), ERole.ROLE_USER);
-            if(!roleService.checkExistRole(roleDTO)){
-                roleService.addRole(roleDTO);
-            }else{
+            if (!roleServiceImpl.checkExistRole(roleDTO)) {
+                roleServiceImpl.addRole(roleDTO);
+            } else {
                 ResponseEntityWrapper<?> responseEntityWrapper = new ResponseEntityWrapper<>("Role existed");
                 return ResponseEntity.status(HttpStatus.CONFLICT).body(responseEntityWrapper);
             }
-        } else if ( roleCRUD.getRole().equals("admin")) {
+        } else if (roleCRUD.getRole().equals("admin")) {
             RoleDTO roleDTO = new RoleDTO(UUID.randomUUID().toString(), ERole.ROLE_ADMIN);
-            if(!roleService.checkExistRole(roleDTO)){
-                 roleService.addRole(roleDTO);
-            }else{
+            if (!roleServiceImpl.checkExistRole(roleDTO)) {
+                roleServiceImpl.addRole(roleDTO);
+            } else {
                 ResponseEntityWrapper<?> responseEntityWrapper = new ResponseEntityWrapper<>("Role existed");
                 return ResponseEntity.status(HttpStatus.CONFLICT).body(responseEntityWrapper);
             }
-        }else {
+        } else {
             ResponseEntityWrapper<?> responseEntityWrapper = new ResponseEntityWrapper<>("Role not allowed");
             return ResponseEntity.status(HttpStatus.CONFLICT).body(responseEntityWrapper);
         }

@@ -1,9 +1,10 @@
 package com.project.payload.dto;
 
-public class WindowAggregatedResultDTO {private String id ;
-    private  Double total_amount;
+public class WindowAggregatedResultDTO {
+    private String id;
+    private Double total_amount;
     private Integer total_count;
-    private Long  start_time;
+    private Long start_time;
     private Long end_time;
 
     public WindowAggregatedResultDTO(String id, Double total_amount, Integer total_count, Long start_time, Long end_time) {

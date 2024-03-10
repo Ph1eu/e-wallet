@@ -6,17 +6,17 @@ import java.util.Objects;
 
 public class HourlyReportDTO {
 
-        private String id;
+    private String id;
 
-        private int balanceAmount;
+    private int balanceAmount;
 
-        private int transactionCount;
+    private int transactionCount;
 
-        private int hour;
+    private int hour;
 
-        private int day;
-        private int month;
-        private int year;
+    private int day;
+    private int month;
+    private int year;
 
     public HourlyReportDTO(String id, int balanceAmount, int transactionCount, int hour, int day, int month, int year) {
         this.id = id;
@@ -31,7 +31,7 @@ public class HourlyReportDTO {
     public HourlyReportDTO() {
     }
 
-    public HourlyReportDTO(HourlyReport hourlyReport){
+    public HourlyReportDTO(HourlyReport hourlyReport) {
         this.id = hourlyReport.getId();
         this.balanceAmount = hourlyReport.getBalanceAmount();
         this.transactionCount = hourlyReport.getTransactionCount();

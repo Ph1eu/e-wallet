@@ -12,8 +12,6 @@ import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
-
 @Component
 public class HourlyReportAssembler implements RepresentationModelAssembler<HourlyReportDTO, EntityModel<HourlyReportDTO>> {
     @Override
@@ -25,15 +23,16 @@ public class HourlyReportAssembler implements RepresentationModelAssembler<Hourl
     public CollectionModel<EntityModel<HourlyReportDTO>> toCollectionModel(Iterable<? extends HourlyReportDTO> entities) {
         return RepresentationModelAssembler.super.toCollectionModel(entities);
     }
-    public ResponsePagedEntityWrapper<EntityModel<HourlyReportDTO>> toCollectionModelwithWrapper(Page<HourlyReportDTO> page){
+
+    public ResponsePagedEntityWrapper<EntityModel<HourlyReportDTO>> toCollectionModelwithWrapper(Page<HourlyReportDTO> page) {
         List<HourlyReportDTO> hourlyReportDTOS = page.getContent();
         List<EntityModel<HourlyReportDTO>> entityModels = new ArrayList<>();
         ResponsePagedEntityWrapper<EntityModel<HourlyReportDTO>> responsePagedEntityWrapper = new ResponsePagedEntityWrapper<>();
-        for (HourlyReportDTO hourlyReportDTO : hourlyReportDTOS){
+        for (HourlyReportDTO hourlyReportDTO : hourlyReportDTOS) {
             entityModels.add(toModel(hourlyReportDTO));
         }
         responsePagedEntityWrapper.setData(entityModels);
-        PaginationInfor paginationInfor = new PaginationInfor((int)page.getTotalElements(),
+        PaginationInfor paginationInfor = new PaginationInfor((int) page.getTotalElements(),
                 page.getTotalPages(),
                 page.getNumber(),
                 page.getSize(),

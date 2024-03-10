@@ -12,7 +12,6 @@ import org.apache.kafka.streams.KafkaStreams;
 import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.Topology;
 import org.apache.kafka.streams.kstream.*;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,9 +30,8 @@ import java.util.concurrent.ExecutionException;
 @Component
 @Scope(ConfigurableBeanFactory.SCOPE_SINGLETON)
 public class GlobalAggregation {
-    private final Properties properties;
     private static final Logger logger = LoggerFactory.getLogger(GlobalAggregation.class);
-
+    private final Properties properties;
     private final String topic; // The Kafka topic to which messages will be sent
     private KafkaStreams stream; // Hold the active Kafka Streams instance
 
@@ -85,7 +83,8 @@ public class GlobalAggregation {
 
         return builder.build();
     }
-    public void startStream(){
+
+    public void startStream() {
         Topology topology = createTopology();
         this.stream = new KafkaStreams(topology, this.properties);
         this.stream.setUncaughtExceptionHandler((thread, throwable) -> logger.error("Error in Kafka Streams application", throwable));
@@ -119,6 +118,7 @@ public class GlobalAggregation {
         }
 
     }
+
     private boolean isKafkaStreamsRunning() {
         return this.stream != null && this.stream.state() == KafkaStreams.State.RUNNING;
     }
@@ -181,7 +181,6 @@ public class GlobalAggregation {
         }
         return null;
     }
-
 
 
     private boolean isIn5SecondsWindow(Long transactionDate) {

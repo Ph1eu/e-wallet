@@ -1,10 +1,9 @@
 package com.project.unit.integration;
 
-import static io.restassured.RestAssured.given;
-
 import io.restassured.RestAssured;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
 public class AdminApiIntegrationTest {
     private String jwtToken;
 
@@ -26,11 +25,13 @@ public class AdminApiIntegrationTest {
         System.out.println("JWT Token: " + jwtToken);
         return jwtToken;
     }
+
     @BeforeEach
     public void setUp() {
         // Retrieve the JWT token and store it in the instance variable
         this.jwtToken = retrieveToken();
     }
+
     @Test
     void getAllUsers() {
         String response_case_1 = RestAssured.given().
@@ -43,7 +44,7 @@ public class AdminApiIntegrationTest {
                 .extract().asString();
         String response_case_2 = RestAssured.given().
                 header("Authorization", "Bearer " + jwtToken)
-                .queryParam("email","admin@admin.com")
+                .queryParam("email", "admin@admin.com")
                 .when()
                 .get("http://localhost:8081/api/admin/all")
                 .then()
@@ -51,8 +52,8 @@ public class AdminApiIntegrationTest {
                 .extract().asString();
         String response_case_3 = RestAssured.given().
                 header("Authorization", "Bearer " + jwtToken)
-                .queryParam("email","banyamanohg@gmail.com").
-                queryParam("amount",1001600)
+                .queryParam("email", "banyamanohg@gmail.com").
+                queryParam("amount", 1001600)
                 .when()
                 .get("http://localhost:8081/api/admin/all")
                 .then()
@@ -60,7 +61,7 @@ public class AdminApiIntegrationTest {
                 .extract().asString();
         String response_case_4 = RestAssured.given().
                 header("Authorization", "Bearer " + jwtToken).
-                queryParam("amount",1001600)
+                queryParam("amount", 1001600)
                 .when()
                 .get("http://localhost:8081/api/admin/all")
                 .then()

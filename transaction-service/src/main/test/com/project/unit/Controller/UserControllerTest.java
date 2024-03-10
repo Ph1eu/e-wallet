@@ -14,11 +14,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
 
 public class UserControllerTest {
@@ -58,8 +56,9 @@ public class UserControllerTest {
     void getHistory() {
 
     }
+
     @Test
-    public void testWithdrawalMoneyException() throws Exception  {
+    public void testWithdrawalMoneyException() throws Exception {
         String username = "senderUsername";
         String amountstr = "100";
         int amount = Integer.parseInt(amountstr);
@@ -80,8 +79,9 @@ public class UserControllerTest {
                 .thenThrow(new InsufficientBalanceException("Failed"));
         assertThrows(InsufficientBalanceException.class, () -> userController.depositMoney(username, amountstr));
     }
+
     @Test
-    public void testDepositMoneyException() throws Exception  {
+    public void testDepositMoneyException() throws Exception {
         String username = "senderUsername";
         String amountstr = "100";
         int amount = Integer.parseInt(amountstr);
@@ -99,10 +99,10 @@ public class UserControllerTest {
         assertThrows(NumberFormatException.class, () -> userController.depositMoney(username, "amountstr"));
 
 
-
     }
+
     @Test
-    public void testTransferMoneyException() throws Exception  {
+    public void testTransferMoneyException() throws Exception {
 
         String username = "senderUsername";
         String amountstr = "100";

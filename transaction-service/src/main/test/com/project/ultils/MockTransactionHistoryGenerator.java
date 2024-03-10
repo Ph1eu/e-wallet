@@ -1,12 +1,15 @@
 package com.project.ultils;
+
 import com.project.model.TransactionHistory;
 import com.project.model.User;
 
 import java.util.*;
+
 public class MockTransactionHistoryGenerator {
 
     private static final int MAX_AMOUNT = 1000;
-    public  List<TransactionHistory> generateMockTransactions(int count) {
+
+    public List<TransactionHistory> generateMockTransactions(int count) {
         List<TransactionHistory> transactions = new ArrayList<>();
 
         for (int i = 0; i < count; i++) {
@@ -16,7 +19,8 @@ public class MockTransactionHistoryGenerator {
 
         return transactions;
     }
-    public  TransactionHistory generateMockTransaction() {
+
+    public TransactionHistory generateMockTransaction() {
         TransactionHistory transaction = new TransactionHistory();
         MockUserGenerator mockUserGenerator = new MockUserGenerator();
         // Generate random UUID for the transaction ID
@@ -73,6 +77,7 @@ public class MockTransactionHistoryGenerator {
         }
         return transactions;
     }
+
     public List<TransactionHistory> generateTransactionWithEndDate(int count, Date endDate) {
         List<TransactionHistory> transactions = new ArrayList<>();
         Date currentDate = endDate;
@@ -86,19 +91,20 @@ public class MockTransactionHistoryGenerator {
         }
         return transactions;
     }
+
     private Date subtractDays(Date date, int days) {
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(date);
         calendar.add(Calendar.DAY_OF_MONTH, -days);
         return calendar.getTime();
     }
+
     private Date addDays(Date date, int days) {
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(date);
         calendar.add(Calendar.DAY_OF_MONTH, days);
         return calendar.getTime();
     }
-
 
 
 }

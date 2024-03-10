@@ -14,7 +14,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 @Service
 public class HourlyReportService {
@@ -43,16 +45,19 @@ public class HourlyReportService {
         }
         return hourlyReportDTOS;
     }
-    public Page<HourlyReportDTO> generateHourlyReportsByDateTime(Date startDate,int startTime, Pageable pageable) {
-        Page<Object[]> reportData = hourlyReportRepository.getHourlyReportDataByDateTime(startDate,startTime, pageable);
+
+    public Page<HourlyReportDTO> generateHourlyReportsByDateTime(Date startDate, int startTime, Pageable pageable) {
+        Page<Object[]> reportData = hourlyReportRepository.getHourlyReportDataByDateTime(startDate, startTime, pageable);
         List<HourlyReportDTO> hourlyReportDTOS = mapReportDataToList(reportData.getContent());
         return new PageImpl<>(hourlyReportDTOS, reportData.getPageable(), reportData.getTotalElements());
     }
+
     public Page<HourlyReportDTO> generateHourlyReportsByDate(Date startDate, Pageable pageable) {
         Page<Object[]> reportData = hourlyReportRepository.getHourlyReportDataByDate(startDate, pageable);
         List<HourlyReportDTO> hourlyReportDTOS = mapReportDataToList(reportData.getContent());
         return new PageImpl<>(hourlyReportDTOS, reportData.getPageable(), reportData.getTotalElements());
     }
+
     public Page<HourlyReportDTO> generateHourlyReports(Date startDateTime, Date endDateTime, Pageable pageable) {
         Page<Object[]> reportData = hourlyReportRepository.getHourlyReportData(startDateTime, endDateTime, pageable);
         List<HourlyReportDTO> hourlyReportDTOS = mapReportDataToList(reportData.getContent());
@@ -67,7 +72,8 @@ public class HourlyReportService {
         }
         return hourlyReportDTOS;
     }
-//    public void StreamTransactions() {
+
+    //    public void StreamTransactions() {
 ////        List<TransactionHistory> transactionHistoryList = transactionHistoryRepository.findAll();
 ////
 ////        for (TransactionHistory transaction : transactionHistoryList) {

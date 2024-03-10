@@ -39,7 +39,8 @@ public class HourlyReport {
         this.month = month;
         this.year = year;
     }
-    public HourlyReport (HourlyReportDTO hourlyReport){
+
+    public HourlyReport(HourlyReportDTO hourlyReport) {
         this.id = hourlyReport.getId();
         this.balanceAmount = hourlyReport.getBalanceAmount();
         this.transactionCount = hourlyReport.getTransactionCount();

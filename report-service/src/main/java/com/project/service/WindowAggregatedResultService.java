@@ -14,28 +14,29 @@ public class WindowAggregatedResultService {
     @Autowired
     WindowAggregatedResultRepository windowAggregatedResultRepository;
 
-    public void insertRecord(WindowAggregatedResultDTO windowAggregatedResultDTO){
-        windowAggregatedResultRepository.insertRecord(windowAggregatedResultDTO.getId(),windowAggregatedResultDTO.getTotal_amount(),
-                                                        windowAggregatedResultDTO.getTotal_count(),windowAggregatedResultDTO.getStart_time(),
-                                                        windowAggregatedResultDTO.getEnd_time());
+    public void insertRecord(WindowAggregatedResultDTO windowAggregatedResultDTO) {
+        windowAggregatedResultRepository.insertRecord(windowAggregatedResultDTO.getId(), windowAggregatedResultDTO.getTotal_amount(),
+                windowAggregatedResultDTO.getTotal_count(), windowAggregatedResultDTO.getStart_time(),
+                windowAggregatedResultDTO.getEnd_time());
     }
 
-    public WindowAggregatedResultDTO retrieveLatestRecord(){
+    public WindowAggregatedResultDTO retrieveLatestRecord() {
         WindowAggregatedResult windowAggregatedResult = windowAggregatedResultRepository.findLatestSingleRecord();
         WindowAggregatedResultDTO windowAggregatedResultDTO = new WindowAggregatedResultDTO(windowAggregatedResult.getId(),
-                                                                                            windowAggregatedResult.getTotal_amount(),
-                                                                                            windowAggregatedResult.getTotal_count(),
-                                                                                            windowAggregatedResult.getStart_time(),
-                                                                                            windowAggregatedResult.getEnd_time());
+                windowAggregatedResult.getTotal_amount(),
+                windowAggregatedResult.getTotal_count(),
+                windowAggregatedResult.getStart_time(),
+                windowAggregatedResult.getEnd_time());
         return windowAggregatedResultDTO;
     }
+
     public Optional<WindowAggregatedResultDTO> ReceiveLatestRecord() {
         Date date = new Date();
         WindowAggregatedResult windowAggregatedResult = windowAggregatedResultRepository.findLatestSingleRecord();
-      //  GenericRecord record = aggregatedTransactionConsumer.getLatestRecord();
-      //  System.out.println(record);
-        long timeIntervalMillis = 30* 1000;
-        long intervalStart = date.getTime() - timeIntervalMillis ;
+        //  GenericRecord record = aggregatedTransactionConsumer.getLatestRecord();
+        //  System.out.println(record);
+        long timeIntervalMillis = 30 * 1000;
+        long intervalStart = date.getTime() - timeIntervalMillis;
         long intervalEnd = date.getTime() + timeIntervalMillis;
         boolean isRecordTimeInInterval = windowAggregatedResult.getStart_time() >= intervalStart && windowAggregatedResult.getEnd_time() <= intervalEnd;
         if (isRecordTimeInInterval) {

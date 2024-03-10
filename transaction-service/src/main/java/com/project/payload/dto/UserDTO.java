@@ -26,10 +26,12 @@ public class UserDTO {
 
 
     @JsonIgnore
-    private List<String> paymentcardsDTO ;
-    public UserDTO(){
+    private List<String> paymentcardsDTO;
+
+    public UserDTO() {
 
     }
+
     public UserDTO(User user) {
         this.idemail = user.getId_email();
         this.username = user.getUsername();
@@ -38,16 +40,16 @@ public class UserDTO {
         this.last_name = user.getLast_name();
         this.address = user.getAddress();
         this.registration_date = user.getRegistration_date();
-        if (user.getPaymentcards() == null){
-            this.paymentcardsDTO= new ArrayList<>();
-        }
-        else{
-            this.paymentcardsDTO= new ArrayList<>();
+        if (user.getPaymentcards() == null) {
+            this.paymentcardsDTO = new ArrayList<>();
+        } else {
+            this.paymentcardsDTO = new ArrayList<>();
             this.paymentcardsDTO.addAll(user.getPaymentcards());
         }
 
     }
-    public UserDTO(String idemail, String username, String password, String first_name, String last_name, Date registration_date, List<String> paymentcards,String roles) {
+
+    public UserDTO(String idemail, String username, String password, String first_name, String last_name, Date registration_date, List<String> paymentcards, String roles) {
         this.idemail = idemail;
         this.username = username;
         this.password = password;

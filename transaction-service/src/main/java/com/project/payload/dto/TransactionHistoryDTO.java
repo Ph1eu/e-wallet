@@ -5,6 +5,7 @@ import com.project.model.TransactionHistory;
 
 import java.util.Date;
 import java.util.Objects;
+
 @JsonRootName("TransactionHistory")
 public class TransactionHistoryDTO {
 
@@ -29,15 +30,17 @@ public class TransactionHistoryDTO {
         this.amount = amount;
         this.transaction_date = transaction_date;
     }
-    public TransactionHistoryDTO( String senderid, String recipientid, String transaction_type, int amount, Date transaction_date) {
+
+    public TransactionHistoryDTO(String senderid, String recipientid, String transaction_type, int amount, Date transaction_date) {
         this.senderid = senderid;
         this.recipientid = recipientid;
         this.transaction_type = transaction_type;
         this.amount = amount;
         this.transaction_date = transaction_date;
     }
-    public TransactionHistoryDTO(  TransactionHistory transactionhistory) {
-        this.id =transactionhistory.getId();
+
+    public TransactionHistoryDTO(TransactionHistory transactionhistory) {
+        this.id = transactionhistory.getId();
         this.senderid = transactionhistory.getSender().getId_email();
         this.recipientid = transactionhistory.getRecipient().getId_email();
         this.transaction_type = transactionhistory.getTransaction_type();
@@ -88,12 +91,12 @@ public class TransactionHistoryDTO {
         this.transaction_date = transaction_date;
     }
 
-    public void setId(String id) {
-        this.id = id;
-    }
-
     public String getId() {
         return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 
     @Override

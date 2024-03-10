@@ -15,12 +15,6 @@ import org.apache.kafka.streams.KeyValue;
 import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.Topology;
 import org.apache.kafka.streams.kstream.*;
-import org.apache.kafka.streams.processor.AbstractProcessor;
-import org.apache.kafka.streams.processor.ProcessorContext;
-import org.apache.kafka.streams.processor.PunctuationType;
-import org.apache.kafka.streams.state.KeyValueStore;
-import org.apache.kafka.streams.state.StoreBuilder;
-import org.apache.kafka.streams.state.Stores;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,25 +25,34 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import java.time.Duration;
-import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ExecutionException;
+
 @Component
 @Scope(ConfigurableBeanFactory.SCOPE_SINGLETON)
 
 public class OneSecAggregation {
-    private final Properties properties;
     private static final Logger logger = LoggerFactory.getLogger(GlobalAggregation.class);
-
+    private final Properties properties;
     private final String topic;
-    private KafkaStreams stream;
-
     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
             .withZone(ZoneId.systemDefault());
+    Schema.Parser parser = new Schema.Parser();
+    Schema schema = parser.parse("{\n" +
+            "    \"type\": \"record\",\n" +
+            "    \"name\":\"Aggregated_Transaction\",\n" +
+            "    \"fields\":[\n" +
+            "        {\"name\":\"total_transaction_amount\", \"type\":\"long\"},\n" +
+            "        {\"name\":\"total_record_count\", \"type\":\"int\"},\n" +
+            "        {\"name\":\"start_time\", \"type\":\"long\"},\n" +
+            "        {\"name\":\"end_time\", \"type\":\"long\"}\n" +
+            "    ]\n" +
+            "}");
+    private KafkaStreams stream;
 
     @Autowired
     public OneSecAggregation(@Qualifier("kafkaOneSecAggregationProp") Properties properties,
@@ -64,18 +67,6 @@ public class OneSecAggregation {
         // Initialize the Kafka Streams application during application startup
         startStream();
     }
-
-    Schema.Parser parser = new Schema.Parser();
-    Schema schema = parser.parse("{\n" +
-            "    \"type\": \"record\",\n" +
-            "    \"name\":\"Aggregated_Transaction\",\n" +
-            "    \"fields\":[\n" +
-            "        {\"name\":\"total_transaction_amount\", \"type\":\"long\"},\n" +
-            "        {\"name\":\"total_record_count\", \"type\":\"int\"},\n" +
-            "        {\"name\":\"start_time\", \"type\":\"long\"},\n" +
-            "        {\"name\":\"end_time\", \"type\":\"long\"}\n" +
-            "    ]\n" +
-            "}");
 
     public Topology CreateStream() {
         StreamsBuilder builder = new StreamsBuilder();
@@ -234,6 +225,7 @@ public class OneSecAggregation {
         return null;
 
     }
+
     private String generateUniqueKey(Windowed<String> windowedKey, double sumValue, long countValue) {
         return windowedKey.key() + "|" + sumValue + "|" + countValue;
     }

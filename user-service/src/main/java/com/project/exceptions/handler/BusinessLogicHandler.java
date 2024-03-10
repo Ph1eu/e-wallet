@@ -15,15 +15,16 @@ public class BusinessLogicHandler {
     private static final Logger logger = LoggerFactory.getLogger(BusinessLogicHandler.class);
 
     @ExceptionHandler(RoleNotFoundException.class)
-    public ResponseEntity<?> handleRoleNotFound(RoleNotFoundException e){
+    public ResponseEntity<?> handleRoleNotFound(RoleNotFoundException e) {
         ResponseEntityWrapper<?> responseEntityWrapper = new ResponseEntityWrapper<>(e.getMessage());
-        logger.error("RoleNotFoundException occurred :"+e.getMessage());
+        logger.error("RoleNotFoundException occurred :" + e.getMessage());
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(responseEntityWrapper);
     }
+
     @ExceptionHandler(SignUpKeyNotFoundException.class)
-    public ResponseEntity<?> handleSignUpKeyNotFound(SignUpKeyNotFoundException e){
+    public ResponseEntity<?> handleSignUpKeyNotFound(SignUpKeyNotFoundException e) {
         ResponseEntityWrapper<?> responseEntityWrapper = new ResponseEntityWrapper<>(e.getMessage());
-        logger.error("SignUpKeyNotFoundException occurred :"+e.getMessage());
+        logger.error("SignUpKeyNotFoundException occurred :" + e.getMessage());
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(responseEntityWrapper);
     }
 }

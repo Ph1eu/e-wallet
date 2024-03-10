@@ -6,22 +6,22 @@ import jakarta.persistence.*;
 import java.util.Date;
 
 @Entity
-@Table(name="transaction_history")
+@Table(name = "transaction_history")
 public class TransactionHistory {
 
     @Id
     private String id;
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "sender_id",referencedColumnName = "id_email")
+    @JoinColumn(name = "sender_id", referencedColumnName = "id_email")
     private User sender;
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "recipient_id",referencedColumnName = "id_email")
+    @JoinColumn(name = "recipient_id", referencedColumnName = "id_email")
     private User recipient;
-    @Column(name= "transaction_type")
+    @Column(name = "transaction_type")
     private String transaction_type;
-    @Column(name= "amount")
+    @Column(name = "amount")
     private int amount;
-    @Column(name="transaction_date")
+    @Column(name = "transaction_date")
     private Date transaction_date;
 
     public TransactionHistory(String id, User sender, User recipient, String transaction_type, int amount, Date transaction_date) {
@@ -32,12 +32,14 @@ public class TransactionHistory {
         this.amount = amount;
         this.transaction_date = transaction_date;
     }
+
     public TransactionHistory(TransactionHistoryDTO transactionHistoryDTO) {
         this.id = transactionHistoryDTO.getId();
         this.transaction_type = transactionHistoryDTO.getTransaction_type();
         this.amount = transactionHistoryDTO.getAmount();
         this.transaction_date = transactionHistoryDTO.getTransaction_date();
     }
+
     public TransactionHistory() {
     }
 
@@ -81,11 +83,11 @@ public class TransactionHistory {
         this.transaction_date = transaction_date;
     }
 
-    public void setId(String id) {
-        this.id = id;
-    }
-
     public String getId() {
         return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 }

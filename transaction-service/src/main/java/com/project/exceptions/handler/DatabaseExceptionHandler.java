@@ -14,9 +14,9 @@ public class DatabaseExceptionHandler {
     private final Logger logger = LoggerFactory.getLogger(BusinessLogicExceptionsHandler.class);
 
     @ExceptionHandler(PessimisticLockException.class)
-    public ResponseEntity<?> handlerPessimisticLockFailure(PessimisticLockException e){
+    public ResponseEntity<?> handlerPessimisticLockFailure(PessimisticLockException e) {
         ResponseEntityWrapper<?> responseEntityWrapper = new ResponseEntityWrapper<>("Internal Server Error");
-        logger.error("PessimisticLockException occurred: "+e.getMessage());
+        logger.error("PessimisticLockException occurred: " + e.getMessage());
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(responseEntityWrapper);
     }
 }

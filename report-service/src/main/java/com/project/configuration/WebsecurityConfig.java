@@ -28,12 +28,12 @@ public class WebsecurityConfig {
     @Autowired
     JwtEntryPoint unauthorizedHandler;
 
-	@Autowired
+    @Autowired
     JwtServices jwtServices;
 
     @Bean
     public JwtAuthenticationFilter authenticationJwtTokenFilter() {
-      return new JwtAuthenticationFilter(null);
+        return new JwtAuthenticationFilter(null);
     }
 
     @Bean
@@ -62,20 +62,20 @@ public class WebsecurityConfig {
     @Bean
     protected SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
-    http.cors().and().csrf().disable()
-    .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-    //Authorize signup for all people
-   .and().authorizeHttpRequests().
-   requestMatchers("/api/report/**").hasRole("ADMIN")
-   .anyRequest().authenticated();
+        http.cors().and().csrf().disable()
+                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                //Authorize signup for all people
+                .and().authorizeHttpRequests().
+                requestMatchers("/api/report/**").hasRole("ADMIN")
+                .anyRequest().authenticated();
 
 
-    http.authenticationProvider(authenticationProvider());
-    http.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
+        http.authenticationProvider(authenticationProvider());
+        http.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
 
-    return  http.build();
+        return http.build();
 //  }
 
 
-}
+    }
 }

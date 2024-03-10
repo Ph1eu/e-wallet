@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 
 import static io.restassured.RestAssured.given;
+
 class UserApiIntegrationTest {
     private String jwtToken;
 
@@ -30,11 +31,13 @@ class UserApiIntegrationTest {
         System.out.println("JWT Token: " + jwtToken);
         return jwtToken;
     }
+
     @BeforeEach
     public void setUp() {
         // Retrieve the JWT token and store it in the instance variable
-         this.jwtToken = retrieveToken();
+        this.jwtToken = retrieveToken();
     }
+
     @Test
     void getOnlineBalance() {
     }
@@ -42,7 +45,7 @@ class UserApiIntegrationTest {
     @Test
     void depositMoney() {
 
-        String response =given()
+        String response = given()
                 .header("Authorization", "Bearer " + jwtToken)
                 .pathParam("username", "hieuhg123456")
                 .queryParam("amount", 10000)
@@ -62,6 +65,7 @@ class UserApiIntegrationTest {
         Assert.assertEquals(senderid, "Hieupmbi11-090@gmail.com");
 
     }
+
     @Test
     void withdrawalMoney() {
         String response = given()

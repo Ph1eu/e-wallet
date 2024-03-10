@@ -11,14 +11,14 @@ import org.hibernate.annotations.Immutable;
 @Immutable
 public class WindowAggregatedResult {
     @Id
-    @Column(name = "id",unique = true)
-    private String id ;
-    @Column(name="total_amount")
-    private  Double total_amount;
+    @Column(name = "id", unique = true)
+    private String id;
+    @Column(name = "total_amount")
+    private Double total_amount;
     @Column(name = "total_count")
     private Integer total_count;
-    @Column(name = "start_time",unique = true)
-    private Long  start_time;
+    @Column(name = "start_time", unique = true)
+    private Long start_time;
     @Column(name = "end_time")
     private Long end_time;
 

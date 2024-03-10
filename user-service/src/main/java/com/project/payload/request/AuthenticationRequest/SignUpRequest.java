@@ -1,6 +1,8 @@
 package com.project.payload.request.AuthenticationRequest;
 
-import jakarta.validation.constraints.*;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+
 public class SignUpRequest {
     @NotBlank
     private String username;
@@ -15,15 +17,16 @@ public class SignUpRequest {
     @NotBlank
     private String role;
     private String signUpKey;
-    public SignUpRequest(String username, String password,String first_name,String last_name, String email, String role,String signUpKey) {
+
+    public SignUpRequest(String username, String password, String first_name, String last_name, String email, String role, String signUpKey) {
         this.username = username;
         this.password = password;
         this.first_name = first_name;
         this.last_name = last_name;
         this.email = email;
         this.role = role;
-        this.signUpKey=signUpKey;
-        
+        this.signUpKey = signUpKey;
+
     }
 
     public String getUsername() {
@@ -58,13 +61,13 @@ public class SignUpRequest {
         this.role = role;
     }
 
-	public String getSignUpKey() {
-		return signUpKey;
-	}
+    public String getSignUpKey() {
+        return signUpKey;
+    }
 
-	public void setSignUpKey(String signUpKey) {
-		this.signUpKey = signUpKey;
-	}
+    public void setSignUpKey(String signUpKey) {
+        this.signUpKey = signUpKey;
+    }
 
     public String getFirst_name() {
         return first_name;

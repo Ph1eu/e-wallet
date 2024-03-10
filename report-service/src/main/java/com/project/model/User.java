@@ -14,32 +14,34 @@ import java.util.Objects;
 @Immutable
 public class User {
     @Id
-    @Column(name = "id_email",unique = true)
+    @Column(name = "id_email", unique = true)
     private String idemail;
 
-    @Column(name = "username",unique = true)
+    @Column(name = "username", unique = true)
     private String username;
 
     @Column(name = "password")
     private String password;
-    @Column(name= "first_name")
-    private  String first_name;
-    @Column(name="last_name")
-    private  String last_name;
+    @Column(name = "first_name")
+    private String first_name;
+    @Column(name = "last_name")
+    private String last_name;
     @Column(name = "registration_date")
     private Date registration_date;
-    @Column(name="address")
+    @Column(name = "address")
     private String address;
     @Column(name = "roles")
-    private String roles ;
+    private String roles;
     @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(name = "paymentcards", joinColumns = @JoinColumn(name = "user_id"))
     @Column(name = "card_id")
-    private List<String> paymentcards ;
-    public User(){
+    private List<String> paymentcards;
+
+    public User() {
 
     }
-    public User(UserDTO userDTO){
+
+    public User(UserDTO userDTO) {
         this.idemail = userDTO.getId_email();
         this.username = userDTO.getUsername();
         this.password = userDTO.getPassword();
@@ -50,11 +52,12 @@ public class User {
 
 
     }
+
     public User(String idemail, String username, String password, String first_name, String last_name, Date registration_date, List<String> paymentcards) {
         this.idemail = idemail;
         this.username = username;
         this.password = password;
-        this.first_name= first_name;
+        this.first_name = first_name;
         this.last_name = last_name;
         this.registration_date = registration_date;
         this.paymentcards = paymentcards;
@@ -109,10 +112,9 @@ public class User {
     }
 
     public void setPaymentcardswithDTO(List<String> paymentcarsdDTO) {
-        if (paymentcarsdDTO == null){
-            this.paymentcards= new ArrayList<>();
-        }
-        else{
+        if (paymentcarsdDTO == null) {
+            this.paymentcards = new ArrayList<>();
+        } else {
             this.paymentcards.addAll(paymentcarsdDTO);
         }
     }
@@ -164,11 +166,11 @@ public class User {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         User user = (User) o;
-        return Objects.equals(idemail, user.idemail) && Objects.equals(username, user.username) && Objects.equals(password, user.password) && Objects.equals(first_name, user.first_name) && Objects.equals(last_name, user.last_name) && Objects.equals(registration_date, user.registration_date)   && Objects.equals(paymentcards, user.paymentcards);
+        return Objects.equals(idemail, user.idemail) && Objects.equals(username, user.username) && Objects.equals(password, user.password) && Objects.equals(first_name, user.first_name) && Objects.equals(last_name, user.last_name) && Objects.equals(registration_date, user.registration_date) && Objects.equals(paymentcards, user.paymentcards);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(idemail, username, password, first_name, last_name, registration_date,  paymentcards);
+        return Objects.hash(idemail, username, password, first_name, last_name, registration_date, paymentcards);
     }
 }

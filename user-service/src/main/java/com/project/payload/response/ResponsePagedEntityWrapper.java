@@ -14,6 +14,13 @@ public class ResponsePagedEntityWrapper<T> {
     @JsonProperty("link")
     private List<Link> link;
 
+    public ResponsePagedEntityWrapper() {
+    }
+
+    public ResponsePagedEntityWrapper(String message) {
+        this.message = message;
+    }
+
     public PaginationInfor getPaginationInfo() {
         return paginationInfo;
     }
@@ -25,7 +32,6 @@ public class ResponsePagedEntityWrapper<T> {
     public List<T> getData() {
         return data;
     }
-
 
     public void setData(List<T> data) {
         this.data = data;
@@ -39,18 +45,11 @@ public class ResponsePagedEntityWrapper<T> {
         this.link = link;
     }
 
-    public ResponsePagedEntityWrapper() {
-    }
-
     public String getMessage() {
         return message;
     }
 
     public void setMessage(String message) {
-        this.message = message;
-    }
-
-    public ResponsePagedEntityWrapper(String message) {
         this.message = message;
     }
 }

@@ -9,7 +9,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface WindowAggregatedResultRepository extends JpaRepository<WindowAggregatedResult,String> {
+public interface WindowAggregatedResultRepository extends JpaRepository<WindowAggregatedResult, String> {
     @Transactional
     @Modifying
     @Query(value = "INSERT INTO window_aggregated_result (id, total_amount, total_count, start_time, end_time) " +
@@ -21,6 +21,7 @@ public interface WindowAggregatedResultRepository extends JpaRepository<WindowAg
             @Param("startTime") Long startTime,
             @Param("endTime") Long endTime
     );
+
     // You can also use the following query to retrieve just a single record (the latest one):
     @Query("SELECT ar FROM WindowAggregatedResult ar ORDER BY ar.end_time DESC LIMIT 1")
     WindowAggregatedResult findLatestSingleRecord();
