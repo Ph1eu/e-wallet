@@ -1,13 +1,16 @@
 package com.project.service.user.dto;
 
-import com.project.service.user.entity.User;
 import lombok.Data;
+import lombok.NonNull;
 
 import java.util.List;
 
 @Data
 public class UserPageDto {
-    private int page;
-    private int size;
-    private List<User> content;
+    @NonNull
+    private Integer page;
+    @NonNull
+    private Integer size;
+    @NonNull
+    private List<UserDto> content;
 }

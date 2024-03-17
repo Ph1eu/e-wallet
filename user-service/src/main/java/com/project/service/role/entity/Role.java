@@ -1,13 +1,11 @@
 package com.project.service.role.entity;
 
 import com.project.service.role.dto.ERole;
-import com.project.service.role.dto.RoleDTO;
+import com.project.service.role.dto.RoleDto;
 import jakarta.persistence.*;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
-
-import java.util.Objects;
 
 @Getter
 @Entity
@@ -30,7 +28,7 @@ public class Role {
     public Role() {
 
     }
-    public Role(RoleDTO roleDTO) {
+    public Role(RoleDto roleDTO) {
         this.id = roleDTO.getId();
         this.name = roleDTO.getName();
     }

@@ -1,8 +1,8 @@
-package com.project.configuration.jwt;
+package com.project.api.rest.security.jwt;
 
 import com.project.exceptions.custom_exception.ValidationInput.ExpiredJwtException;
 import com.project.exceptions.custom_exception.ValidationInput.InvalidJwtException;
-import com.project.service_impl.user.CustomUserDetail;
+import com.project.api.rest.security.CustomUserDetail;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -53,6 +53,7 @@ public class JwtServices {
         return Jwts
                 .builder()
                 .setClaims(extraClaims).
+                setId(userDetails.getID()).
                 setSubject(userDetails.getUsername())
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(new Date().getTime() + jwtExpirationMs))

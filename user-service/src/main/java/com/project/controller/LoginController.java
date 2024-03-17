@@ -1,18 +1,18 @@
 package com.project.controller;
 
-import com.project.configuration.jwt.JwtServices;
+import com.project.api.rest.security.jwt.JwtServices;
 import com.project.exceptions.custom_exception.BusinessLogic.RoleNotFoundException;
 import com.project.exceptions.custom_exception.BusinessLogic.SignUpKeyNotFoundException;
 import com.project.exceptions.custom_exception.Database.ExistedInformationException;
 import com.project.exceptions.custom_exception.ValidationInput.MissingRequiredFieldException;
 import com.project.service.role.dto.ERole;
-import com.project.service.role.dto.RoleDTO;
+import com.project.service.role.dto.RoleDto;
 import com.project.service.user.dto.UserDto;
 import com.project.payload.request.AuthenticationRequest.LoginRequest;
 import com.project.payload.request.AuthenticationRequest.SignUpRequest;
 import com.project.payload.response.ResponseEntityWrapper;
 import com.project.payload.response.UserInforResponse;
-import com.project.service_impl.user.CustomUserDetail;
+import com.project.api.rest.security.CustomUserDetail;
 import com.project.service_impl.role.RoleServiceImpl;
 import com.project.service_impl.user.UserServiceImpl;
 import jakarta.validation.Valid;
@@ -57,7 +57,7 @@ public class LoginController {
     private String signUpKey;
 
     @PostMapping("/signin")
-    public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest, BindingResult bindingResult) {
+    public ResponseEntity<ResponseEntityWrapper<>> authenticateUser(@Valid @RequestBody LoginRequest loginRequest, BindingResult bindingResult) {
         handMissingField(bindingResult);
 
         Authentication authentication = authenticationManager
@@ -92,11 +92,11 @@ public class LoginController {
     @PostMapping("/signup")
     public ResponseEntity<?> registerUser(@Valid @RequestBody SignUpRequest signUpRequest, BindingResult bindingResult) {
         handMissingField(bindingResult);
-        if (userDetailService.existByUsername(signUpRequest.getUsername())) {
+        if (userDetailService.existsByEmail(signUpRequest.getUsername())) {
             throw new ExistedInformationException("Username is existed");
         }
 
-        if (userDetailService.existByIdemail(signUpRequest.getEmail())) {
+        if (userDetailService.existsByEmail(signUpRequest.getEmail())) {
             throw new ExistedInformationException("Email is already in use");
         }
         if (signUpRequest.getRole().equalsIgnoreCase("admin") && signUpRequest.getSignUpKey() == null) {
@@ -114,7 +114,7 @@ public class LoginController {
         String signUpkey = signUpRequest.getSignUpKey();
         if (strRoles == null || strRoles.equals("user")) {
 
-            RoleDTO userRole = roleServiceImpl.findbyName(ERole.ROLE_USER);
+            RoleDto userRole = roleServiceImpl.findbyName(ERole.ROLE_USER);
             System.out.println(userRole);
             if (userRole == null) {
                 logger.error("can find role user");
@@ -124,7 +124,7 @@ public class LoginController {
             user.setRoles(userRole);
         } else if (strRoles.equals("admin") && Objects.equals(signUpkey, this.signUpKey)) {
 
-            RoleDTO adminRole = roleServiceImpl.findbyName(ERole.ROLE_ADMIN);
+            RoleDto adminRole = roleServiceImpl.findbyName(ERole.ROLE_ADMIN);
             if (adminRole == null) {
                 logger.error("can find role admin");
                 throw new RoleNotFoundException("Role not found: ROLE_ADMIN");
@@ -133,7 +133,7 @@ public class LoginController {
         }
 
         try {
-            userDetailService.saveUser(user);
+            userDetailService.create(user);
             ResponseEntityWrapper<?> responseEntityWrapper = new ResponseEntityWrapper<>("REGISTRATION SUCCESSFULLY");
             return ResponseEntity.ok(responseEntityWrapper);
         } catch (Exception ex) {

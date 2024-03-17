@@ -1,11 +1,10 @@
 package com.project.service.user.dto;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.project.service.user.entity.User;
 import com.project.service.balanceinformation.dto.BalanceInformationDto;
 import com.project.service.address.dto.AddressDto;
 import com.project.service.paymentcard.dto.PaymentcardDTO;
-import com.project.service.role.dto.RoleDTO;
+import com.project.service.role.dto.RoleDto;
 import lombok.Data;
 
 import java.util.Date;
@@ -14,19 +13,16 @@ import java.util.List;
 @Data
 public class UserDto {
     private String id;
-    @JsonIgnore
     private String email;
     private String username;
     private String password;
     private String first_name;
     private String last_name;
     private Date registration_date;
-    private RoleDTO roles;
+    private RoleDto roles;
 
-    @JsonIgnore
-    private AddressDto addressDTO;
-    @JsonIgnore
-    private List<PaymentcardDTO> paymentcardsDTO;
+    private AddressDto address;
+    private List<PaymentcardDTO> paymentcards;
     private BalanceInformationDto balanceInformation;
 
     public UserDto() {
@@ -44,18 +40,18 @@ public class UserDto {
         if (user.getRoles() == null) {
             this.roles = null;
         } else {
-            this.roles = new RoleDTO(user.getRoles());
+            this.roles = new RoleDto(user.getRoles());
         }
         if (user.getAddress() == null) {
-            this.addressDTO = null;
+            this.address = null;
         } else {
 
-            this.addressDTO = new AddressDto(user.getAddress().getId(), user.getAddress().getStreet_address(), user.getAddress().getCity(), user.getAddress().getProvince(), user.getAddress().getCountry());
+            this.address = new AddressDto(user.getAddress().getId(), user.getAddress().getStreet_address(), user.getAddress().getCity(), user.getAddress().getProvince(), user.getAddress().getCountry());
         }
         // add card in controller layer to avoid collision
     }
 
-    public UserDto(String idemail, String username, String password, String first_name, String last_name, Date registration_date, RoleDTO roles, AddressDto addressDTO, List<PaymentcardDTO> paymentcardsDTO, BalanceInformationDto balanceInformation) {
+    public UserDto(String idemail, String username, String password, String first_name, String last_name, Date registration_date, RoleDto roles, AddressDto addressDTO, List<PaymentcardDTO> paymentcardsDTO, BalanceInformationDto balanceInformation) {
         this.email = idemail;
         this.username = username;
         this.password = password;
@@ -63,8 +59,8 @@ public class UserDto {
         this.last_name = last_name;
         this.registration_date = registration_date;
         this.roles = roles;
-        this.addressDTO = addressDTO;
-        this.paymentcardsDTO = paymentcardsDTO;
+        this.address = addressDTO;
+        this.paymentcards = paymentcardsDTO;
         this.balanceInformation = balanceInformation;
     }
 

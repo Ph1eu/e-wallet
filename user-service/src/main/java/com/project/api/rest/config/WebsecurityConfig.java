@@ -1,6 +1,7 @@
-package com.project.configuration;
+package com.project.api.rest.config;
 
-import com.project.configuration.jwt.JwtAuthenticationFilter;
+import com.project.api.rest.security.UserDetailService;
+import com.project.api.rest.security.jwt.JwtAuthenticationFilter;
 import com.project.service_impl.user.UserServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -22,7 +23,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class WebsecurityConfig {
 
     @Autowired
-    private UserServiceImpl userDetailsService;
+    private UserDetailService userDetailsService;
 
     @Bean
     public JwtAuthenticationFilter authenticationJwtTokenFilter() {

@@ -1,4 +1,4 @@
-package com.project.service_impl.user;
+package com.project.api.rest.security;
 
 import com.project.service.user.entity.User;
 import lombok.Getter;
@@ -40,9 +40,8 @@ public class CustomUserDetail implements UserDetails {
     public String getUsername() {
         return user.getUsername();
     }
-
-    public String getEmail() {
-        return user.getEmail();
+    public String getID() {
+        return user.getId();
     }
     public String getRole() {
         return user.getRoles().getName().name();

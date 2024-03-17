@@ -1,9 +1,9 @@
 package com.project.controller;
 
 import com.project.assembler.UserResourceAssembler;
-import com.project.configuration.jwt.JwtServices;
+import com.project.api.rest.security.jwt.JwtServices;
 import com.project.service.role.dto.ERole;
-import com.project.service.role.dto.RoleDTO;
+import com.project.service.role.dto.RoleDto;
 import com.project.service.user.dto.UserDto;
 import com.project.payload.request.CRUDUserInforRequest.RoleCRUD;
 import com.project.payload.response.ResponseEntityWrapper;
@@ -68,7 +68,7 @@ public class AdminController {
     @PostMapping("/role")
     public ResponseEntity<?> addRole(@RequestBody RoleCRUD roleCRUD) {
         if (roleCRUD.getRole() == null || roleCRUD.getRole().equals("user")) {
-            RoleDTO roleDTO = new RoleDTO(UUID.randomUUID().toString(), ERole.ROLE_USER);
+            RoleDto roleDTO = new RoleDto(UUID.randomUUID().toString(), ERole.ROLE_USER);
             if (!roleServiceImpl.checkExistRole(roleDTO)) {
                 roleServiceImpl.addRole(roleDTO);
             } else {
@@ -76,7 +76,7 @@ public class AdminController {
                 return ResponseEntity.status(HttpStatus.CONFLICT).body(responseEntityWrapper);
             }
         } else if (roleCRUD.getRole().equals("admin")) {
-            RoleDTO roleDTO = new RoleDTO(UUID.randomUUID().toString(), ERole.ROLE_ADMIN);
+            RoleDto roleDTO = new RoleDto(UUID.randomUUID().toString(), ERole.ROLE_ADMIN);
             if (!roleServiceImpl.checkExistRole(roleDTO)) {
                 roleServiceImpl.addRole(roleDTO);
             } else {

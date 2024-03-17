@@ -4,18 +4,18 @@ import com.project.service.role.entity.Role;
 import lombok.Data;
 
 @Data
-public class RoleDTO {
+public class RoleDto {
     private String id;
     private ERole name;
-    public RoleDTO(ERole role) {
+    public RoleDto(ERole role) {
         this.name = role;
     }
 
-    public RoleDTO(String id, ERole name) {
+    public RoleDto(String id, ERole name) {
         this.id = id;
         this.name = name;
     }
-    public RoleDTO(Role role) {
+    public RoleDto(Role role) {
         this.id = role.getId();
 
 

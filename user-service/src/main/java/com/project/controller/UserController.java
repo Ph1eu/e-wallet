@@ -1,7 +1,7 @@
 package com.project.controller;
 
 import com.project.assembler.UserResourceAssembler;
-import com.project.configuration.jwt.JwtServices;
+import com.project.api.rest.security.jwt.JwtServices;
 import com.project.exceptions.custom_exception.ValidationInput.MissingRequiredFieldException;
 import com.project.service.address.dto.AddressDto;
 import com.project.service.paymentcard.dto.PaymentcardDTO;
@@ -10,8 +10,9 @@ import com.project.payload.request.CRUDUserInforRequest.AddressCRUD;
 import com.project.payload.request.CRUDUserInforRequest.PaymentcardCRUD;
 import com.project.payload.response.MessageResponse;
 import com.project.payload.response.ResponseEntityWrapper;
+import com.project.service.user.entity.User;
 import com.project.service_impl.address.AddressServiceImpl;
-import com.project.service_impl.user.CustomUserDetail;
+import com.project.api.rest.security.CustomUserDetail;
 import com.project.service_impl.paymentcard.PaymentCardServiceImpl;
 import com.project.service_impl.user.UserServiceImpl;
 import jakarta.validation.Valid;
@@ -58,29 +59,30 @@ public class UserController {
     }
 
     // verify user in security context
-    public UserDto verifyUserInstance(String username) {
+    public UserDto verifyUserInstance(String userId) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         Object principal = authentication.getPrincipal();
-        UserDto user = null;
+        User user = userDetailService.getById(userId);
+        UserDto userDto = null;
 
         if (principal instanceof UserDetails userDetails) {
-            if (Objects.equals(username, userDetails.getUsername())) {
-                CustomUserDetail customUserDetail = (CustomUserDetail) userDetailService.loadUserByUsername(username);
-                user = new UserDto(customUserDetail.getUser());
+            if (Objects.equals(user.getUsername(), userDetails.getUsername())) {
+                CustomUserDetail customUserDetail = (CustomUserDetail) userDetailService.loadUserByUsername(user.getUsername());
+                userDto= new UserDto(customUserDetail.getUser());
             } else {
                 logger.error("Error: Invalid User");
             }
         } else {
             logger.error("Error: Principal is not an instance of UserDetails");
         }
-        return user;
+        return userDto;
     }
 
     @GetMapping("/{userId}")
     public ResponseEntity<?> getOneUser(@PathVariable("userId") String userId) {
 
-        UserDto user = verifyUserInstance(username);
-        UserDto userwithBalance = userDetailService.getUserWithBalanceInformation(user.getId_email());
+        UserDto user = verifyUserInstance(userId);
+        UserDto userwithBalance = userDetailService.getUserWithBalanceInformation(user.getEmail());
         if (user == null) {
             ResponseEntityWrapper<MessageResponse> responseEntityWrapper = new ResponseEntityWrapper<>("Unmatched user in session");
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(responseEntityWrapper);

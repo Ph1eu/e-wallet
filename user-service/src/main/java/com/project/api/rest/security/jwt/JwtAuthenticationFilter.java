@@ -1,7 +1,7 @@
-package com.project.configuration.jwt;
+package com.project.api.rest.security.jwt;
 
+import com.project.api.rest.security.UserDetailService;
 import com.project.exceptions.custom_exception.ValidationInput.NoJwtAuthenticationException;
-import com.project.service_impl.user.UserServiceImpl;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -24,7 +24,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Autowired
     private JwtServices jwtServices;
     @Autowired
-    private UserServiceImpl userServiceImpl;
+    private UserDetailService userDetailService;
+
     private AuthenticationManager authenticationManager;
 
     public JwtAuthenticationFilter(AuthenticationManager authenticationManager) {
@@ -54,7 +55,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             jwt = authHeader.substring(7);
             username = jwtServices.extractUsername(jwt);
             if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-                UserDetails userDetails = userServiceImpl.loadUserByUsername(username);
+                UserDetails userDetails = userDetailService.loadUserByUsername(username);
 
                 if (jwtServices.validateToken(jwt, userDetails)) {
                     UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(

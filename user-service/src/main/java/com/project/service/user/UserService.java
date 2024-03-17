@@ -3,6 +3,7 @@ package com.project.service.user;
 import com.project.service.user.dto.UserDto;
 import com.project.service.user.dto.UserFilterDto;
 import com.project.service.user.dto.UserPageDto;
+import com.project.service.user.dto.UserUpdateDto;
 import com.project.service.user.entity.User;
 
 import javax.swing.text.html.Option;
@@ -15,10 +16,10 @@ public interface UserService {
     UserPageDto list(UserFilterDto filter);
     void deleteById(String id);
     void create(UserDto user);
-    void update(UserDto user);
+    void update(String userId,UserUpdateDto userUpdateDto);
     boolean existsById(String id);
     boolean existsByEmail(String email);
     boolean existsByUsername(String username);
-
+    User getByUsername(String username);
 
 }
