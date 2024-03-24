@@ -1,37 +1,28 @@
 package com.project.service_impl.user;
 
-import com.project.api.rest.security.CustomUserDetail;
-import com.project.service.balanceinformation.entity.BalanceInformation;
-import com.project.service.paymentcard.entity.Paymentcard;
 import com.project.service.role.dto.ERole;
-import com.project.service.role.entity.Role;
 import com.project.service.user.UserService;
 import com.project.service.user.dto.UserFilterDto;
 import com.project.service.user.dto.UserPageDto;
 import com.project.service.user.dto.UserUpdateDto;
 import com.project.service.user.entity.User;
-import com.project.service.balanceinformation.dto.BalanceInformationDto;
-import com.project.service.paymentcard.dto.PaymentcardDTO;
 import com.project.service.user.dto.UserDto;
+import com.project.service.user.mapper.UserMapper;
 import com.project.service_impl.address.AddressRepository;
 import com.project.service_impl.balanceinformation.BalanceInformationRepository;
 import com.project.service_impl.paymentcard.PaymentcardRepository;
+import jakarta.persistence.EntityNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -49,7 +40,8 @@ public class UserServiceImpl implements  UserService {
     private BalanceInformationRepository balanceInformationRepository;
     @Autowired
     PasswordEncoder passwordEncoder;
-
+    @Autowired
+    private UserMapper userMapper;
 //
 //
 //    public UserDto getUserWithBalanceInformation(String userId) {
@@ -126,117 +118,115 @@ public class UserServiceImpl implements  UserService {
     @Transactional(readOnly = true)
     @Override
     public Optional<User> findById(String id) {
-        try {
-            return userRepository.findById(id);
-        } catch (Exception e) {
-            logger.error("Failed to find user by ID {}", id);
-            throw new RuntimeException("Failed to find user by ID {}");
-        }
+        logger.info("Requested to find user by ID {}", id);
+        Optional<User> user = userRepository.findById(id);
+        logger.debug("Successfully found user by ID {}", id);
+        return user;
+
     }
     @Transactional(readOnly = true)
     @Override
     public User getById(String id) {
-        logger.info("Getting user by id {}", id);
-        Optional<User> user = userRepository.findById(id);
-        return user.orElseThrow(() -> new RuntimeException("User not found with ID: " + id));
+        logger.info("Requested to get user by ID {}", id);
+        User user = userRepository.findById(id).orElseThrow(()-> new EntityNotFoundException("User not found with ID: " + id));
+        logger.debug("Successfully got user by ID {}", id);
+        return user;
     }
     @Transactional(readOnly = true)
     @Override
     public UserPageDto list(UserFilterDto filter) {
-
-        Specification<User> spec = Specification.where(UserSpecifications.hasUsername(filter.getUsername()))
-                .and(UserSpecifications.hasEmail(filter.getEmail()));
-        Pageable pageable = PageRequest.of(filter.getPage(), filter.getSize());
+        logger.info("Requested to list users by filter {}", filter);
+        Specification<User> spec = Specification.where(UserSpecifications.hasUsername(filter.username()))
+                .and(UserSpecifications.hasEmail(filter.email()));
+        Pageable pageable = PageRequest.of(filter.page(), filter.size());
         Page<User> users = userRepository.findAll(spec, pageable);
-        List<UserDto> userDtos = users.stream().map(UserDto::new).collect(Collectors.toList());
+        List<UserDto> userDtos = users.stream().map(userMapper::userToUserDto).collect(Collectors.toList());
+        logger.debug("Successfully Listed users by filter {}", filter);
         return new UserPageDto( pageable.getPageNumber(), pageable.getPageSize(),userDtos);
     }
     @Override
     @Transactional
     public void deleteById(String id) {
-        logger.info("Deleting user by id {}", id);
+        logger.info("Requested to delete user by ID {}", id);
         userRepository.deleteById(id);
-        logger.debug("User deleted by id {}", id);
+        logger.debug("Successfully deleted user by ID {}", id);
     }
     @Transactional
     @Override
-    public void create(UserDto user) {
-        logger.info("Creating user for user {}", user.toString());
-        if(existsByUsername(user.getUsername())){
+    public User create(UserDto userDto) {
+        logger.info("Requested to create user for user {}", userDto.toString());
+        if(existsByUsername(userDto.username())){
             logger.error("Username already exists");
             throw new RuntimeException("Username already exists");
         }
-        if(existsByEmail(user.getEmail())){
+        if(existsByEmail(userDto.email())){
             logger.error("Email already exists");
             throw new RuntimeException("Email already exists");
         }
-        if(existsById(user.getId())){
+        if(existsById(userDto.id())){
             logger.error("User already exists");
             throw new RuntimeException("User already exists");
         }
-        userRepository.save(new User(user));
-        logger.debug("Create user successfully for user {}", user.getUsername());
+        User user = userMapper.userDtoToUser(userDto);
+        userRepository.save(user);
+        logger.debug("Successfully Create user {}", user.getUsername());
+        return user;
 
     }
     @Override
     @Transactional
     public void update(String userId,UserUpdateDto userUpdateDto) {
-            logger.info("Updating user for user {}", userUpdateDto.toString());
+            logger.info("Requested to update user for user {}", userUpdateDto.toString());
             if (!existsById(userId)) {
                 logger.error("User doesn't exist with id:{}", userId);
                 throw new RuntimeException("User doesn't exist.");
             }
             User user = getById(userId);
-            if(userUpdateDto.getUsername()!=null){
-                if(existsByUsername(userUpdateDto.getUsername())){
+            if(userUpdateDto.username()!=null){
+                if(existsByUsername(userUpdateDto.username())){
                     logger.error("Username already exists");
                     throw new RuntimeException("Username already exists");
                 }
-                user.setUsername(userUpdateDto.getUsername());
+                user.setUsername(userUpdateDto.username());
             }
-            if(userUpdateDto.getEmail()!=null){
-                if(existsByEmail(userUpdateDto.getEmail())){
+            if(userUpdateDto.email()!=null){
+                if(existsByEmail(userUpdateDto.email())){
                     logger.error("Email already exists");
                     throw new RuntimeException("Email already exists");
                 }
-                user.setEmail(userUpdateDto.getEmail());
+                user.setEmail(userUpdateDto.email());
             }
-            if (userUpdateDto.getFirst_name() != null) {
-                user.setFirst_name(userUpdateDto.getFirst_name());
+            if (userUpdateDto.first_name() != null) {
+                user.setFirst_name(userUpdateDto.first_name());
             }
-            if (userUpdateDto.getLast_name() != null) {
-                user.setLast_name(userUpdateDto.getLast_name());
+            if (userUpdateDto.last_name() != null) {
+                user.setLast_name(userUpdateDto.last_name());
             }
-            if (userUpdateDto.getPassword() != null) {
-                String password =passwordEncoder.encode(userUpdateDto.getPassword());
+            if (userUpdateDto.password() != null) {
+                String password =passwordEncoder.encode(userUpdateDto.password());
                 user.setPassword(password);
             }
-            if(userUpdateDto.getRole()!=null){
-                if(userUpdateDto.getRole().equals("admin")){
-                    Role role = new Role(ERole.ROLE_ADMIN);
-                    user.setRoles(role);
+            if(userUpdateDto.role()!=null){
+                if(userUpdateDto.role().equals("admin")){
+                    user.setRole(ERole.ROLE_ADMIN);
                 }
-                else if(userUpdateDto.getRole().equals("user")){
-                    Role role = new Role(ERole.ROLE_USER);
-                    user.setRoles(role);
+                else if(userUpdateDto.role().equals("user")){
+                    user.setRole(ERole.ROLE_USER);
                 }
             }
             userRepository.save(user);
-            logger.debug("Update user successfully for user {}", user.getUsername());
+            logger.debug("Successfully updated user for user {}", userUpdateDto.toString());
     }
     @Override
     @Transactional(readOnly = true)
     public boolean existsById(String id) {
-        try {
-            if (userRepository.existsById(id)) {
-                logger.info(" username exist with id:{}", id);
-                return true;
-            } else {
-                return false;
-            }
-        } catch (Exception e) {
-            logger.error("username doesn't exist with id:{}", id);
-            throw new RuntimeException("username doesn't exist.", e);
+        logger.info("Requested to check user exist with id:{}", id);
+        if (userRepository.existsById(id)) {
+            logger.debug("User exist with id:{}", id);
+            return true;
+        } else {
+            logger.debug("User doesn't exist with id:{}", id);
+            return false;
         }
     }
 
@@ -245,11 +235,13 @@ public class UserServiceImpl implements  UserService {
     public boolean existsByEmail(String email) {
         logger.info("Checking email exist {}", email);
         if (userRepository.existsByEmail(email)) {
-            logger.info(" username exist {}", email);
+            logger.debug(" username exist {}", email);
             return true;
         } else {
+            logger.debug(" username doesn't exist {}", email);
             return false;
         }
+
     }
 
     @Override
@@ -257,10 +249,10 @@ public class UserServiceImpl implements  UserService {
     public boolean existsByUsername(String username) {
         logger.info("Checking username exist {}", username);
         if (userRepository.existsByUsername(username)) {
-            logger.info(" username exist {}", username);
+            logger.debug(" username exist {}", username);
             return true;
         } else {
-            logger.info(" username doesn't exist {}", username);
+            logger.debug(" username doesn't exist {}", username);
             return false;
         }
     }
@@ -268,8 +260,9 @@ public class UserServiceImpl implements  UserService {
     @Override
     @Transactional(readOnly = true)
     public User getByUsername(String username) {
-        logger.info("Getting user by username {}", username);
+        logger.info("Requested to get user by username {}", username);
         Optional<User> user = userRepository.findByUsername(username);
+        logger.debug("Successfully found user by username {}", username);
         return user.orElseThrow(() -> new RuntimeException("User not found with username: " + username));
     }
 }

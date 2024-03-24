@@ -1,7 +1,7 @@
 package com.project.api.rest.security.jwt;
 
-import com.project.exceptions.custom_exception.ValidationInput.ExpiredJwtException;
-import com.project.exceptions.custom_exception.ValidationInput.InvalidJwtException;
+import com.project.api.common.error.input_validation.ExpiredJwtException;
+import com.project.api.common.error.input_validation.InvalidJwtException;
 import com.project.api.rest.security.CustomUserDetail;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;

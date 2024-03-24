@@ -1,7 +1,7 @@
 package com.project.api.rest.security.jwt;
 
 import com.project.api.rest.security.UserDetailService;
-import com.project.exceptions.custom_exception.ValidationInput.NoJwtAuthenticationException;
+import com.project.api.common.error.input_validation.NoJwtAuthenticationException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

@@ -6,7 +6,7 @@ import com.project.service.role.dto.ERole;
 import com.project.service.role.dto.RoleDto;
 import com.project.service.user.dto.UserDto;
 import com.project.payload.request.CRUDUserInforRequest.RoleCRUD;
-import com.project.payload.response.ResponseEntityWrapper;
+import com.project.api.common.model.ResponseEntityWrapper;
 import com.project.service_impl.role.RoleServiceImpl;
 import com.project.service_impl.user.UserServiceImpl;
 import org.slf4j.Logger;

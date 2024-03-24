@@ -1,9 +1,7 @@
 package com.project.service.user.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
-import com.project.service.role.entity.Role;
-import com.project.service.user.dto.UserDto;
+import com.project.service.role.dto.ERole;
 import com.project.service.address.entity.Address;
 import com.project.service.paymentcard.entity.Paymentcard;
 import jakarta.persistence.*;
@@ -43,11 +41,8 @@ public class User {
     @Column(name = "registration_date")
     @Setter
     private Date registration_date;
-    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinColumn(name = "roles", referencedColumnName = "roles_id")
-    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     @Setter
-    private Role roles;
+    private ERole role;
     @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinColumn(name = "address", referencedColumnName = "address_id")
     @Setter
@@ -59,41 +54,6 @@ public class User {
 
     public User() {
 
-    }
-
-    public User(UserDto userDTO) {
-        this.id = userDTO.getId();
-        this.email = userDTO.getEmail();
-        this.username = userDTO.getUsername();
-        this.password = userDTO.getPassword();
-        this.first_name = userDTO.getFirst_name();
-        this.last_name = userDTO.getLast_name();
-        this.registration_date = userDTO.getRegistration_date();
-        if (userDTO.getRoles() == null) {
-            this.roles = null;
-        } else {
-            this.roles = new Role(userDTO.getRoles());
-        }
-        if (userDTO.getAddressDTO() == null) {
-            this.address = null;
-        } else {
-            this.address = new Address(userDTO.getAddressDTO());
-        }
-        this.paymentcards = null;
-
-
-    }
-
-    public User(String email, String username, String password, String first_name, String last_name, Date registration_date, Role roles, Address address, List<Paymentcard> paymentcards) {
-        this.email = email;
-        this.username = username;
-        this.password = password;
-        this.first_name = first_name;
-        this.last_name = last_name;
-        this.registration_date = registration_date;
-        this.roles = roles;
-        this.address = address;
-        this.paymentcards = paymentcards;
     }
 
 }

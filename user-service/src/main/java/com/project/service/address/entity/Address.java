@@ -18,9 +18,9 @@ public class Address {
     @Id
     @Column(name = "address_id")
     String id;
-    @Column(name = "street_address")
+    @Column(name = "street")
     @Setter
-    String street_address;
+    String street;
     @Column(name = "city")
     @Setter
     String city;
@@ -30,21 +30,4 @@ public class Address {
     @Column(name = "country")
     @Setter
     String country;
-    public Address(String street_address, String city, String province, String country) {
-        this.street_address = street_address;
-        this.city = city;
-        this.province = province;
-        this.country = country;
-    }
-    public Address(AddressDto addressDTO) {
-        this.id = addressDTO.getId();
-        this.street_address = addressDTO.getStreet_address();
-        this.city = addressDTO.getCity();
-        this.province = addressDTO.getProvince();
-        this.country = addressDTO.getCountry();
-    }
-
-    public Address() {
-
-    }
 }

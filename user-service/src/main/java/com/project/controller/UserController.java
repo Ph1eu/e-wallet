@@ -2,20 +2,18 @@ package com.project.controller;
 
 import com.project.assembler.UserResourceAssembler;
 import com.project.api.rest.security.jwt.JwtServices;
-import com.project.exceptions.custom_exception.ValidationInput.MissingRequiredFieldException;
-import com.project.service.address.dto.AddressDto;
-import com.project.service.paymentcard.dto.PaymentcardDTO;
+import com.project.api.common.error.input_validation.MissingRequiredFieldException;
+import com.project.service.paymentcard.dto.PaymentcardDto;
 import com.project.service.user.dto.UserDto;
 import com.project.payload.request.CRUDUserInforRequest.AddressCRUD;
 import com.project.payload.request.CRUDUserInforRequest.PaymentcardCRUD;
 import com.project.payload.response.MessageResponse;
-import com.project.payload.response.ResponseEntityWrapper;
+import com.project.api.common.model.ResponseEntityWrapper;
 import com.project.service.user.entity.User;
 import com.project.service_impl.address.AddressServiceImpl;
 import com.project.api.rest.security.CustomUserDetail;
 import com.project.service_impl.paymentcard.PaymentCardServiceImpl;
 import com.project.service_impl.user.UserServiceImpl;
-import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,7 +28,6 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.regex.Pattern;
 
@@ -82,13 +79,13 @@ public class UserController {
     public ResponseEntity<?> getOneUser(@PathVariable("userId") String userId) {
 
         UserDto user = verifyUserInstance(userId);
-        UserDto userwithBalance = userDetailService.getUserWithBalanceInformation(user.getEmail());
+        UserDto userwithBalance = userDetailService.getUserWithBalanceInformation(user.email());
         if (user == null) {
             ResponseEntityWrapper<MessageResponse> responseEntityWrapper = new ResponseEntityWrapper<>("Unmatched user in session");
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(responseEntityWrapper);
         } else {
-            List<PaymentcardDTO> paymentcardDTOS = paymentCardServiceImpl.getAllByUser(user);
-            userwithBalance.setPaymentcards(paymentcardDTOS);
+            List<PaymentcardDto> paymentcardDtos = paymentCardServiceImpl.getAllByUser(user);
+            userwithBalance.setPaymentcards(paymentcardDtos);
             return ResponseEntity.ok().body(userResourceAssembler.toCollectionModelInWrapper(List.of(userwithBalance)));
         }
 
@@ -101,7 +98,7 @@ public class UserController {
         if (user == null) {
             ResponseEntityWrapper<MessageResponse> responseEntityWrapper = new ResponseEntityWrapper<>("Unmatched user in session");
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(responseEntityWrapper);
-        } else if (user.getAddress() == null) {
+        } else if (user.address() == null) {
             ResponseEntityWrapper<MessageResponse> responseEntityWrapper = new ResponseEntityWrapper<>();
             responseEntityWrapper.setMessage("ADDRESS IS EMPTY");
             BindingResult bindingResult = null;
@@ -114,23 +111,23 @@ public class UserController {
         }
     }
 
-    @PostMapping("/address")
-    public ResponseEntity<?> setAddress(@Valid @RequestBody AddressCRUD addressCRUD, @RequestParam("username") String username, BindingResult bindingResult) {
-        handMissingField(bindingResult);
-        UserDto user = verifyUserInstance(username);
-        if (user == null) {
-            ResponseEntityWrapper<MessageResponse> responseEntityWrapper = new ResponseEntityWrapper<>("Unmatched user in session");
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(responseEntityWrapper);
-        } else {
-            Class<?> clazz = addressCRUD.getClass();
-            AddressDto address = new AddressDto(UUID.randomUUID().toString(), addressCRUD.getStreet_address(),
-                    addressCRUD.getCity(), addressCRUD.getProvince(), addressCRUD.getCountry()
-            );
-            addressServiceImpl.saveAddressForUser(address, user);
-            return ResponseEntity.ok().body(
-                    userResourceAssembler.toAddressModel(user));
-        }
-    }
+//    @PostMapping("/address")
+//    public ResponseEntity<?> setAddress(@Valid @RequestBody AddressCRUD addressCRUD, @RequestParam("username") String username, BindingResult bindingResult) {
+//        handMissingField(bindingResult);
+//        UserDto user = verifyUserInstance(username);
+//        if (user == null) {
+//            ResponseEntityWrapper<MessageResponse> responseEntityWrapper = new ResponseEntityWrapper<>("Unmatched user in session");
+//            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(responseEntityWrapper);
+//        } else {
+//            Class<?> clazz = addressCRUD.getClass();
+//            AddressDto address = new AddressDto(UUID.randomUUID().toString(), addressCRUD.getStreet_address(),
+//                    addressCRUD.getCity(), addressCRUD.getProvince(), addressCRUD.getCountry()
+//            );
+//            addressServiceImpl.saveAddressForUser(address, user);
+//            return ResponseEntity.ok().body(
+//                    userResourceAssembler.toAddressModel(user));
+//        }
+//    }
 
     @DeleteMapping("/address")
     public ResponseEntity<?> deleteAddress(@RequestParam("username") String username) {
@@ -159,14 +156,14 @@ public class UserController {
             ResponseEntityWrapper<MessageResponse> responseEntityWrapper = new ResponseEntityWrapper<>("Unmatched user in session");
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(responseEntityWrapper);
         } else {
-            List<PaymentcardDTO> paymentcards = paymentCardServiceImpl.getAllByUser(user);
+            List<PaymentcardDto> paymentcards = paymentCardServiceImpl.getAllByUser(user);
             if (paymentcards.isEmpty()) {
-                ResponseEntityWrapper<EntityModel<PaymentcardDTO>> responseEntityWrapper = new ResponseEntityWrapper<>();
+                ResponseEntityWrapper<EntityModel<PaymentcardDto>> responseEntityWrapper = new ResponseEntityWrapper<>();
                 responseEntityWrapper.setMessage("User has no card yet ");
                 responseEntityWrapper.setLink(List.of(linkTo(methodOn(UserController.class).getPaymentCards(username)).withRel("get all payment cards")));
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(responseEntityWrapper);
             } else {
-                ResponseEntityWrapper<EntityModel<PaymentcardDTO>> responseEntityWrapper = userResourceAssembler.toCardsCollectionModel(paymentcards, user);
+                ResponseEntityWrapper<EntityModel<PaymentcardDto>> responseEntityWrapper = userResourceAssembler.toCardsCollectionModel(paymentcards, user);
                 responseEntityWrapper.setMessage("Get cards successfully");
                 return ResponseEntity.ok().body(
                         responseEntityWrapper);
@@ -174,32 +171,32 @@ public class UserController {
         }
     }
 
-    @PostMapping("/cards")
-    public ResponseEntity<ResponseEntityWrapper<?>> setPaymentCards(@RequestParam("username") String username, @RequestBody List<PaymentcardCRUD> paymentcardCRUDs, BindingResult bindingResult) throws ParseException {
-        handMissingField(bindingResult);
-        UserDto user = verifyUserInstance(username);
-        List<PaymentcardDTO> paymentcards = new ArrayList<>();
-        if (user == null) {
-            ResponseEntityWrapper<MessageResponse> responseEntityWrapper = new ResponseEntityWrapper<>("Unmatched user in session");
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(responseEntityWrapper);
-        } else {
-            for (PaymentcardCRUD paymentcardCRUD : paymentcardCRUDs) {
-                if (!validateDateString(paymentcardCRUD.getExpiration_date()) && !validateDateString(paymentcardCRUD.getRegistration_date())) {
-                    return ResponseEntity.badRequest().body(new ResponseEntityWrapper<>("Bad date request"));
-                }
-                Date expDate = new SimpleDateFormat("dd/MM/yyyy").parse(paymentcardCRUD.getExpiration_date());
-                Date regDate = new SimpleDateFormat("dd/MM/yyyy").parse(paymentcardCRUD.getRegistration_date());
-                PaymentcardDTO paymentcard = new PaymentcardDTO(UUID.randomUUID().toString(), paymentcardCRUD.getCard_number(), user,
-                        paymentcardCRUD.getCard_holder_name(), paymentcardCRUD.getCard_type(),
-                        regDate, expDate);
-                paymentcards.add(paymentcard);
-            }
-            paymentCardServiceImpl.saveAllByCards(paymentcards);
-            ResponseEntityWrapper<EntityModel<PaymentcardDTO>> responseEntityWrapper = userResourceAssembler.toCardsCollectionModel(paymentcards, user);
-            responseEntityWrapper.setMessage("Set cards successfully");
-            return ResponseEntity.ok().body(responseEntityWrapper);
-        }
-    }
+//    @PostMapping("/cards")
+//    public ResponseEntity<ResponseEntityWrapper<?>> setPaymentCards(@RequestParam("username") String username, @RequestBody List<PaymentcardCRUD> paymentcardCRUDs, BindingResult bindingResult) throws ParseException {
+//        handMissingField(bindingResult);
+//        UserDto user = verifyUserInstance(username);
+//        List<PaymentcardDto> paymentcards = new ArrayList<>();
+//        if (user == null) {
+//            ResponseEntityWrapper<MessageResponse> responseEntityWrapper = new ResponseEntityWrapper<>("Unmatched user in session");
+//            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(responseEntityWrapper);
+//        } else {
+//            for (PaymentcardCRUD paymentcardCRUD : paymentcardCRUDs) {
+//                if (!validateDateString(paymentcardCRUD.getExpiration_date()) && !validateDateString(paymentcardCRUD.getRegistration_date())) {
+//                    return ResponseEntity.badRequest().body(new ResponseEntityWrapper<>("Bad date request"));
+//                }
+//                Date expDate = new SimpleDateFormat("dd/MM/yyyy").parse(paymentcardCRUD.getExpiration_date());
+//                Date regDate = new SimpleDateFormat("dd/MM/yyyy").parse(paymentcardCRUD.getRegistration_date());
+////                PaymentcardDto paymentcard = new PaymentcardDto(UUID.randomUUID().toString(), paymentcardCRUD.getCard_number(), user,
+////                        paymentcardCRUD.getCard_holder_name(), paymentcardCRUD.getCard_type(),
+////                        regDate, expDate);
+//                paymentcards.add(paymentcard);
+//            }
+//            paymentCardServiceImpl.saveAllByCards(paymentcards);
+//            ResponseEntityWrapper<EntityModel<PaymentcardDto>> responseEntityWrapper = userResourceAssembler.toCardsCollectionModel(paymentcards, user);
+//            responseEntityWrapper.setMessage("Set cards successfully");
+//            return ResponseEntity.ok().body(responseEntityWrapper);
+//        }
+//    }
 
     @DeleteMapping("/cards")
     public ResponseEntity<ResponseEntityWrapper<?>> deletePaymentCardbyID(@RequestParam String username, @RequestParam String id) throws ParseException {
@@ -211,7 +208,7 @@ public class UserController {
             paymentCardServiceImpl.deleteByID(id);
             List<PaymentcardCRUD> paymentcardCRUDS = new ArrayList<>();
             BindingResult bindingResult = null;
-            ResponseEntityWrapper<EntityModel<PaymentcardDTO>> responseEntityWrapper = new ResponseEntityWrapper<>();
+            ResponseEntityWrapper<EntityModel<PaymentcardDto>> responseEntityWrapper = new ResponseEntityWrapper<>();
             responseEntityWrapper.setMessage("Deleted card for user");
             responseEntityWrapper.setLink(List.of(linkTo(methodOn(UserController.class).deletePaymentCardbyID(username, id)).withSelfRel(),
                     linkTo(methodOn(UserController.class).deleteAllPaymentCard(username)).withRel("delete all payment cards"),

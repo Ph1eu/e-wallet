@@ -1,11 +1,8 @@
 package com.project.service.user.dto;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
-@Data
-public class UserFilterDto {
-    private String email;
-    private String username;
-    private int page;
-    private int size;
+
+public record UserFilterDto(String email, String username, int page, int size) {
 }

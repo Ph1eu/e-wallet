@@ -15,7 +15,7 @@ public interface UserService {
     User getById(String id);
     UserPageDto list(UserFilterDto filter);
     void deleteById(String id);
-    void create(UserDto user);
+    User create(UserDto user);
     void update(String userId,UserUpdateDto userUpdateDto);
     boolean existsById(String id);
     boolean existsByEmail(String email);

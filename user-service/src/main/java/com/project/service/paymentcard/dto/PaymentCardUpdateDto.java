@@ -4,11 +4,6 @@ import lombok.Data;
 
 import java.util.Date;
 
-@Data
-public class PaymentCardUpdateDto {
-    private String card_number;
-    private String card_holder_name;
-    private String card_type;
-    private Date registration_date;
-    private Date expiration_date;
+public record PaymentCardUpdateDto(String card_number, String card_holder_name, String card_type,
+                                   Date registration_date, Date expiration_date) {
 }
