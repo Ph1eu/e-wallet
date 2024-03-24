@@ -12,5 +12,5 @@ public class PaymentCardPageDto {
     @NonNull
     private Integer size;
     @NonNull
-    private List<PaymentcardDto> paymentcards;
+    private List<PaymentcardDto> content;
 }

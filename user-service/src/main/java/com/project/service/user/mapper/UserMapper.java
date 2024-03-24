@@ -2,11 +2,15 @@ package com.project.service.user.mapper;
 
 import com.project.api.resource.auth.request.RegisterRequestDto;
 import com.project.api.resource.user.model.UserResourceDto;
+import com.project.api.resource.user.request.UserUpdateRequestDto;
+import com.project.api.resource.user.respond.UserPageResource;
 import com.project.service.address.mapper.AddressMapper;
 import com.project.service.balanceinformation.mapper.BalanceInformationMapper;
 import com.project.service.paymentcard.mapper.PaymentCardMapper;
 import com.project.service.role.mapper.RoleMapper;
 import com.project.service.user.dto.UserDto;
+import com.project.service.user.dto.UserPageDto;
+import com.project.service.user.dto.UserUpdateDto;
 import com.project.service.user.entity.User;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -29,4 +33,6 @@ public interface UserMapper {
 
     UserDto RegisterRequestToUserDto(RegisterRequestDto registerRequestDto);
     UserResourceDto userDtoToUserResourceDto(UserDto userDto);
+    UserUpdateDto userUpdateRequestToUserUpdateDto(UserUpdateRequestDto userUpdateRequestDto);
+    UserPageResource userPageDtoToUserPageResource(UserPageDto userPageDto);
 }

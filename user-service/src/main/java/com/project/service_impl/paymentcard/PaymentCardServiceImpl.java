@@ -1,10 +1,7 @@
 package com.project.service_impl.paymentcard;
 
 import com.project.service.paymentcard.PaymentCardService;
-import com.project.service.paymentcard.dto.PaymentCardCreateDto;
-import com.project.service.paymentcard.dto.PaymentCardFilterDto;
-import com.project.service.paymentcard.dto.PaymentCardUpdateDto;
-import com.project.service.paymentcard.dto.PaymentcardDto;
+import com.project.service.paymentcard.dto.*;
 import com.project.service.paymentcard.entity.Paymentcard;
 import com.project.service.paymentcard.mapper.PaymentCardMapper;
 import com.project.service.user.entity.User;
@@ -34,14 +31,15 @@ public class PaymentCardServiceImpl implements PaymentCardService {
     private PaymentCardMapper paymentCardMapper;
     @Override
     @Transactional(readOnly = true)
-    public List<PaymentcardDto> list(PaymentCardFilterDto paymentCardFilterDto) {
+    public PaymentCardPageDto list(PaymentCardFilterDto paymentCardFilterDto) {
         logger.info("Request to get list of payment cards by filter: {}", paymentCardFilterDto);
         Specification<Paymentcard> specification = Specification.where(PaymentCardSpecification.hasCardType(paymentCardFilterDto.card_type()));
         Pageable pageable = PageRequest.of(paymentCardFilterDto.page(), paymentCardFilterDto.size());
         List<Paymentcard> paymentcardList = paymentcardRepository.findAll(specification, pageable).toList();
         List<PaymentcardDto> paymentcardDtoList = paymentcardList.stream().map(paymentCardMapper::paymentCardToPaymentCardDto).toList();
+        PaymentCardPageDto paymentCardPageDto = new PaymentCardPageDto(paymentCardFilterDto.page(), paymentCardFilterDto.size(), paymentcardDtoList);
         logger.debug("Successfully got list of payment cards by filter: {}", paymentCardFilterDto);
-        return paymentcardDtoList;
+        return paymentCardPageDto;
 
     }
 

@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.Date;
 
 public record PaymentCardResourceDto(
-        @JsonProperty("id") String id,
+        @JsonProperty("Id") String id,
         @JsonProperty("Card_number") String card_number,
         @JsonProperty("Card_holder_name") String card_holder_name,
         @JsonProperty("Card_type") String card_type,
